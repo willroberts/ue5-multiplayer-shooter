@@ -14,7 +14,10 @@ Saved
 *.xcworkspace
 
 # Ignore third-party Content
-Content/__ExternalActors__
-Content/__ExternalObjects__
+Content/AnimStarterPack
 Content/Collections
 Content/Developers
+Content/LearningKit_Games
+Content/MilitaryWeapSilver
+Content/__ExternalActors__
+Content/__ExternalObjects__
