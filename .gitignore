@@ -21,3 +21,6 @@ Content/LearningKit_Games
 Content/MilitaryWeapSilver
 Content/__ExternalActors__
 Content/__ExternalObjects__
+
+# HoloLens
+Platforms/HoloLens
