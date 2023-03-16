@@ -1,0 +1,38 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Multiplayer Sessions",
+	"Description": "Provides Multiplayer Sessions for UE 5.1",
+	"Category": "Utilities",
+	"CreatedBy": "Will Roberts",
+	"EngineVersion": "5.1.0",
+	"CreatedByURL": "",
+	"DocsURL": "https://github.com/willroberts/ue5-multiplayer-plugin",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "MultiplayerSessions",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "OnlineSubsystem",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true
+		}
+	]
+}
