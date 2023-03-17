@@ -2,6 +2,8 @@
 
 #include "CombatComponent.h"
 #include "BlasterGame/Weapon/Weapon.h"
+#include "BlasterGame/Character/BlasterCharacter.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -18,10 +20,22 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UCombatComponent::EquipWeapon(AWeapon* Weapon)
+void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
-	if (!Character || !Weapon)
+	if (!Character || !WeaponToEquip)
 	{
 		return;
 	}
+
+	EquippedWeapon = WeaponToEquip;
+	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+
+	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	if (HandSocket)
+	{
+		HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+	}
+
+	EquippedWeapon->SetOwner(Character);
+	EquippedWeapon->ShowPickupWidget(false);
 }
