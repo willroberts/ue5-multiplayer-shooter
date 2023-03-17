@@ -59,7 +59,6 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 		// Weapon was invalid.
 		return;
 	}
-
 	OverlappingWeapon = Weapon;
 
 	// Handle the case where a player is hosting a listen server, and does not receive a RepNotify.
@@ -120,11 +119,19 @@ void ABlasterCharacter::MoveRight(float Value)
 
 void ABlasterCharacter::Turn(float Value)
 {
+	if (Value == 0.f)
+	{
+		return;
+	}
 	AddControllerYawInput(Value);
 }
 
 void ABlasterCharacter::LookUp(float Value)
 {
+	if (Value == 0.f)
+	{
+		return;
+	}
 	AddControllerPitchInput(Value);
 }
 

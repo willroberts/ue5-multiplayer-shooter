@@ -80,6 +80,7 @@ void AWeapon::OnSphereOverlap(
 	Character->SetOverlappingWeapon(this);
 }
 
+// FIXME: Error handling.
 void AWeapon::OnSphereEndOverlap(
 	UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
@@ -87,17 +88,13 @@ void AWeapon::OnSphereEndOverlap(
 	int32 OtherBodyIndex
 ) {
 	ABlasterCharacter* Character = Cast<ABlasterCharacter>(OtherActor);
-	if (!Character)
+	if (Character)
 	{
-		// Other Actor was not a Character.
-		return;
+		Character->SetOverlappingWeapon(nullptr);
 	}
-	Character->SetOverlappingWeapon(nullptr);
 
-	if (!PickupWidget)
+	if (PickupWidget)
 	{
-		// Failed to get Pickup Widget.
-		return;
+		PickupWidget->SetVisibility(false);
 	}
-	PickupWidget->SetVisibility(false);
 }
