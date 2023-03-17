@@ -77,29 +77,13 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 	// Overlap began.
 	if (OverlappingWeapon)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Cyan, FString("OnRep_OverlappingWeapon: Overlap started; showing widget"));
-		}
 		OverlappingWeapon->ShowPickupWidget(true);
-		return;
 	}
 
 	// Overlap ended.
 	if (LastWeapon)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Cyan, FString("OnRep_OverlappingWeapon: Overlap ended; hiding widget"));
-		}
 		LastWeapon->ShowPickupWidget(false);
-	}
-	else
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString("OnRep_OverlappingWeapon: Existing weapon is nullptr; can't hide widget"));
-		}
 	}
 }
 
