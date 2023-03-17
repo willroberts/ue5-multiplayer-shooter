@@ -21,6 +21,8 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual void PostInitializeComponents() override;
+
 	void SetOverlappingWeapon(AWeapon* Weapon);
 
 protected:
@@ -33,6 +35,8 @@ protected:
 	void Turn(float Value);
 
 	void LookUp(float Value);
+
+	void EquipButtonPressed();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -51,4 +55,7 @@ private:
 	// Only called on replication; not executed on the server.
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
+
+	UPROPERTY(VisibleAnywhere)
+	class UCombatComponent* Combat;
 };
