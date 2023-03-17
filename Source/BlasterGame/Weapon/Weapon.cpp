@@ -58,6 +58,10 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 	if (!PickupWidget)
 	{
 		// Failed to get Pickup Widget.
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString("ShowPickupWidget: PickupWidget was nullptr"));
+		}
 		return;
 	}
 	PickupWidget->SetVisibility(true);
@@ -80,7 +84,6 @@ void AWeapon::OnSphereOverlap(
 	Character->SetOverlappingWeapon(this);
 }
 
-// FIXME: Error handling.
 void AWeapon::OnSphereEndOverlap(
 	UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
@@ -92,9 +95,23 @@ void AWeapon::OnSphereEndOverlap(
 	{
 		Character->SetOverlappingWeapon(nullptr);
 	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString("OnSphereEndOverlap: Character was nullptr"));
+		}
+	}
 
 	if (PickupWidget)
 	{
 		PickupWidget->SetVisibility(false);
+	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString("OnSphereEndOverlap: PickupWidget was nullptr"));
+		}
 	}
 }

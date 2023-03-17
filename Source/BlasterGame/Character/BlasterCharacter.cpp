@@ -49,23 +49,57 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	// Handle the case where a player is hosting a listen server, and does not receive a RepNotify.
 	// Hide widget if overlap has ended.
-	if (OverlappingWeapon)
+	if (IsLocallyControlled())
 	{
-		OverlappingWeapon->ShowPickupWidget(false);
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(false);
+		}
 	}
 
-	if (!Weapon)
-	{
-		// Weapon was invalid.
-		return;
-	}
-	OverlappingWeapon = Weapon;
+	OverlappingWeapon = Weapon; // Writing to this attribute triggers replication.
 
 	// Handle the case where a player is hosting a listen server, and does not receive a RepNotify.
 	// Show widget if overlap has begun.
 	if (IsLocallyControlled())
 	{
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+	}
+}
+
+// When overlap begins, OverlappingWeapon != nullptr and LastWeapon == nullptr.
+// When overlap ends, OverlappingWeapon == nullptr and LastWeapon != nullptr.
+void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	// Overlap began.
+	if (OverlappingWeapon)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Cyan, FString("OnRep_OverlappingWeapon: Overlap started; showing widget"));
+		}
 		OverlappingWeapon->ShowPickupWidget(true);
+		return;
+	}
+
+	// Overlap ended.
+	if (LastWeapon)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Cyan, FString("OnRep_OverlappingWeapon: Overlap ended; hiding widget"));
+		}
+		LastWeapon->ShowPickupWidget(false);
+	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString("OnRep_OverlappingWeapon: Existing weapon is nullptr; can't hide widget"));
+		}
 	}
 }
 
@@ -133,20 +167,4 @@ void ABlasterCharacter::LookUp(float Value)
 		return;
 	}
 	AddControllerPitchInput(Value);
-}
-
-// FIXME: Error handling.
-// When overlap begins, OverlappingWeapon != nullptr and LastWeapon == nullptr.
-// When overlap ends, OverlappingWeapon == nullptr and LastWeapon != nullptr.
-void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
-{
-	if (OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(true);
-	}
-
-	if (LastWeapon)
-	{
-		LastWeapon->ShowPickupWidget(false);
-	}
 }
