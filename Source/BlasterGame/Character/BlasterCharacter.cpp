@@ -5,6 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "BlasterGame/Weapon/Weapon.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -26,9 +28,46 @@ ABlasterCharacter::ABlasterCharacter()
 	OverheadWidget->SetupAttachment(RootComponent);
 }
 
+void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABlasterCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	// Handle the case where a player is hosting a listen server, and does not receive a RepNotify.
+	// Hide widget if overlap has ended.
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+
+	if (!Weapon)
+	{
+		// Weapon was invalid.
+		return;
+	}
+
+	OverlappingWeapon = Weapon;
+
+	// Handle the case where a player is hosting a listen server, and does not receive a RepNotify.
+	// Show widget if overlap has begun.
+	if (IsLocallyControlled())
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
 }
 
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -89,7 +128,18 @@ void ABlasterCharacter::LookUp(float Value)
 	AddControllerPitchInput(Value);
 }
 
-void ABlasterCharacter::Tick(float DeltaTime)
+// FIXME: Error handling.
+// When overlap begins, OverlappingWeapon != nullptr and LastWeapon == nullptr.
+// When overlap ends, OverlappingWeapon == nullptr and LastWeapon != nullptr.
+void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
-	Super::Tick(DeltaTime);
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
 }
