@@ -22,3 +22,6 @@ Content/LearningKit_Games
 Content/MilitaryWeapSilver
 Content/__ExternalActors__
 Content/__ExternalObjects__
+
+# Ignore HoloLens
+Platforms/HoloLens
