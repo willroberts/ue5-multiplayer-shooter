@@ -83,6 +83,11 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	}
 }
 
+bool ABlasterCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
+
 // When overlap begins, OverlappingWeapon != nullptr and LastWeapon == nullptr.
 // When overlap ends, OverlappingWeapon == nullptr and LastWeapon != nullptr.
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
