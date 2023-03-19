@@ -58,4 +58,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
+
+	// Server RPC.
+	// Reliable: Guaranteed to be executed, can be retried.
+	// Unreliable: Can be dropped.
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
 };
