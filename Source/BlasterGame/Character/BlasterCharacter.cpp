@@ -115,38 +115,32 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ABlasterCharacter::MoveForward(float Value)
 {
-	if (!Controller)
-	{
-		// Failed to get Player Controller.
-		return;
-	}
-
 	if (Value == 0.f)
 	{
 		return;
 	}
 
-	const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
-	const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
-	AddMovementInput(Direction, Value); // NOTE: Set speed/acceleration in MovementComponent.
+	if (Controller)
+	{
+		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
+		AddMovementInput(Direction, Value); // NOTE: Set speed/acceleration in MovementComponent.
+	}
 }
 
 void ABlasterCharacter::MoveRight(float Value)
 {
-	if (!Controller)
-	{
-		// Failed to get Player Controller.
-		return;
-	}
-
 	if (Value == 0.f)
 	{
 		return;
 	}
 
-	const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
-	const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
-	AddMovementInput(Direction, Value);
+	if (Controller)
+	{
+		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
+		AddMovementInput(Direction, Value);
+	}
 }
 
 void ABlasterCharacter::Turn(float Value)
@@ -155,6 +149,7 @@ void ABlasterCharacter::Turn(float Value)
 	{
 		return;
 	}
+
 	AddControllerYawInput(Value);
 }
 
@@ -164,6 +159,7 @@ void ABlasterCharacter::LookUp(float Value)
 	{
 		return;
 	}
+
 	AddControllerPitchInput(Value);
 }
 

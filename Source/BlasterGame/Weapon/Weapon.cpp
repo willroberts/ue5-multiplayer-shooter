@@ -40,12 +40,10 @@ void AWeapon::BeginPlay()
 	}
 
 	// Hide pickup widgets initially.
-	if (!PickupWidget)
+	if (PickupWidget)
 	{
-		// Failed to get Pickup Widget.
-		return;
+		PickupWidget->SetVisibility(false);
 	}
-	PickupWidget->SetVisibility(false);
 }
 
 void AWeapon::Tick(float DeltaTime)
@@ -62,12 +60,10 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
-	if (!PickupWidget)
+	if (PickupWidget)
 	{
-		// Failed to get Pickup Widget.
-		return;
+		PickupWidget->SetVisibility(bShowWidget);
 	}
-	PickupWidget->SetVisibility(bShowWidget);
 }
 
 void AWeapon::SetWeaponState(EWeaponState State)
@@ -102,12 +98,10 @@ void AWeapon::OnSphereOverlap(
 	const FHitResult& SweepResult
 ) {
 	ABlasterCharacter* Character = Cast<ABlasterCharacter>(OtherActor);
-	if (!Character)
+	if (Character)
 	{
-		// Other Actor was not a Character.
-		return;
+		Character->SetOverlappingWeapon(this);
 	}
-	Character->SetOverlappingWeapon(this);
 }
 
 void AWeapon::OnSphereEndOverlap(
@@ -120,10 +114,5 @@ void AWeapon::OnSphereEndOverlap(
 	if (Character)
 	{
 		Character->SetOverlappingWeapon(nullptr);
-	}
-
-	if (PickupWidget)
-	{
-		PickupWidget->SetVisibility(false);
 	}
 }
