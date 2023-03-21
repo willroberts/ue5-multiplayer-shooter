@@ -14,31 +14,21 @@ class BLASTERGAME_API ABlasterCharacter : public ACharacter
 
 public:
 	ABlasterCharacter();
-
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	virtual void PostInitializeComponents() override;
-
 	void SetOverlappingWeapon(AWeapon* Weapon);
-
 	bool IsWeaponEquipped();
 
 protected:
 	virtual void BeginPlay() override;
-
 	void MoveForward(float Value);
-
 	void MoveRight(float Value);
-
 	void Turn(float Value);
-
 	void LookUp(float Value);
-
 	void EquipButtonPressed();
+	void CrouchButtonPressed();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
