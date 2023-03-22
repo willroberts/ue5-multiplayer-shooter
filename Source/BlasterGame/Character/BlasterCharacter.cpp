@@ -255,7 +255,7 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 	float Speed = Velocity.Size();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
-	// Not moving or jumping.
+	// If not moving or jumping, compute aim yaw offset.
 	if (Speed == 0.f && !bIsInAir)
 	{
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
@@ -264,7 +264,7 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		bUseControllerRotationYaw = false;
 	}
 
-	// Moving or jumping.
+	// If moving or jumping, save last aim rotation.
 	if (Speed > 0.f || bIsInAir)
 	{
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
@@ -272,5 +272,15 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		bUseControllerRotationYaw = true;
 	}
 
+	// Compute aim pitch offset.
 	AO_Pitch = GetBaseAimRotation().Pitch;
+
+	// Pitch correction for replicated characters.
+	// Pitch is compressed before replication, mapping -90 to 270, for example.
+	if (AO_Pitch > 90.f && !IsLocallyControlled())
+	{
+		FVector2D InRange(270.f, 360.f);
+		FVector2D OutRange(-90.f, 0.f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
 }
