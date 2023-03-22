@@ -11,11 +11,19 @@
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	BaseWalkSpeed = 1000.f;
+	AimWalkSpeed = 750.f;
 }
 
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (Character)
+	{
+		Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	}
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -68,9 +76,22 @@ void UCombatComponent::SetAiming(bool bAiming)
 
 	// Call RPC to replicate this action over the network.
 	ServerSetAiming(bAiming);
+
+	// Reduce walk speed when aiming.
+	if (Character)
+	{
+		Character->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkSpeed;
+	}
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 {
+	// Initiate aiming on the server authority.
 	bIsAiming = bAiming;
+
+	// Reduce walk speed when aiming.
+	if (Character)
+	{
+		Character->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkSpeed;
+	}
 }
