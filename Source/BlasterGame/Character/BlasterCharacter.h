@@ -18,15 +18,15 @@ class BLASTERGAME_API ABlasterCharacter : public ACharacter
 public:
 	ABlasterCharacter();
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PostInitializeComponents() override;
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
+	AWeapon* GetEquippedWeapon();
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
-	AWeapon* GetEquippedWeapon();
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
 
 protected:

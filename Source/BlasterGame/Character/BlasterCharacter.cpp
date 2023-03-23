@@ -13,6 +13,10 @@
 #include "BlasterGame/Weapon/Weapon.h"
 #include "BlasterGame/Components/CombatComponent.h"
 
+//
+// Public Methods
+//
+
 ABlasterCharacter::ABlasterCharacter()
 {
 	// Configure ticking and replication.
@@ -49,11 +53,35 @@ ABlasterCharacter::ABlasterCharacter()
 	Combat->SetIsReplicated(true);
 }
 
+void ABlasterCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// Store look orientation for aim offset tracking.
+	AimOffset(DeltaTime);
+}
+
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
+void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABlasterCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABlasterCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Turn", this, &ABlasterCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &ABlasterCharacter::LookUp);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
 }
 
 void ABlasterCharacter::PostInitializeComponents()
@@ -63,19 +91,6 @@ void ABlasterCharacter::PostInitializeComponents()
 	{
 		Combat->Character = this;
 	}
-}
-
-void ABlasterCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void ABlasterCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	// Store look orientation for aim offset tracking.
-	AimOffset(DeltaTime);
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
@@ -103,6 +118,23 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	}
 }
 
+// When overlap begins, OverlappingWeapon != nullptr and LastWeapon == nullptr.
+// When overlap ends, OverlappingWeapon == nullptr and LastWeapon != nullptr.
+void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	// Overlap began.
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+
+	// Overlap ended.
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
 bool ABlasterCharacter::IsWeaponEquipped()
 {
 	return (Combat && Combat->EquippedWeapon);
@@ -122,37 +154,13 @@ AWeapon* ABlasterCharacter::GetEquippedWeapon()
 	return nullptr;
 }
 
-// When overlap begins, OverlappingWeapon != nullptr and LastWeapon == nullptr.
-// When overlap ends, OverlappingWeapon == nullptr and LastWeapon != nullptr.
-void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+//
+// Protected Methods
+//
+
+void ABlasterCharacter::BeginPlay()
 {
-	// Overlap began.
-	if (OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(true);
-	}
-
-	// Overlap ended.
-	if (LastWeapon)
-	{
-		LastWeapon->ShowPickupWidget(false);
-	}
-}
-
-void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABlasterCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABlasterCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("Turn", this, &ABlasterCharacter::Turn);
-	PlayerInputComponent->BindAxis("LookUp", this, &ABlasterCharacter::LookUp);
-
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
+	Super::BeginPlay();
 }
 
 void ABlasterCharacter::Jump()
@@ -316,6 +324,10 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
 }
+
+//
+// Private Methods
+//
 
 void ABlasterCharacter::TurnInPlace(float DeltaTime)
 {

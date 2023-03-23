@@ -5,6 +5,10 @@
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerState.h"
 
+//
+// Public Methods
+//
+
 void UOverheadWidget::SetDisplayText(FString Text)
 {
 	if (Text == "")
@@ -49,6 +53,10 @@ void UOverheadWidget::ShowPlayerNetRole(APawn* InPawn)
 		)
 	);
 }
+
+//
+// Private Methods
+//
 
 FString UOverheadWidget::RoleToString(ENetRole Role)
 {

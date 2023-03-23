@@ -8,44 +8,32 @@
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 
+//
+// Public Methods
+//
+
 AWeapon::AWeapon()
 {
+	// Configure ticking and replication.
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true; // Enable network replication.
 
+	// Create WeaponMesh component.
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetRootComponent(WeaponMesh);
 
+	// Create AreaSphere component (pickup radius).
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(RootComponent);
 	AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore); // Will be handled on server only.
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	// Create PickupWidget component.
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	PickupWidget->SetupAttachment(RootComponent);
-}
-
-void AWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// If running on the server authority, handle collision events.
-	if (HasAuthority())
-	{
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
-		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
-	}
-
-	// Hide pickup widgets initially.
-	if (PickupWidget)
-	{
-		PickupWidget->SetVisibility(false);
-	}
 }
 
 void AWeapon::Tick(float DeltaTime)
@@ -88,6 +76,30 @@ void AWeapon::OnRep_WeaponState()
 	case EWeaponState::EWS_Equipped:
 		ShowPickupWidget(false);
 		break;
+	}
+}
+
+//
+// Protected Methods
+//
+
+void AWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// If running on the server authority, handle collision events.
+	if (HasAuthority())
+	{
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
+		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
+	}
+
+	// Hide pickup widgets initially.
+	if (PickupWidget)
+	{
+		PickupWidget->SetVisibility(false);
 	}
 }
 

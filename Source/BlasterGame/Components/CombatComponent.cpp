@@ -10,22 +10,16 @@
 #include "BlasterGame/Weapon/Weapon.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
 
+//
+// Public Methods
+//
+
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
 	BaseWalkSpeed = 1000.f;
 	AimWalkSpeed = 750.f;
-}
-
-void UCombatComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (Character)
-	{
-		Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
-	}
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -68,6 +62,20 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	{
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
+	}
+}
+
+//
+// Protected Methods
+//
+
+void UCombatComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (Character)
+	{
+		Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	}
 }
 

@@ -17,7 +17,6 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	void EquipWeapon(class AWeapon* Weapon);
 
 protected:
@@ -28,7 +27,7 @@ protected:
 	void ServerSetAiming(bool bAiming);
 
 	UFUNCTION()
-		void OnRep_EquippedWeapon();
+	void OnRep_EquippedWeapon();
 
 private:	
 	class ABlasterCharacter* Character;
