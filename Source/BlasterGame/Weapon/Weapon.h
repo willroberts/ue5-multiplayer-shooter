@@ -23,16 +23,12 @@ class BLASTERGAME_API AWeapon : public AActor
 
 public:	
 	AWeapon();
-
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	void ShowPickupWidget(bool bShowWidget);
-
 	void SetWeaponState(EWeaponState State);
-
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; };
+	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
 
 protected:
 	virtual void BeginPlay() override;
