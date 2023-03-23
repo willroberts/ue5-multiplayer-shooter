@@ -53,4 +53,7 @@ private:
 	FRotator CharacterRotation;
 	FRotator CharacterRotationLastFrame;
 	FRotator DeltaRotation;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
+	FTransform LeftHandTransform;
 };
