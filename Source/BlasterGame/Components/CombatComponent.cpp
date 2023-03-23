@@ -1,12 +1,14 @@
 // © 2023 Will Roberts
 
 #include "CombatComponent.h"
-#include "Engine/SkeletalMeshSocket.h"
+
 #include "Components/SphereComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
+
 #include "BlasterGame/Weapon/Weapon.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
-#include "Net/UnrealNetwork.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 UCombatComponent::UCombatComponent()
 {

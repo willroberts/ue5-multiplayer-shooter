@@ -1,10 +1,12 @@
 // © 2023 Will Roberts
 
 #include "Weapon.h"
+
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
-#include "BlasterGame/Character/BlasterCharacter.h"
 #include "Net/UnrealNetwork.h"
+
+#include "BlasterGame/Character/BlasterCharacter.h"
 
 AWeapon::AWeapon()
 {
