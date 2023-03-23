@@ -263,7 +263,6 @@ void ABlasterCharacter::AimButtonPressed()
 	if (Combat)
 	{
 		Combat->SetAiming(true);
-		// server rpc?
 	}
 }
 
@@ -272,7 +271,6 @@ void ABlasterCharacter::AimButtonReleased()
 	if (Combat)
 	{
 		Combat->SetAiming(false);
-		// server rpc?
 	}
 }
 
@@ -331,6 +329,7 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 
 void ABlasterCharacter::TurnInPlace(float DeltaTime)
 {
+	// When orientation is above 90 degrees to the left or right, set TurningInPlace to that direction.
 	if (AO_Yaw > 90.f)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Right;
@@ -340,10 +339,13 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 		TurningInPlace = ETurningInPlace::ETIP_Left;
 	}
 
+	// When turning, interpolate yaw.
 	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning)
 	{
 		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw, 0.f, DeltaTime, 4.f);
 		AO_Yaw = InterpAO_Yaw;
+
+		// Stop turning when angle is less than 15 degrees from forward.
 		if (FMath::Abs(AO_Yaw) < 15.f)
 		{
 			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
