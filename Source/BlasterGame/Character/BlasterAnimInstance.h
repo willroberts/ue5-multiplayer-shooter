@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+
+#include "BlasterGame/BlasterTypes/TurningInPlace.h"
+
 #include "BlasterAnimInstance.generated.h"
 
 UCLASS()
@@ -58,4 +61,7 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
 	FTransform LeftHandTransform;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = true))
+	ETurningInPlace TurningInPlace;
 };
