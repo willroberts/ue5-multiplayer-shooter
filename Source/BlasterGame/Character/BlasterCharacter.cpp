@@ -253,7 +253,11 @@ void ABlasterCharacter::CrouchButtonPressed()
 	}
 	else
 	{
-		Crouch();
+		// Prevent crouching mid-jump.
+		if (!GetCharacterMovement()->IsFalling())
+		{
+			Crouch();
+		}
 	}
 }
 
