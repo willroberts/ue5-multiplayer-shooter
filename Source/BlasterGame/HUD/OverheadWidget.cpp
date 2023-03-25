@@ -46,7 +46,7 @@ void UOverheadWidget::ShowPlayerNetRole(APawn* InPawn)
 	FString LocalRole = RoleToString(InPawn->GetLocalRole());
 	FString RemoteRole = RoleToString(InPawn->GetRemoteRole());
 	SetDisplayText(
-		FString::Printf(TEXT("Player Name: %s\nLocal Role: %s\nRemote Role: %s"),
+		FString::Printf(TEXT("Player Name: %s"),
 			*PlayerName,
 			*LocalRole,
 			*RemoteRole
