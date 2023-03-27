@@ -22,6 +22,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bAiming);
+	void FireButtonPressed(bool bPressed);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bAiming);
@@ -43,4 +44,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
+
+	bool bFireButtonPressed;
 };
