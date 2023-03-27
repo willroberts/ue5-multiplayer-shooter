@@ -94,6 +94,17 @@ void UCombatComponent::SetAiming(bool bAiming)
 	}
 }
 
+void UCombatComponent::FireButtonPressed(bool bPressed)
+{
+	bFireButtonPressed = bPressed;
+
+	if (bFireButtonPressed)
+	{
+		// Trigger weapon firing on the server authority.
+		ServerFire();
+	}
+}
+
 void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 {
 	// Initiate aiming on the server authority.
@@ -106,11 +117,15 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 	}
 }
 
-void UCombatComponent::FireButtonPressed(bool bPressed)
+void UCombatComponent::ServerFire_Implementation()
 {
-	bFireButtonPressed = bPressed;
+	// Multicast weapon firing to all clients.
+	MulticastFire();
+}
 
-	if (Character && EquippedWeapon && bFireButtonPressed)
+void UCombatComponent::MulticastFire_Implementation()
+{
+	if (Character && EquippedWeapon)
 	{
 		Character->PlayFireMontage(bIsAiming);
 		EquippedWeapon->Fire();
