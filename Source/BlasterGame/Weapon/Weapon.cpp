@@ -81,7 +81,7 @@ void AWeapon::OnRep_WeaponState()
 	}
 }
 
-void AWeapon::Fire()
+void AWeapon::Fire(const FVector& HitTarget)
 {
 	if (FireAnimation)
 	{

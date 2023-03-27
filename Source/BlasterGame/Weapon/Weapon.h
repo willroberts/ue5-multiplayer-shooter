@@ -28,7 +28,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
-	void Fire();
+	virtual void Fire(const FVector& HitTarget);
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; };
 	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
 

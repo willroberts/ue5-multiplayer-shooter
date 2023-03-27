@@ -135,7 +135,7 @@ void UCombatComponent::MulticastFire_Implementation()
 	if (Character && EquippedWeapon)
 	{
 		Character->PlayFireMontage(bIsAiming);
-		EquippedWeapon->Fire();
+		EquippedWeapon->Fire(HitTarget);
 	}
 }
 
@@ -181,9 +181,13 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	{
 		// Use End position as the result if nothing was hit.
 		TraceHitResult.ImpactPoint = End;
+		HitTarget = End;
 	}
 	else
 	{
+		// Save the hit target.
+		HitTarget = TraceHitResult.ImpactPoint;
+
 		// Draw a debug sphere at the point of impact.
 		DrawDebugSphere(
 			GetWorld(),
