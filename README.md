@@ -6,12 +6,15 @@ This is a multiplayer third-person shooter developed in Unreal Engine 5.
 
 This project makes use of the following marketplace content:
 
-- Unreal Learning Kit: Games
+- Animation Starter Pack
 - Military Weapons Silver
+- Unreal Learning Kit: Games
 
-The following changes were made to this content:
+Changes to characters and animations were done by first duplicating the asset, so changes to these assets are tracked in version control.
 
-- Added right hand socket to EpicCharacter skeleton
-- Added left hand socket to Weapon skeletons
+Changes to weapons have not yet been replicated in version control. Instead, the following changes were made directly to the assets:
 
-The EpicCharacter's skeleton was duplicated as `SK_Character`, and animations were retargeted. For the weapons, the skeleton was modified in-place. (TODO: Duplicate weapon skeletons to get them into source control).
+- Added left hand socket to Weapon skeletons for hand placement via FABRIK IK
+- Rotated AmmoEject sockets on Weapon skeltons to correctly orient ejected casings
+
+TODO: Duplicate weapon skeletons to get them into source control.
