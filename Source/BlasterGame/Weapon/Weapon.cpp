@@ -6,9 +6,11 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "Net/UnrealNetwork.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
+#include "ShellCasing.h"
 
 //
 // Public Methods
@@ -86,6 +88,27 @@ void AWeapon::Fire(const FVector& HitTarget)
 	if (FireAnimation)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
+	}
+	if (CasingClass)
+	{
+		// Get the "AmmoEject" socket location.
+		const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
+		if (!AmmoEjectSocket)
+		{
+			// Can't spawn shell casing without an origin location.
+			return;
+		}
+
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+			World->SpawnActor<AShellCasing>(
+				CasingClass,
+				SocketTransform.GetLocation(),
+				SocketTransform.GetRotation().Rotator()
+			);
+		}
 	}
 }
 
