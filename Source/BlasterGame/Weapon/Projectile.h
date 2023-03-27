@@ -14,9 +14,19 @@ class BLASTERGAME_API AProjectile : public AActor
 public:	
 	AProjectile();
 	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
 
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	virtual void OnHit(
+		UPrimitiveComponent* HitComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		FVector NormalImpulse,
+		const FHitResult& Hit
+	);
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -29,4 +39,10 @@ private:
 	class UParticleSystem* Tracer;
 
 	class UParticleSystemComponent* TracerComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* ImpactParticles;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ImpactSound;
 };
