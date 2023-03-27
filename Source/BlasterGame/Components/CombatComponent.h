@@ -31,10 +31,10 @@ protected:
 	void OnRep_EquippedWeapon();
 
 	UFUNCTION(Server, Reliable)
-	void ServerFire();
+	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire();
+	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 
@@ -54,5 +54,4 @@ private:
 	float AimWalkSpeed;
 
 	bool bFireButtonPressed;
-	FVector HitTarget;
 };

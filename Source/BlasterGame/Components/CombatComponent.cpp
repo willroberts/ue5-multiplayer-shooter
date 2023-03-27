@@ -29,9 +29,6 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	FHitResult HitResult;
-	TraceUnderCrosshair(HitResult);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -108,7 +105,9 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	if (bFireButtonPressed)
 	{
 		// Trigger weapon firing on the server authority.
-		ServerFire();
+		FHitResult HitResult;
+		TraceUnderCrosshair(HitResult);
+		ServerFire(HitResult.ImpactPoint);
 	}
 }
 
@@ -124,18 +123,18 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation()
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	// Multicast weapon firing to all clients.
-	MulticastFire();
+	MulticastFire(TraceHitTarget);
 }
 
-void UCombatComponent::MulticastFire_Implementation()
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (Character && EquippedWeapon)
 	{
 		Character->PlayFireMontage(bIsAiming);
-		EquippedWeapon->Fire(HitTarget);
+		EquippedWeapon->Fire(TraceHitTarget);
 	}
 }
 
@@ -181,20 +180,5 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	{
 		// Use End position as the result if nothing was hit.
 		TraceHitResult.ImpactPoint = End;
-		HitTarget = End;
-	}
-	else
-	{
-		// Save the hit target.
-		HitTarget = TraceHitResult.ImpactPoint;
-
-		// Draw a debug sphere at the point of impact.
-		DrawDebugSphere(
-			GetWorld(),
-			TraceHitResult.ImpactPoint,
-			12.f,
-			12,
-			FColor::Red
-		);
 	}
 }
