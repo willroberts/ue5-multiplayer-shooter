@@ -29,3 +29,6 @@ Content/__ExternalObjects__
 
 # Ignore HoloLens
 Platforms/HoloLens
+
+# Ignore cryptography settings
+Config/DefaultCrypto.ini
