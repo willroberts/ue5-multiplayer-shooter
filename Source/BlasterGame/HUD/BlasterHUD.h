@@ -30,4 +30,6 @@ public:
 
 private:
 	FHUDPackage HUDPackage;
+
+	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter);
 };
