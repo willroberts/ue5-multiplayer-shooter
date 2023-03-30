@@ -58,4 +58,11 @@ private:
 	float AimWalkSpeed;
 
 	bool bFireButtonPressed;
+
+	/*
+	* HUD and Crosshair
+	*/
+
+	float CrosshairVelocityFactor;
+	float CrosshairFallingFactor;
 };

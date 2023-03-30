@@ -209,11 +209,32 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 	FHUDPackage HUDPackage;
 	if (EquippedWeapon)
 	{
+		// Get crosshair textures from weapon.
 		HUDPackage.CrosshairCenter = EquippedWeapon->CrosshairCenter;
 		HUDPackage.CrosshairTop = EquippedWeapon->CrosshairTop;
 		HUDPackage.CrosshairBottom = EquippedWeapon->CrosshairBottom;
 		HUDPackage.CrosshairLeft = EquippedWeapon->CrosshairLeft;
 		HUDPackage.CrosshairRight = EquippedWeapon->CrosshairRight;
+
+		// Expand crosshair when moving.
+		FVector2D MoveSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);
+		FVector2D NormalizedRange(0.f, 1.f);
+		FVector Velocity = Character->GetVelocity();
+		Velocity.Z = 0.f;
+		CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(MoveSpeedRange, NormalizedRange, Velocity.Size());
+
+		// Expand crosshair when falling.
+		if (Character->GetCharacterMovement()->IsFalling())
+		{
+			CrosshairFallingFactor = FMath::FInterpTo(CrosshairFallingFactor, 2.f, DeltaTime, 3.f);
+		}
+		else
+		{
+			CrosshairFallingFactor = FMath::FInterpTo(CrosshairFallingFactor, 0.f, DeltaTime, 30.f);
+		}
+
+		// Set crosshair spread.
+		HUDPackage.CrosshairSpread = CrosshairVelocityFactor + CrosshairFallingFactor;
 	}
 	else
 	{
@@ -222,6 +243,7 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 		HUDPackage.CrosshairBottom = nullptr;
 		HUDPackage.CrosshairLeft = nullptr;
 		HUDPackage.CrosshairRight = nullptr;
+		HUDPackage.CrosshairSpread = 0.f;
 	}
 
 	HUD->SetHUDPackage(HUDPackage);
