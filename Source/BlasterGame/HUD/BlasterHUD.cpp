@@ -4,5 +4,7 @@
 
 void ABlasterHUD::DrawHUD()
 {
+	Super::DrawHUD();
+
 
 }

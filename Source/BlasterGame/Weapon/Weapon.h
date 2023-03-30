@@ -32,6 +32,25 @@ public:
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; };
 	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
 
+	/*
+	* Textures for weapon crosshair.
+	*/
+
+	UPROPERTY(EditAnywhere, Category = Crosshair)
+	class UTexture2D* CrosshairCenter;
+
+	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UTexture2D* CrosshairTop;
+
+	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UTexture2D* CrosshairBottom;
+
+	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UTexture2D* CrosshairLeft;
+
+	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UTexture2D* CrosshairRight;
+
 protected:
 	virtual void BeginPlay() override;
 

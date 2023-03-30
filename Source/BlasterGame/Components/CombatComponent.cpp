@@ -11,6 +11,8 @@
 
 #include "BlasterGame/Weapon/Weapon.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
+#include "BlasterGame/PlayerController/BlasterPlayerController.h"
+#include "BlasterGame/HUD/BlasterHUD.h"
 
 #define TRACE_LENGTH 80000
 
@@ -29,6 +31,8 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	SetHUDCrosshair(DeltaTime);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -181,4 +185,44 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		// Use End position as the result if nothing was hit.
 		TraceHitResult.ImpactPoint = End;
 	}
+}
+
+void UCombatComponent::SetHUDCrosshair(float DeltaTime)
+{
+	if (!Character || !Character->Controller)
+	{
+		return;
+	}
+
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (!Controller)
+	{
+		return;
+	}
+
+	HUD = HUD == nullptr ? Cast<ABlasterHUD>(Controller->GetHUD()) : HUD;
+	if (!HUD)
+	{
+		return;
+	}
+
+	FHUDPackage HUDPackage;
+	if (EquippedWeapon)
+	{
+		HUDPackage.CrosshairCenter = EquippedWeapon->CrosshairCenter;
+		HUDPackage.CrosshairTop = EquippedWeapon->CrosshairTop;
+		HUDPackage.CrosshairBottom = EquippedWeapon->CrosshairBottom;
+		HUDPackage.CrosshairLeft = EquippedWeapon->CrosshairLeft;
+		HUDPackage.CrosshairRight = EquippedWeapon->CrosshairRight;
+	}
+	else
+	{
+		HUDPackage.CrosshairCenter = nullptr;
+		HUDPackage.CrosshairTop = nullptr;
+		HUDPackage.CrosshairBottom = nullptr;
+		HUDPackage.CrosshairLeft = nullptr;
+		HUDPackage.CrosshairRight = nullptr;
+	}
+
+	HUD->SetHUDPackage(HUDPackage);
 }
