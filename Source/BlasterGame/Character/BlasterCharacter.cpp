@@ -358,13 +358,6 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 
 void ABlasterCharacter::FireButtonPressed()
 {
-	// Temporary fix for mismatch between jumping animations and firing the weapon.
-	// Don't allow the player to fire while jumping (for now).
-	if (GetCharacterMovement()->IsFalling())
-	{
-		return;
-	}
-
 	if (Combat)
 	{
 		Combat->FireButtonPressed(true);
