@@ -31,6 +31,8 @@ public:
 	virtual void Fire(const FVector& HitTarget);
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; };
 	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
+	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; };
+	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; };
 
 	/*
 	* Textures for weapon crosshair.
@@ -93,4 +95,14 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AShellCasing> CasingClass;
+
+	/*
+	* Zoomed FOV while aiming
+	*/
+
+	UPROPERTY(EditAnywhere)
+	float ZoomedFOV = 50.f;
+
+	UPROPERTY(EditAnywhere)
+	float ZoomInterpSpeed = 20.f;
 };
