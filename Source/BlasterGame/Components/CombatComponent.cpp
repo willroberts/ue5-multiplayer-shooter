@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "TimerManager.h"
 
 #include "BlasterGame/Weapon/Weapon.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
@@ -119,22 +120,33 @@ void UCombatComponent::SetAiming(bool bAiming)
 	}
 }
 
+void UCombatComponent::FireWeapon()
+{
+	if (!bCanFire)
+	{
+		return;
+	}
+
+	// Trigger weapon firing on the server authority.
+	ServerFire(HitTarget);
+
+	// Save firing state for crosshair spread.
+	if (EquippedWeapon)
+	{
+		CrosshairFiringFactor = 0.75f;
+	}
+
+	// Enable automatic fire modes by scheduling a callback based on weapon fire rate.
+	StartFireTimer();
+}
+
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
 
 	if (bFireButtonPressed)
 	{
-		// Trigger weapon firing on the server authority.
-		FHitResult HitResult;
-		TraceUnderCrosshair(HitResult);
-		ServerFire(HitResult.ImpactPoint);
-
-		// Save firing state for crosshair spread.
-		if (EquippedWeapon)
-		{
-			CrosshairFiringFactor = 0.75f;
-		}
+		FireWeapon();
 	}
 }
 
@@ -324,5 +336,34 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 	if (Character && Character->GetFollowCamera())
 	{
 		Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
+	}
+}
+
+void UCombatComponent::StartFireTimer()
+{
+	if (!EquippedWeapon || !Character)
+	{
+		return;
+	}
+
+	Character->GetWorldTimerManager().SetTimer(
+		FireTimer,
+		this,
+		&UCombatComponent::FireTimerFinished,
+		EquippedWeapon->FireInterval
+	);
+}
+
+void UCombatComponent::FireTimerFinished()
+{
+	if (!EquippedWeapon)
+	{
+		return;
+	}
+
+	bCanFire = true;
+	if (bFireButtonPressed && EquippedWeapon->bAutomaticFireMode)
+	{
+		FireWeapon();
 	}
 }

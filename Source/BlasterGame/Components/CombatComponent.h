@@ -25,6 +25,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bAiming);
+	void FireWeapon();
 	void FireButtonPressed(bool bPressed);
 
 	UFUNCTION(Server, Reliable)
@@ -40,7 +41,6 @@ protected:
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
-
 	void SetHUDCrosshair(float DeltaTime);
 
 private:	
@@ -78,7 +78,6 @@ private:
 	*/
 
 	float DefaultFOV;
-
 	float CurrentFOV;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
@@ -88,4 +87,13 @@ private:
 	float ZoomInterpSpeed = 20.f;
 
 	void InterpFOV(float DeltaTime);
+
+	/*
+	* Automatic fire mode
+	*/
+
+	FTimerHandle FireTimer;
+	bool bCanFire = true;
+	void StartFireTimer();
+	void FireTimerFinished();
 };

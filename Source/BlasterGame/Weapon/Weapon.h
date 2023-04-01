@@ -53,6 +53,16 @@ public:
 	UPROPERTY(EditAnywhere, Category = Crosshair)
 	UTexture2D* CrosshairRight;
 
+	/*
+	* Weapon fire modes
+	*/
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float FireInterval = 0.15f; // 400 RPM.
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	bool bAutomaticFireMode = false;
+
 protected:
 	virtual void BeginPlay() override;
 
