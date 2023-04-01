@@ -35,8 +35,8 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; };
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; };
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastHit();
+	UFUNCTION(NetMulticast, Unreliable) // Can be unreliable, since Player is not destroyed on hit.
+	void MulticastPlayerHit(FVector_NetQuantize HitLocation);
 
 protected:
 	virtual void BeginPlay() override;
@@ -109,4 +109,14 @@ private:
 	FRotator ProxyRotationLastFrame;
 	float ProxyYaw;
 	float TimeSinceLastMovementRep;
+
+	/*
+	* Impact FX
+	*/
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* PlayerImpactParticles;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* PlayerImpactSound;
 };

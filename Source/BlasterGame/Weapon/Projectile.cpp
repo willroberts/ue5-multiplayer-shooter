@@ -30,25 +30,6 @@ AProjectile::AProjectile()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 }
 
-void AProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void AProjectile::Destroyed()
-{
-	Super::Destroyed();
-
-	if (SolidImpactParticles)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SolidImpactParticles, GetActorTransform());
-	}
-	if (SolidImpactSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, SolidImpactSound, GetActorLocation());
-	}
-}
-
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -73,6 +54,7 @@ void AProjectile::BeginPlay()
 	}
 }
 
+// OnHit is called on the server when the collision box detects a hit.
 void AProjectile::OnHit(
 	UPrimitiveComponent* HitComp,
 	AActor* OtherActor,
@@ -80,13 +62,31 @@ void AProjectile::OnHit(
 	FVector NormalImpulse,
 	const FHitResult& Hit
 ) {
-	// Register hits against other players.
-	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor);
-	if (BlasterCharacter)
+	// Trigger impact FX on the character.
+	ABlasterCharacter* HitPlayer = Cast<ABlasterCharacter>(OtherActor);
+	if (HitPlayer)
 	{
-		BlasterCharacter->MulticastHit();
+		HitPlayer->MulticastPlayerHit(Hit.ImpactPoint);
+	}
+	else
+	{
+		MulticastHit(Hit.ImpactPoint);
 	}
 
 	// Destroy the projectile.
 	Destroy();
+}
+
+// Called when a non-Player hit is detected.
+void AProjectile::MulticastHit_Implementation(FVector_NetQuantize HitLocation)
+{
+	// Play non-player impact FX.
+	if (SolidImpactParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SolidImpactParticles, HitLocation);
+	}
+	if (SolidImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, SolidImpactSound, HitLocation);
+	}
 }

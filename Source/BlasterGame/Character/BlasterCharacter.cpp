@@ -7,8 +7,10 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "Sound/SoundCue.h"
 
 #include "BlasterAnimInstance.h"
 #include "BlasterGame/BlasterGame.h"
@@ -211,9 +213,21 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementRep = 0.f;
 }
 
-void ABlasterCharacter::MulticastHit_Implementation()
+// Called from the Projectile class when a Player hit is detected.
+void ABlasterCharacter::MulticastPlayerHit_Implementation(FVector_NetQuantize HitLocation)
 {
+	// Play hit reaction animations.
 	PlayHitReactMontage();
+
+	// Play player impact FX.
+	if (PlayerImpactParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PlayerImpactParticles, HitLocation);
+	}
+	if (PlayerImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, PlayerImpactSound, HitLocation);
+	}
 }
 
 //

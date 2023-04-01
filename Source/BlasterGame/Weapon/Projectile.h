@@ -13,8 +13,6 @@ class BLASTERGAME_API AProjectile : public AActor
 	
 public:	
 	AProjectile();
-	virtual void Tick(float DeltaTime) override;
-	virtual void Destroyed() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -28,6 +26,9 @@ protected:
 		const FHitResult& Hit
 	);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastHit(FVector_NetQuantize HitLocation);
+
 private:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
@@ -39,6 +40,10 @@ private:
 	class UParticleSystem* Tracer;
 
 	class UParticleSystemComponent* TracerComponent;
+
+	/*
+	* Impact FX
+	*/
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* SolidImpactParticles;
