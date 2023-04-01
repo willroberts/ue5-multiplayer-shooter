@@ -218,16 +218,6 @@ void ABlasterCharacter::MulticastPlayerHit_Implementation(FVector_NetQuantize Hi
 {
 	// Play hit reaction animations.
 	PlayHitReactMontage();
-
-	// Play player impact FX.
-	if (PlayerImpactParticles)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PlayerImpactParticles, HitLocation);
-	}
-	if (PlayerImpactSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, PlayerImpactSound, HitLocation);
-	}
 }
 
 //

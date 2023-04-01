@@ -26,8 +26,9 @@ protected:
 		const FHitResult& Hit
 	);
 
+	// This RPC must be Reliable, since Projectiles are destroyed on hit.
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastHit(FVector_NetQuantize HitLocation);
+	void MulticastHitFX(FVector_NetQuantize HitLocation, bool bHitPlayer);
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -50,4 +51,10 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* SolidImpactSound;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* PlayerImpactParticles;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* PlayerImpactSound;
 };

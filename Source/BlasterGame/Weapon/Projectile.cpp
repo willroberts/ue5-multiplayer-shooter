@@ -63,30 +63,46 @@ void AProjectile::OnHit(
 	const FHitResult& Hit
 ) {
 	// Trigger impact FX on the character.
+	bool bHitPlayer = false;
 	ABlasterCharacter* HitPlayer = Cast<ABlasterCharacter>(OtherActor);
 	if (HitPlayer)
 	{
+		bHitPlayer = true;
+
+		// Multicast Character animations.
 		HitPlayer->MulticastPlayerHit(Hit.ImpactPoint);
 	}
-	else
-	{
-		MulticastHit(Hit.ImpactPoint);
-	}
+
+	// Multicast projectile impact FX.
+	MulticastHitFX(Hit.ImpactPoint, bHitPlayer);
 
 	// Destroy the projectile.
 	Destroy();
 }
 
 // Called when a non-Player hit is detected.
-void AProjectile::MulticastHit_Implementation(FVector_NetQuantize HitLocation)
+void AProjectile::MulticastHitFX_Implementation(FVector_NetQuantize HitLocation, bool bHitPlayer)
 {
-	// Play non-player impact FX.
-	if (SolidImpactParticles)
+	if (bHitPlayer)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SolidImpactParticles, HitLocation);
+		if (PlayerImpactParticles)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PlayerImpactParticles, HitLocation);
+		}
+		if (PlayerImpactSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, PlayerImpactSound, HitLocation);
+		}
 	}
-	if (SolidImpactSound)
+	else
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, SolidImpactSound, HitLocation);
+		if (SolidImpactParticles)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SolidImpactParticles, HitLocation);
+		}
+		if (SolidImpactSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, SolidImpactSound, HitLocation);
+		}
 	}
 }

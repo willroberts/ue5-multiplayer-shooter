@@ -109,14 +109,4 @@ private:
 	FRotator ProxyRotationLastFrame;
 	float ProxyYaw;
 	float TimeSinceLastMovementRep;
-
-	/*
-	* Impact FX
-	*/
-
-	UPROPERTY(EditAnywhere)
-	class UParticleSystem* PlayerImpactParticles;
-
-	UPROPERTY(EditAnywhere)
-	class USoundCue* PlayerImpactSound;
 };
