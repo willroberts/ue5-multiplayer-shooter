@@ -11,6 +11,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "BlasterAnimInstance.h"
+#include "BlasterGame/BlasterGame.h"
 #include "BlasterGame/Components/CombatComponent.h"
 #include "BlasterGame/Weapon/Weapon.h"
 
@@ -32,11 +33,10 @@ ABlasterCharacter::ABlasterCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 720.f);
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning; // Initialize turning state.
 
-	// Prevent collision with camera.
+	// Configure collision.
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-
-	// Allow collision with projectiles, etc.
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
 	// Create Camera components.
@@ -187,6 +187,11 @@ FVector ABlasterCharacter::GetHitTarget() const
 	}
 
 	return Combat->HitTarget;
+}
+
+void ABlasterCharacter::MulticastHit_Implementation()
+{
+	PlayHitReactMontage();
 }
 
 //
@@ -375,6 +380,22 @@ void ABlasterCharacter::FireButtonReleased()
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
+	}
+}
+
+void ABlasterCharacter::PlayHitReactMontage()
+{
+	if (!Combat || !Combat->EquippedWeapon)
+	{
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		FName SectionName = FName("FromFront"); // FIXME: 4 directions.
+		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
 
