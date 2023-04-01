@@ -130,6 +130,12 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 		FHitResult HitResult;
 		TraceUnderCrosshair(HitResult);
 		ServerFire(HitResult.ImpactPoint);
+
+		// Save firing state for crosshair spread.
+		if (EquippedWeapon)
+		{
+			CrosshairFiringFactor = 0.75f;
+		}
 	}
 }
 
@@ -251,8 +257,26 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 			CrosshairFallingFactor = FMath::FInterpTo(CrosshairFallingFactor, 0.f, DeltaTime, 30.f);
 		}
 
-		// Set crosshair spread.
-		HUDPackage.CrosshairSpread = CrosshairVelocityFactor + CrosshairFallingFactor;
+		// Shrink crosshair when aiming.
+		if (bIsAiming)
+		{
+			CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, -0.25f, DeltaTime, 30.f);
+		}
+		else
+		{
+			CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.f, DeltaTime, 30.f);
+		}
+
+		// Shrink crosshair after firing (was expanded in FireButtonPressed()).
+		CrosshairFiringFactor = FMath::FInterpTo(CrosshairFiringFactor, 0.f, DeltaTime, 30.f);
+
+		// Set crosshair spread, starting with a base value of 0.25.
+		HUDPackage.CrosshairSpread =
+			0.25f +
+			CrosshairVelocityFactor +
+			CrosshairFallingFactor +
+			CrosshairAimFactor +
+			CrosshairFiringFactor;
 	}
 	else
 	{
