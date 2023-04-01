@@ -13,9 +13,8 @@
 #include "BlasterGame/Weapon/Weapon.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
-#include "BlasterGame/HUD/BlasterHUD.h"
 
-#define TRACE_LENGTH 80000
+#define TRACE_LENGTH 80000 // 800 meters.
 
 //
 // Public Methods
@@ -204,6 +203,16 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		ECollisionChannel::ECC_Visibility
 	);
 
+	// Detect targets under crosshair.
+	if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UCrosshairInteractionInterface>())
+	{
+		HUDPackage.CrosshairColor = FLinearColor::Red;
+	}
+	else
+	{
+		HUDPackage.CrosshairColor = FLinearColor::White;
+	}
+
 	if (!TraceHitResult.bBlockingHit)
 	{
 		// Use End position as the result if nothing was hit.
@@ -230,7 +239,6 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 		return;
 	}
 
-	FHUDPackage HUDPackage;
 	if (EquippedWeapon)
 	{
 		// Get crosshair textures from weapon.

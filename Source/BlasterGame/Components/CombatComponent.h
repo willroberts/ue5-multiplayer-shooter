@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+
+#include "BlasterGame/HUD/BlasterHUD.h"
+
 #include "CombatComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -63,6 +66,7 @@ private:
 	* HUD and Crosshair
 	*/
 
+	FHUDPackage HUDPackage;
 	float CrosshairVelocityFactor;
 	float CrosshairFallingFactor;
 	float CrosshairAimFactor;
