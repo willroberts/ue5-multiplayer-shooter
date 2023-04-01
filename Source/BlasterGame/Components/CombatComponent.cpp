@@ -195,6 +195,12 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 
 	// Run a line trace from the weapon to the target.
 	FVector Start = CrosshairWorldPosition;
+	if (Character)
+	{
+		// Start the trace forward to account for the camera boom arm length, and the character mesh.
+		float DistanceToCharacter = (Character->GetActorLocation() - Start).Size();
+		Start += CrosshairWorldDirection * (DistanceToCharacter + 100.f);
+	}
 	FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH; // Scale unit vector for long distances.
 	GetWorld()->LineTraceSingleByChannel(
 		TraceHitResult,

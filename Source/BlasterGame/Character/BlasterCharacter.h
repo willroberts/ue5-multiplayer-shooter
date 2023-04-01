@@ -85,4 +85,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
+
+	void CameraHideMesh();
+
+	UPROPERTY(EditAnywhere)
+	float CameraHideMeshThreshold = 200.f;
 };
