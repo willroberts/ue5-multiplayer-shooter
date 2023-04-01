@@ -28,10 +28,12 @@ public:
 	AWeapon* GetEquippedWeapon();
 	void PlayFireMontage(bool bAiming);
 	FVector GetHitTarget() const;
+	virtual void OnRep_ReplicatedMovement() override;
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; };
+	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; };
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastHit();
@@ -47,7 +49,10 @@ protected:
 	void CrouchButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
+	void CalculateAO_Pitch();
+	float CalculateSpeed();
 	void AimOffset(float DeltaTime);
+	void SimProxiesTurn();
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void PlayHitReactMontage();
@@ -97,4 +102,11 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float CameraHideMeshThreshold = 200.f;
+
+	bool bRotateRootBone;
+	float TurnInPlaceThreshold = 0.5f;
+	FRotator ProxyRotation;
+	FRotator ProxyRotationLastFrame;
+	float ProxyYaw;
+	float TimeSinceLastMovementRep;
 };

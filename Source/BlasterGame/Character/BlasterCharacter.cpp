@@ -61,8 +61,22 @@ void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Store look orientation for aim offset tracking.
-	AimOffset(DeltaTime);
+	// Applies to ROLE_AutonomousProxy and ROLE_Authority.
+	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		// Store look orientation for aim offset tracking.
+		AimOffset(DeltaTime);
+	}
+	else
+	{
+		// Keep track of movement replication to ensure regular updates.
+		TimeSinceLastMovementRep += DeltaTime;
+		if (TimeSinceLastMovementRep > 0.25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+		CalculateAO_Pitch();
+	}
 
 	// Make the Character invisible when the Camera is too close, obscuring vision.
 	CameraHideMesh();
@@ -187,6 +201,14 @@ FVector ABlasterCharacter::GetHitTarget() const
 	}
 
 	return Combat->HitTarget;
+}
+
+void ABlasterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+
+	SimProxiesTurn();
+	TimeSinceLastMovementRep = 0.f;
 }
 
 void ABlasterCharacter::MulticastHit_Implementation()
@@ -318,6 +340,28 @@ void ABlasterCharacter::AimButtonReleased()
 	}
 }
 
+void ABlasterCharacter::CalculateAO_Pitch()
+{
+	// Compute aim pitch offset.
+	AO_Pitch = GetBaseAimRotation().Pitch;
+
+	// Pitch correction for replicated characters.
+	// Pitch is compressed before replication, mapping -90 to 270, for example.
+	if (AO_Pitch > 90.f && !IsLocallyControlled())
+	{
+		FVector2D InRange(270.f, 360.f);
+		FVector2D OutRange(-90.f, 0.f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
+}
+
+float ABlasterCharacter::CalculateSpeed()
+{
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	return Velocity.Size();
+}
+
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {
 	// Nothing to calculate when no weapon is equipped.
@@ -326,14 +370,13 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		return;
 	}
 
-	FVector Velocity = GetVelocity();
-	Velocity.Z = 0.f;
-	float Speed = Velocity.Size();
+	float Speed = CalculateSpeed();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
 	// If not moving or jumping, compute aim yaw offset.
 	if (Speed == 0.f && !bIsInAir)
 	{
+		bRotateRootBone = true;
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
@@ -348,23 +391,53 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 	// If moving or jumping, save last aim rotation.
 	if (Speed > 0.f || bIsInAir)
 	{
+		bRotateRootBone = false;
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	}
 
-	// Compute aim pitch offset.
-	AO_Pitch = GetBaseAimRotation().Pitch;
+	CalculateAO_Pitch();
+}
 
-	// Pitch correction for replicated characters.
-	// Pitch is compressed before replication, mapping -90 to 270, for example.
-	if (AO_Pitch > 90.f && !IsLocallyControlled())
+// Interpolate turning-in-place on simulated proxies.
+void ABlasterCharacter::SimProxiesTurn()
+{
+	if (!Combat || !Combat->EquippedWeapon)
 	{
-		FVector2D InRange(270.f, 360.f);
-		FVector2D OutRange(-90.f, 0.f);
-		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+		return;
 	}
+
+	bRotateRootBone = false; // Is 'true' on locally controlled pawns.
+	float Speed = CalculateSpeed();
+	if (Speed > 0.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+
+	ProxyRotationLastFrame = ProxyRotation;
+	ProxyRotation = GetActorRotation();
+	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
+
+	if (FMath::Abs(ProxyYaw) > TurnInPlaceThreshold)
+	{
+		if (ProxyYaw > TurnInPlaceThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Right;
+		}
+		else if (ProxyYaw < -TurnInPlaceThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Left;
+		}
+		else
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		}
+		return;
+	}
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 void ABlasterCharacter::FireButtonPressed()
