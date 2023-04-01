@@ -36,7 +36,7 @@ public:
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; };
 
 	UFUNCTION(NetMulticast, Unreliable) // Can be unreliable, since Player is not destroyed on hit.
-	void MulticastPlayerHit(FVector_NetQuantize HitLocation);
+	void MulticastPlayerHit();
 
 protected:
 	virtual void BeginPlay() override;
