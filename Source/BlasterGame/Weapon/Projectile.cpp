@@ -70,7 +70,7 @@ void AProjectile::OnHit(
 		bHitPlayer = true;
 
 		// Multicast Character animations.
-		HitPlayer->MulticastPlayerHit(Hit.ImpactPoint);
+		HitPlayer->MulticastPlayerHit();
 	}
 
 	// Multicast projectile impact FX.
