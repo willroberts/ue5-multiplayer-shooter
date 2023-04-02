@@ -13,6 +13,7 @@
 #include "BlasterAnimInstance.h"
 #include "BlasterGame/BlasterGame.h"
 #include "BlasterGame/Components/CombatComponent.h"
+#include "BlasterGame/GameModes/BlasterGameMode.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
 #include "BlasterGame/Weapon/Weapon.h"
 
@@ -211,6 +212,11 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 
 	SimProxiesTurn();
 	TimeSinceLastMovementRep = 0.f;
+}
+
+void ABlasterCharacter::Eliminated()
+{
+
 }
 
 //
@@ -496,13 +502,18 @@ void ABlasterCharacter::ReceiveDamage(
 {
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	UpdateHUDHealth();
-	PlayHitReactMontage(); // Server animation.
+	PlayHitReactMontage();
 
-	// Perform server stuff.
-
-	// Use OnRep for client stuff.
-
-	// TODO: Move Projectile::OnHit stuff here.
+	if (Health == 0.f)
+	{
+		ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+		if (BlasterGameMode)
+		{
+			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+			ABlasterPlayerController* AttackingController = Cast<ABlasterPlayerController>(InstigatorController);
+			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackingController);
+		}
+	}
 }
 
 //

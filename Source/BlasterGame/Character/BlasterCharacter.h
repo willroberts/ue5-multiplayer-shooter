@@ -29,6 +29,7 @@ public:
 	void PlayFireMontage(bool bAiming);
 	FVector GetHitTarget() const;
 	virtual void OnRep_ReplicatedMovement() override;
+	void Eliminated();
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
