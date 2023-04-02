@@ -45,6 +45,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsAiming = BlasterCharacter->IsAiming();
 	TurningInPlace = BlasterCharacter->GetTurningInPlace();
 	bRotateRootBone = BlasterCharacter->ShouldRotateRootBone();
+	bEliminated = BlasterCharacter->IsEliminated();
 
 	// Strafing.
 	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation(); // World orientation.

@@ -27,14 +27,18 @@ public:
 	bool IsAiming();
 	AWeapon* GetEquippedWeapon();
 	void PlayFireMontage(bool bAiming);
+	void PlayEliminatedMontage();
 	FVector GetHitTarget() const;
 	virtual void OnRep_ReplicatedMovement() override;
-	void Eliminated();
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; };
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; };
+	FORCEINLINE bool IsEliminated() const { return bEliminated; };
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Eliminated();
 
 protected:
 	virtual void BeginPlay() override;
@@ -106,6 +110,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* HitReactMontage;
 
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* EliminatedMontage;
+
 	void CameraHideMesh();
 
 	UPROPERTY(EditAnywhere)
@@ -117,6 +124,8 @@ private:
 	FRotator ProxyRotationLastFrame;
 	float ProxyYaw;
 	float TimeSinceLastMovementRep;
+
+	class ABlasterPlayerController* BlasterPlayerController;
 
 	/*
 	* Player health
@@ -131,5 +140,5 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 
-	class ABlasterPlayerController* BlasterPlayerController;
+	bool bEliminated = false;
 };

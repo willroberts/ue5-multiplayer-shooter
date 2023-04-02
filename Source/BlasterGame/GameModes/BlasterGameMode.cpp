@@ -10,5 +10,8 @@ void ABlasterGameMode::PlayerEliminated(
 	class ABlasterPlayerController* EliminatedController,
 	class ABlasterPlayerController* AttackingController)
 {
-
+	if (EliminatedCharacter)
+	{
+		EliminatedCharacter->Eliminated();
+	}
 }
