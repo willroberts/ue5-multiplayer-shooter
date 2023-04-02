@@ -35,9 +35,6 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; };
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; };
 
-	UFUNCTION(NetMulticast, Unreliable) // Can be unreliable, since Player is not destroyed on hit.
-	void MulticastPlayerHit();
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
@@ -56,6 +53,16 @@ protected:
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void PlayHitReactMontage();
+	void UpdateHUDHealth();
+
+	UFUNCTION()
+	void ReceiveDamage(
+		AActor* DamagedActor,
+		float Damage,
+		const UDamageType* DamageType,
+		class AController* InstigatorController,
+		AActor* DamageCauser
+	);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)

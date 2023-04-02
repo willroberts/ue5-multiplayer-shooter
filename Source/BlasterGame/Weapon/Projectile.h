@@ -30,6 +30,13 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastHitFX(FVector_NetQuantize HitLocation, bool bHitPlayer);
 
+	/*
+	* Gameplay attributes
+	*/
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
+
 private:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;

@@ -68,9 +68,6 @@ void AProjectile::OnHit(
 	if (HitPlayer)
 	{
 		bHitPlayer = true;
-
-		// Multicast Character animations.
-		HitPlayer->MulticastPlayerHit();
 	}
 
 	// Multicast projectile impact FX.

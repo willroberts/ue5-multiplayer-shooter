@@ -213,13 +213,6 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementRep = 0.f;
 }
 
-// Called from the Projectile class when a Player hit is detected.
-void ABlasterCharacter::MulticastPlayerHit_Implementation()
-{
-	// Play hit reaction animations.
-	PlayHitReactMontage();
-}
-
 //
 // Protected Methods
 //
@@ -228,10 +221,11 @@ void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
-	if (BlasterPlayerController)
+	UpdateHUDHealth();
+
+	if (HasAuthority())
 	{
-		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
 	}
 }
 
@@ -482,6 +476,35 @@ void ABlasterCharacter::PlayHitReactMontage()
 	}
 }
 
+void ABlasterCharacter::UpdateHUDHealth()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+// Called on the server when a character takes damage.
+void ABlasterCharacter::ReceiveDamage(
+	AActor* DamagedActor,
+	float Damage,
+	const UDamageType* DamageType,
+	class AController* InstigatorController,
+	AActor* DamageCauser
+)
+{
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	UpdateHUDHealth();
+	PlayHitReactMontage(); // Server animation.
+
+	// Perform server stuff.
+
+	// Use OnRep for client stuff.
+
+	// TODO: Move Projectile::OnHit stuff here.
+}
+
 //
 // Private Methods
 //
@@ -539,7 +562,9 @@ void ABlasterCharacter::CameraHideMesh()
 	}
 }
 
+// Runs on clients when damage is taken.
 void ABlasterCharacter::OnRep_Health()
 {
-
+	UpdateHUDHealth();
+	PlayHitReactMontage();
 }
