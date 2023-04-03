@@ -231,6 +231,11 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 // Eliminated runs on the server authority to handle player eliminations and respawning.
 void ABlasterCharacter::Eliminated()
 {
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Dropped();
+	}
+
 	MulticastEliminated();
 	GetWorldTimerManager().SetTimer(RespawnTimer, this, &ABlasterCharacter::RespawnTimerFinished, RespawnDelay);
 }
@@ -241,6 +246,7 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 	bEliminated = true;
 	PlayEliminatedMontage();
 
+	// Apply dissolve VFX to the eliminated character.
 	if (DissolveMaterialInstance)
 	{
 		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
@@ -249,8 +255,17 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("DissolveMagnitude"), 0.55f); // Undissolved.
 		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("GlowIntensity"), 200.f);
 	}
-
 	StartDissolve();
+
+	// Disable movement and collision.
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	if (BlasterPlayerController)
+	{
+		DisableInput(BlasterPlayerController);
+	}
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 //

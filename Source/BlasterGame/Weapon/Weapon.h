@@ -29,6 +29,7 @@ public:
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
 	virtual void Fire(const FVector& HitTarget);
+	void Dropped();
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; };
 	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; };
