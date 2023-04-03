@@ -32,6 +32,7 @@ public:
 	FVector GetHitTarget() const;
 	virtual void OnRep_ReplicatedMovement() override;
 	void Eliminated();
+	virtual void Destroyed() override;
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
@@ -167,4 +168,17 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Elimination")
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
+
+	/*
+	* Respawn bot
+	*/
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* RespawnBotEffect;
+
+	UPROPERTY(VisibleAnywhere)
+	class UParticleSystemComponent* RespawnBotComponent;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* RespawnBotSound;
 };

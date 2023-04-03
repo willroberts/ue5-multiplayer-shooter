@@ -7,8 +7,11 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 #include "TimerManager.h"
 
 #include "BlasterAnimInstance.h"
@@ -240,6 +243,16 @@ void ABlasterCharacter::Eliminated()
 	GetWorldTimerManager().SetTimer(RespawnTimer, this, &ABlasterCharacter::RespawnTimerFinished, RespawnDelay);
 }
 
+void ABlasterCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	if (RespawnBotComponent)
+	{
+		RespawnBotComponent->DestroyComponent();
+	}
+}
+
 // Server+Client RPC.
 void ABlasterCharacter::MulticastEliminated_Implementation()
 {
@@ -266,6 +279,21 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Spawn the respawn bot.
+	if (RespawnBotEffect)
+	{
+		RespawnBotComponent = UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			RespawnBotEffect,
+			FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f),
+			GetActorRotation()
+		);
+	}
+	if (RespawnBotSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(this, RespawnBotSound, GetActorLocation());
+	}
 }
 
 //
