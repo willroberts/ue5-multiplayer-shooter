@@ -30,6 +30,7 @@ public:
 	void PlayEliminatedMontage();
 	FVector GetHitTarget() const;
 	virtual void OnRep_ReplicatedMovement() override;
+	void Eliminated();
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
@@ -38,7 +39,7 @@ public:
 	FORCEINLINE bool IsEliminated() const { return bEliminated; };
 
 	UFUNCTION(NetMulticast, Reliable)
-	void Eliminated();
+	void MulticastEliminated();
 
 protected:
 	virtual void BeginPlay() override;
@@ -128,7 +129,7 @@ private:
 	class ABlasterPlayerController* BlasterPlayerController;
 
 	/*
-	* Player health
+	* Player health, eliminations, and respawns
 	*/
 
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
@@ -141,4 +142,11 @@ private:
 	void OnRep_Health();
 
 	bool bEliminated = false;
+
+	FTimerHandle RespawnTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	float RespawnDelay = 3.f;
+
+	void RespawnTimerFinished();
 };
