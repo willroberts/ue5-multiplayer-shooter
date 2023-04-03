@@ -122,19 +122,19 @@ void UCombatComponent::SetAiming(bool bAiming)
 
 void UCombatComponent::FireWeapon()
 {
-	if (!bCanFire)
+	if (!bCanFire || !EquippedWeapon)
 	{
 		return;
 	}
+
+	// Prevent firing until fire timer has elapsed.
+	bCanFire = false;
 
 	// Trigger weapon firing on the server authority.
 	ServerFire(HitTarget);
 
 	// Save firing state for crosshair spread.
-	if (EquippedWeapon)
-	{
-		CrosshairFiringFactor = 0.75f;
-	}
+	CrosshairFiringFactor = 0.75f;
 
 	// Enable automatic fire modes by scheduling a callback based on weapon fire rate.
 	StartFireTimer();
@@ -356,13 +356,10 @@ void UCombatComponent::StartFireTimer()
 
 void UCombatComponent::FireTimerFinished()
 {
-	if (!EquippedWeapon)
-	{
-		return;
-	}
-
 	bCanFire = true;
-	if (bFireButtonPressed && EquippedWeapon->bAutomaticFireMode)
+
+	// Automatically fire again for automatic weapons.
+	if (bFireButtonPressed && EquippedWeapon && EquippedWeapon->bAutomaticFireMode)
 	{
 		FireWeapon();
 	}
