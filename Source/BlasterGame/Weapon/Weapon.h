@@ -58,7 +58,7 @@ public:
 	*/
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	float FireInterval = 0.15f; // 400 RPM.
+	float FireInterval = 0.125f; // 480 RPM.
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	bool bAutomaticFireMode = false;
