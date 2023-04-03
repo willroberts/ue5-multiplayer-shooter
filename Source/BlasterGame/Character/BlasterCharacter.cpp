@@ -59,6 +59,9 @@ ABlasterCharacter::ABlasterCharacter()
 	// Create Combat component.
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
+
+	// Configure dissolve VFX.
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 }
 
 void ABlasterCharacter::Tick(float DeltaTime)
@@ -237,6 +240,17 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 {
 	bEliminated = true;
 	PlayEliminatedMontage();
+
+	if (DissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("DissolveMagnitude"), 0.55f); // Undissolved.
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("GlowIntensity"), 200.f);
+	}
+
+	StartDissolve();
 }
 
 //
@@ -606,5 +620,23 @@ void ABlasterCharacter::RespawnTimerFinished()
 	if (BlasterGameMode)
 	{
 		BlasterGameMode->RequestRespawn(this, Controller);
+	}
+}
+
+void ABlasterCharacter::UpdateDissolveMaterial(float DissolveMagnitude)
+{
+	if (DynamicDissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("DissolveMagnitude"), DissolveMagnitude);
+	}
+}
+
+void ABlasterCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &ABlasterCharacter::UpdateDissolveMaterial);
+	if (DissolveTimeline && DissolveCurve)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
 	}
 }

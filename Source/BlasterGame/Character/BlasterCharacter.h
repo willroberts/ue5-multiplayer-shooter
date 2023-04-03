@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
 
 #include "BlasterGame/BlasterTypes/TurningInPlace.h"
@@ -101,7 +102,6 @@ private:
 	float InterpAO_Yaw;
 	float AO_Pitch;
 	FRotator StartingAimRotation;
-
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 
@@ -114,10 +114,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* EliminatedMontage;
 
-	void CameraHideMesh();
-
 	UPROPERTY(EditAnywhere)
 	float CameraHideMeshThreshold = 200.f;
+	void CameraHideMesh();
 
 	bool bRotateRootBone;
 	float TurnInPlaceThreshold = 0.5f;
@@ -142,11 +141,30 @@ private:
 	void OnRep_Health();
 
 	bool bEliminated = false;
-
 	FTimerHandle RespawnTimer;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Elimination")
 	float RespawnDelay = 3.f;
-
 	void RespawnTimerFinished();
+
+	/*
+	* Dissolve VFX
+	*/
+
+	UPROPERTY(VisibleAnywhere, Category = "Elimination")
+	UTimelineComponent* DissolveTimeline;
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditAnywhere, Category = "Elimination")
+	UCurveFloat* DissolveCurve;
+
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveMagnitude);
+	void StartDissolve();
+
+	UPROPERTY(EditAnywhere, Category = "Elimination")
+	UMaterialInstance* DissolveMaterialInstance;
+
+	UPROPERTY(VisibleAnywhere, Category = "Elimination")
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
 };
