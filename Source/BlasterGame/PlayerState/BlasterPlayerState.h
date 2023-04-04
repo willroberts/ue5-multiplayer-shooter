@@ -1,0 +1,21 @@
+// © 2023 Will Roberts
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/PlayerState.h"
+#include "BlasterPlayerState.generated.h"
+
+UCLASS()
+class BLASTERGAME_API ABlasterPlayerState : public APlayerState
+{
+	GENERATED_BODY()
+
+public:
+	virtual void OnRep_Score() override;
+	void AddToScore(float Value);
+
+private:
+	class ABlasterCharacter* Character;
+	class ABlasterPlayerController* Controller;
+};

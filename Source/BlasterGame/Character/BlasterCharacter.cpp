@@ -19,6 +19,7 @@
 #include "BlasterGame/Components/CombatComponent.h"
 #include "BlasterGame/GameModes/BlasterGameMode.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
+#include "BlasterGame/PlayerState/BlasterPlayerState.h"
 #include "BlasterGame/Weapon/Weapon.h"
 
 //
@@ -90,6 +91,9 @@ void ABlasterCharacter::Tick(float DeltaTime)
 
 	// Make the Character invisible when the Camera is too close, obscuring vision.
 	CameraHideMesh();
+
+	// Poll player state each frame until it becomes valid, then skip further processing.
+	PollPlayerState();
 }
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -565,6 +569,19 @@ void ABlasterCharacter::UpdateHUDHealth()
 	if (BlasterPlayerController)
 	{
 		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ABlasterCharacter::PollPlayerState()
+{
+	if (!BlasterPlayerState)
+	{
+		BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+		if (BlasterPlayerState)
+		{
+			// Player state is now valid; update HUD.
+			BlasterPlayerState->AddToScore(0.f);
+		}
 	}
 }
 

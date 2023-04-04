@@ -7,6 +7,7 @@
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
+#include "BlasterGame/PlayerState/BlasterPlayerState.h"
 
 void ABlasterGameMode::PlayerEliminated(
 	class ABlasterCharacter* EliminatedCharacter,
@@ -14,6 +15,14 @@ void ABlasterGameMode::PlayerEliminated(
 	class ABlasterPlayerController* AttackingController
 )
 {
+	ABlasterPlayerState* AttackingPlayerState = AttackingController ? Cast<ABlasterPlayerState>(AttackingController->PlayerState) : nullptr;
+	ABlasterPlayerState* EliminatedPlayerState = EliminatedController ? Cast<ABlasterPlayerState>(EliminatedController->PlayerState) : nullptr;
+
+	if (AttackingPlayerState && AttackingPlayerState != EliminatedPlayerState)
+	{
+		AttackingPlayerState->AddToScore(1.f);
+	}
+
 	if (EliminatedCharacter)
 	{
 		EliminatedCharacter->Eliminated();

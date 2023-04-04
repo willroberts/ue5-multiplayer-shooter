@@ -64,6 +64,7 @@ protected:
 	void FireButtonReleased();
 	void PlayHitReactMontage();
 	void UpdateHUDHealth();
+	void PollPlayerState();
 
 	UFUNCTION()
 	void ReceiveDamage(
@@ -129,6 +130,7 @@ private:
 	float TimeSinceLastMovementRep;
 
 	class ABlasterPlayerController* BlasterPlayerController;
+	class ABlasterPlayerState* BlasterPlayerState;
 
 	/*
 	* Player health, eliminations, and respawns
