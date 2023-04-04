@@ -10,8 +10,8 @@
 ABlasterPlayerState::ABlasterPlayerState()
 {
 	// Configure replication.
-	NetUpdateFrequency = 20.f; // 50ms
-	MinNetUpdateFrequency = 10.f; // 100ms
+	NetUpdateFrequency = 10.f; // 100ms
+	MinNetUpdateFrequency = 4.f; // 250ms
 }
 
 void ABlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
