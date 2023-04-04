@@ -18,16 +18,41 @@ void ABlasterGameMode::PlayerEliminated(
 	ABlasterPlayerState* AttackingPlayerState = AttackingController ? Cast<ABlasterPlayerState>(AttackingController->PlayerState) : nullptr;
 	ABlasterPlayerState* EliminatedPlayerState = EliminatedController ? Cast<ABlasterPlayerState>(EliminatedController->PlayerState) : nullptr;
 
-	if (AttackingPlayerState && AttackingPlayerState != EliminatedPlayerState)
+	// Increment score for the attacking player if they did not eliminate themselves.
+	// Decrement score for the attacking player if they did.
+	if (AttackingPlayerState)
 	{
-		AttackingPlayerState->AddToScore(1.f);
+		if (AttackingPlayerState != EliminatedPlayerState)
+		{
+			AttackingPlayerState->AddToScore(1.f);
+		}
+		else
+		{
+			AttackingPlayerState->AddToScore(-1.f);
+		}
 	}
 
+	// Increment defeats for the eliminated player.
 	if (EliminatedPlayerState)
 	{
 		EliminatedPlayerState->AddToDefeats(1);
 	}
 
+	// Show timed popup messages for eliminations.
+	if (AttackingPlayerState && EliminatedPlayerState)
+	{
+		AttackingPlayerState->SetEliminationPopup(
+			FString::Printf(TEXT("You eliminated %s!"), *EliminatedPlayerState->GetPlayerName()),
+			FLinearColor::White
+		);
+
+		EliminatedPlayerState->SetEliminationPopup(
+			FString::Printf(TEXT("You were eliminated by %s!"), *AttackingPlayerState->GetPlayerName()),
+			FLinearColor::Red
+		);
+	}
+
+	// Call the elimination method to drop equipped weapons, play animations, and respawn the character.
 	if (EliminatedCharacter)
 	{
 		EliminatedCharacter->Eliminated();

@@ -20,6 +20,11 @@ public:
 	UFUNCTION()
 	virtual void OnRep_Defeats();
 
+	void SetEliminationPopup(FString Message, FLinearColor Color);
+
+	UFUNCTION()
+	virtual void OnRep_EliminationPopup();
+
 private:
 	UPROPERTY()
 	class ABlasterCharacter* Character;
@@ -29,4 +34,8 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
 	int32 Defeats;
+
+	UPROPERTY(ReplicatedUsing = OnRep_EliminationPopup)
+	FString EliminationPopupText;
+	FLinearColor EliminationPopupColor;
 };
