@@ -12,6 +12,7 @@ class BLASTERGAME_API ABlasterPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
+	ABlasterPlayerState();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void AddToScore(float Value);
 	virtual void OnRep_Score() override;

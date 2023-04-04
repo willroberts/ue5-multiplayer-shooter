@@ -7,6 +7,13 @@
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
 
+ABlasterPlayerState::ABlasterPlayerState()
+{
+	// Configure replication.
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
+}
+
 void ABlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
