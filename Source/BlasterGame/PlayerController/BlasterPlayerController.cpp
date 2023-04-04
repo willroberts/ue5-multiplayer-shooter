@@ -4,6 +4,7 @@
 
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "TimerManager.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/HUD/BlasterHUD.h"
@@ -71,4 +72,43 @@ void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
 		BlasterHUD->CharacterOverlay->DefeatsValueText->SetText(FText::FromString(DefeatsText));
 	}
+}
+
+void ABlasterPlayerController::ShowEliminationPopup(FString Message, FLinearColor Color)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	if (BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->EliminationPopupText)
+	{
+		BlasterHUD->CharacterOverlay->EliminationPopupText->SetText(FText::FromString(Message));
+		BlasterHUD->CharacterOverlay->EliminationPopupText->SetColorAndOpacity(Color);
+		BlasterHUD->CharacterOverlay->EliminationPopupText->SetVisibility(ESlateVisibility::Visible);
+
+		// Clear the popup after a few seconds.
+		StartPopupTimer();
+	}
+}
+
+void ABlasterPlayerController::HideEliminationPopup()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	if (BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->EliminationPopupText)
+	{
+		BlasterHUD->CharacterOverlay->EliminationPopupText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void ABlasterPlayerController::StartPopupTimer()
+{
+	GetWorldTimerManager().SetTimer(EliminationPopupTimer, this, &ABlasterPlayerController::PopupTimerFinished, 3.0f);
+}
+
+void ABlasterPlayerController::PopupTimerFinished()
+{
+	HideEliminationPopup();
 }

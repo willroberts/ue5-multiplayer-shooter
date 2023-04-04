@@ -23,4 +23,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DefeatsValueText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* EliminationPopupText;
 };

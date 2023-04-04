@@ -12,10 +12,12 @@ class BLASTERGAME_API ABlasterPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	virtual void OnPossess(APawn* InPawn) override;
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
-	virtual void OnPossess(APawn* InPawn) override;
+	void ShowEliminationPopup(FString Message, FLinearColor Color);
+	void HideEliminationPopup();
 
 protected:
 	virtual void BeginPlay() override;
@@ -23,4 +25,12 @@ protected:
 private:
 	UPROPERTY()
 	class ABlasterHUD* BlasterHUD;
+
+	/*
+	* Popup notification text for eliminations.
+	*/
+
+	FTimerHandle EliminationPopupTimer;
+	void StartPopupTimer();
+	void PopupTimerFinished();
 };
