@@ -21,7 +21,7 @@ public:
 	UFUNCTION()
 	virtual void OnRep_Defeats();
 
-	void SetEliminationPopup(FString Message, FLinearColor Color);
+	void SetEliminationPopup(FString Message);
 
 	UFUNCTION()
 	virtual void OnRep_EliminationPopup();
@@ -38,5 +38,4 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_EliminationPopup)
 	FString EliminationPopupText = "";
-	FLinearColor EliminationPopupColor = FLinearColor::White;
 };

@@ -85,9 +85,8 @@ void ABlasterPlayerState::OnRep_Defeats()
 }
 
 // SetEliminationPopup runs on the server authority to display elimination messages, which are replicated.
-void ABlasterPlayerState::SetEliminationPopup(FString Message, FLinearColor Color)
+void ABlasterPlayerState::SetEliminationPopup(FString Message)
 {
-	EliminationPopupColor = Color;
 	EliminationPopupText = Message; // Triggers replication.
 
 	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character;
@@ -96,7 +95,7 @@ void ABlasterPlayerState::SetEliminationPopup(FString Message, FLinearColor Colo
 		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 		if (Controller)
 		{
-			Controller->ShowEliminationPopup(EliminationPopupText, EliminationPopupColor);
+			Controller->ShowEliminationPopup(EliminationPopupText);
 		}
 	}
 }
@@ -110,7 +109,7 @@ void ABlasterPlayerState::OnRep_EliminationPopup()
 		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 		if (Controller)
 		{
-			Controller->ShowEliminationPopup(EliminationPopupText, EliminationPopupColor);
+			Controller->ShowEliminationPopup(EliminationPopupText);
 		}
 	}
 }

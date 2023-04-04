@@ -41,15 +41,8 @@ void ABlasterGameMode::PlayerEliminated(
 	// Show timed popup messages for eliminations.
 	if (AttackingPlayerState && EliminatedPlayerState)
 	{
-		AttackingPlayerState->SetEliminationPopup(
-			FString::Printf(TEXT("You eliminated %s!"), *EliminatedPlayerState->GetPlayerName()),
-			FLinearColor::White
-		);
-
-		EliminatedPlayerState->SetEliminationPopup(
-			FString::Printf(TEXT("You were eliminated by %s!"), *AttackingPlayerState->GetPlayerName()),
-			FLinearColor::Red
-		);
+		AttackingPlayerState->SetEliminationPopup(FString::Printf(TEXT("You eliminated %s!"), *EliminatedPlayerState->GetPlayerName()));
+		EliminatedPlayerState->SetEliminationPopup(FString::Printf(TEXT("You were eliminated by %s!"), *AttackingPlayerState->GetPlayerName()));
 	}
 
 	// Call the elimination method to drop equipped weapons, play animations, and respawn the character.

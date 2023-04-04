@@ -74,7 +74,7 @@ void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 	}
 }
 
-void ABlasterPlayerController::ShowEliminationPopup(FString Message, FLinearColor Color)
+void ABlasterPlayerController::ShowEliminationPopup(FString Message)
 {
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 
@@ -82,8 +82,11 @@ void ABlasterPlayerController::ShowEliminationPopup(FString Message, FLinearColo
 		BlasterHUD->CharacterOverlay &&
 		BlasterHUD->CharacterOverlay->EliminationPopupText)
 	{
+		// Use red color for "eliminated by" messages.
+		bool bUseRed = Message.Contains(TEXT("eliminated by"));
+
 		BlasterHUD->CharacterOverlay->EliminationPopupText->SetText(FText::FromString(Message));
-		BlasterHUD->CharacterOverlay->EliminationPopupText->SetColorAndOpacity(Color);
+		BlasterHUD->CharacterOverlay->EliminationPopupText->SetColorAndOpacity(bUseRed ? FLinearColor::Red : FLinearColor::White);
 		BlasterHUD->CharacterOverlay->EliminationPopupText->SetVisibility(ESlateVisibility::Visible);
 
 		// Clear the popup after a few seconds.
