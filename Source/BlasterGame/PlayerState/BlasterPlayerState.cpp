@@ -139,6 +139,7 @@ void ABlasterPlayerState::PopupTimerFinished()
 		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 		if (Controller)
 		{
+			EliminationPopupText = "";
 			Controller->HideEliminationPopup();
 		}
 	}
