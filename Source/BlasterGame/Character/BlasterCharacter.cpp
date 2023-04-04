@@ -581,6 +581,7 @@ void ABlasterCharacter::PollPlayerState()
 		{
 			// Player state is now valid; update HUD.
 			BlasterPlayerState->AddToScore(0.f);
+			BlasterPlayerState->AddToDefeats(0);
 		}
 	}
 }

@@ -129,7 +129,10 @@ private:
 	float ProxyYaw;
 	float TimeSinceLastMovementRep;
 
+	UPROPERTY()
 	class ABlasterPlayerController* BlasterPlayerController;
+
+	UPROPERTY()
 	class ABlasterPlayerState* BlasterPlayerState;
 
 	/*
