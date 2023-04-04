@@ -36,6 +36,6 @@ private:
 	int32 Defeats;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EliminationPopup)
-	FString EliminationPopupText;
-	FLinearColor EliminationPopupColor;
+	FString EliminationPopupText = "";
+	FLinearColor EliminationPopupColor = FLinearColor::White;
 };
