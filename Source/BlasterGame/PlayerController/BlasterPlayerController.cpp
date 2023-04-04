@@ -4,7 +4,6 @@
 
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
-#include "TimerManager.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/HUD/BlasterHUD.h"
@@ -82,15 +81,9 @@ void ABlasterPlayerController::ShowEliminationPopup(FString Message)
 		BlasterHUD->CharacterOverlay &&
 		BlasterHUD->CharacterOverlay->EliminationPopupText)
 	{
-		// Use red color for "eliminated by" messages.
-		bool bUseRed = Message.Contains(TEXT("eliminated by"));
-
 		BlasterHUD->CharacterOverlay->EliminationPopupText->SetText(FText::FromString(Message));
-		BlasterHUD->CharacterOverlay->EliminationPopupText->SetColorAndOpacity(bUseRed ? FLinearColor::Red : FLinearColor::White);
+		BlasterHUD->CharacterOverlay->EliminationPopupText->SetColorAndOpacity(Message.Contains(TEXT("eliminated by")) ? FLinearColor::Red : FLinearColor::White);
 		BlasterHUD->CharacterOverlay->EliminationPopupText->SetVisibility(ESlateVisibility::Visible);
-
-		// Clear the popup after a few seconds.
-		StartPopupTimer();
 	}
 }
 
@@ -102,16 +95,7 @@ void ABlasterPlayerController::HideEliminationPopup()
 		BlasterHUD->CharacterOverlay &&
 		BlasterHUD->CharacterOverlay->EliminationPopupText)
 	{
+		BlasterHUD->CharacterOverlay->EliminationPopupText->SetText(FText::FromString(""));
 		BlasterHUD->CharacterOverlay->EliminationPopupText->SetVisibility(ESlateVisibility::Collapsed);
 	}
-}
-
-void ABlasterPlayerController::StartPopupTimer()
-{
-	GetWorldTimerManager().SetTimer(EliminationPopupTimer, this, &ABlasterPlayerController::PopupTimerFinished, 3.0f);
-}
-
-void ABlasterPlayerController::PopupTimerFinished()
-{
-	HideEliminationPopup();
 }

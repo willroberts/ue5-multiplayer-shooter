@@ -25,12 +25,4 @@ protected:
 private:
 	UPROPERTY()
 	class ABlasterHUD* BlasterHUD;
-
-	/*
-	* Popup notification text for eliminations.
-	*/
-
-	FTimerHandle EliminationPopupTimer;
-	void StartPopupTimer();
-	void PopupTimerFinished();
 };

@@ -36,6 +36,13 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
 	int32 Defeats;
 
+	/*
+	* Popup message for eliminations.
+	*/
+
 	UPROPERTY(ReplicatedUsing = OnRep_EliminationPopup)
 	FString EliminationPopupText = "";
+	FTimerHandle EliminationPopupTimer;
+	void StartPopupTimer();
+	void PopupTimerFinished();
 };

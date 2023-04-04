@@ -3,6 +3,7 @@
 #include "BlasterPlayerState.h"
 
 #include "Net/UnrealNetwork.h"
+#include "TimerManager.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
@@ -88,6 +89,10 @@ void ABlasterPlayerState::OnRep_Defeats()
 void ABlasterPlayerState::SetEliminationPopup(FString Message)
 {
 	EliminationPopupText = Message; // Triggers replication.
+	if (EliminationPopupText == "")
+	{
+		return;
+	}
 
 	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character;
 	if (Character)
@@ -96,6 +101,7 @@ void ABlasterPlayerState::SetEliminationPopup(FString Message)
 		if (Controller)
 		{
 			Controller->ShowEliminationPopup(EliminationPopupText);
+			StartPopupTimer();
 		}
 	}
 }
@@ -103,6 +109,11 @@ void ABlasterPlayerState::SetEliminationPopup(FString Message)
 // OnRep_EliminationPopup runs on clients when elimination messages are set.
 void ABlasterPlayerState::OnRep_EliminationPopup()
 {
+	if (EliminationPopupText == "")
+	{
+		return;
+	}
+
 	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character;
 	if (Character)
 	{
@@ -110,6 +121,25 @@ void ABlasterPlayerState::OnRep_EliminationPopup()
 		if (Controller)
 		{
 			Controller->ShowEliminationPopup(EliminationPopupText);
+			StartPopupTimer();
+		}
+	}
+}
+
+void ABlasterPlayerState::StartPopupTimer()
+{
+	GetWorldTimerManager().SetTimer(EliminationPopupTimer, this, &ABlasterPlayerState::PopupTimerFinished, 3.0f);
+}
+
+void ABlasterPlayerState::PopupTimerFinished()
+{
+	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character;
+	if (Character)
+	{
+		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+		if (Controller)
+		{
+			Controller->HideEliminationPopup();
 		}
 	}
 }
