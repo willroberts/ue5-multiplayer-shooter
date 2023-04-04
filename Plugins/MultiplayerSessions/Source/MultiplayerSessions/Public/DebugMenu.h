@@ -51,6 +51,7 @@ protected:
 private:
 	void Destroy();
 
+	UPROPERTY()
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
 
 	/********************

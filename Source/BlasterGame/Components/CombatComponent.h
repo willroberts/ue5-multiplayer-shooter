@@ -43,9 +43,14 @@ protected:
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 	void SetHUDCrosshair(float DeltaTime);
 
-private:	
+private:
+	UPROPERTY()
 	class ABlasterCharacter* Character;
+
+	UPROPERTY()
 	class ABlasterPlayerController* Controller;
+
+	UPROPERTY()
 	class ABlasterHUD* HUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)

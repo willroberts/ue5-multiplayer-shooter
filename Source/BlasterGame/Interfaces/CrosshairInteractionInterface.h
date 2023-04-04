@@ -16,6 +16,4 @@ class UCrosshairInteractionInterface : public UInterface
 class BLASTERGAME_API ICrosshairInteractionInterface
 {
 	GENERATED_BODY()
-
-public:
 };
