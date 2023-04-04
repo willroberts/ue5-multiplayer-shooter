@@ -120,6 +120,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABlasterCharacter::FireButtonReleased);
+	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &ABlasterCharacter::DropButtonPressed);
 }
 
 void ABlasterCharacter::PostInitializeComponents()
@@ -544,6 +545,28 @@ void ABlasterCharacter::FireButtonReleased()
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
+	}
+}
+
+void ABlasterCharacter::DropButtonPressed()
+{
+	if (!HasAuthority())
+	{
+		ServerDropButtonPressed();
+		return;
+	}
+
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->UnequipWeapon();
+	}
+}
+
+void ABlasterCharacter::ServerDropButtonPressed_Implementation()
+{
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->UnequipWeapon();
 	}
 }
 

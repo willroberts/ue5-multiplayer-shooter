@@ -60,7 +60,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 		return;
 	}
 
-	EquippedWeapon = WeaponToEquip;
+	EquippedWeapon = WeaponToEquip; // Triggers replication.
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	if (HandSocket)
@@ -71,6 +71,12 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon->SetOwner(Character);
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
+}
+
+void UCombatComponent::UnequipWeapon()
+{
+	EquippedWeapon->Dropped();
+	EquippedWeapon = nullptr; // Triggers replication.
 }
 
 void UCombatComponent::OnRep_EquippedWeapon()

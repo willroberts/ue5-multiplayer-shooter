@@ -62,6 +62,7 @@ protected:
 	void SimProxiesTurn();
 	void FireButtonPressed();
 	void FireButtonReleased();
+	void DropButtonPressed();
 	void PlayHitReactMontage();
 	void UpdateHUDHealth();
 	void PollPlayerState();
@@ -101,6 +102,9 @@ private:
 	// Unreliable: Can be dropped.
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDropButtonPressed();
 
 	float AO_Yaw;
 	float InterpAO_Yaw;
