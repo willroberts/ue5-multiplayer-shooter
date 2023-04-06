@@ -31,6 +31,8 @@ Content/__ExternalObjects__
 
 # Ignore Mixamo content
 Content/BlasterGame/Mixamo/Animations
+Content/BlasterGame/Mixamo/SK_*
+Content/BlasterGame/Mixamo/SKM_*
 
 # Ignore ZapSplat content
 Content/BlasterGame/Sounds/RespawnBot/RespawnBot.uasset
