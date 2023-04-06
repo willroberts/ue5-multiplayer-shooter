@@ -32,6 +32,9 @@ Content/__ExternalObjects__
 # Ignore Mixamo content
 Content/BlasterGame/Mixamo/Animations
 
+# Ignore ZapSplat content
+Content/BlasterGame/Sounds/RespawnBot/RespawnBot.uasset
+
 # Ignore HoloLens
 Platforms/HoloLens
 
