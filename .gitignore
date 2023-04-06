@@ -29,12 +29,12 @@ Content/ThirdPerson
 Content/__ExternalActors__
 Content/__ExternalObjects__
 
-# Ignore Mixamo content
+# Ignore Mixamo animations
 Content/BlasterGame/Mixamo/Animations
 Content/BlasterGame/Mixamo/SK_*
 Content/BlasterGame/Mixamo/SKM_*
 
-# Ignore ZapSplat content
+# Ignore ZapSplat sounds
 Content/BlasterGame/Sounds/RespawnBot/RespawnBot.uasset
 
 # Ignore HoloLens
