@@ -29,6 +29,9 @@ Content/ThirdPerson
 Content/__ExternalActors__
 Content/__ExternalObjects__
 
+# Ignore Mixamo content
+Content/BlasterGame/Mixamo/Animations
+
 # Ignore HoloLens
 Platforms/HoloLens
 
