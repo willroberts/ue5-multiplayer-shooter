@@ -30,15 +30,15 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 	}
 
 	// Get the "MuzzleFlash" socket location.
-	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
-	if (!MuzzleFlashSocket)
+	const USkeletalMeshSocket* MuzzleSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
+	if (!MuzzleSocket)
 	{
 		// Can't spawn projectile without an origin location.
 		return;
 	}
 
 	// Get weapon transform and rotation.
-	FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+	FTransform SocketTransform = MuzzleSocket->GetSocketTransform(GetWeaponMesh());
 	FVector ToTarget = HitTarget - SocketTransform.GetLocation(); // Vector from socket to trace target.
 	FRotator TargetRotation = ToTarget.Rotation();
 
