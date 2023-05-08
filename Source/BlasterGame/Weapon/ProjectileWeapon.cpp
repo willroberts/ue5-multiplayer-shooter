@@ -16,10 +16,9 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 		return;
 	}
 
-	// Spawn a projectile at the 'MuzzleFlash' socket.
+	// Can't spawn projectile if parent class is nullptr.
 	if (!ProjectileClass)
 	{
-		// Can't spawn projectile if parent class is nullptr.
 		return;
 	}
 
@@ -27,7 +26,6 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 	if (!InstigatorPawn)
 	{
-		// Failed to cast owner to Pawn.
 		return;
 	}
 
@@ -39,14 +37,17 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 		return;
 	}
 
+	// Get weapon transform and rotation.
 	FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 	FVector ToTarget = HitTarget - SocketTransform.GetLocation(); // Vector from socket to trace target.
 	FRotator TargetRotation = ToTarget.Rotation();
 
+	// Configure spawn parameters.
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = GetOwner();
 	SpawnParams.Instigator = InstigatorPawn;
 
+	// Spawn a projectile at the 'MuzzleFlash' socket.
 	UWorld* World = GetWorld();
 	if (World)
 	{

@@ -17,6 +17,7 @@ AProjectile::AProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
+	// Configure collision.
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);
 	CollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
@@ -44,9 +45,9 @@ void AProjectile::BeginPlay()
 	if (Tracer)
 	{
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached(
-			Tracer,
-			CollisionBox,
-			FName(), // Not attaching to bones; use empty FName.
+			Tracer,       // Particle effect.
+			CollisionBox, // Attachment.
+			FName(),      // Not attaching to bones; use empty FName.
 			GetActorLocation(),
 			GetActorRotation(),
 			EAttachLocation::KeepWorldPosition

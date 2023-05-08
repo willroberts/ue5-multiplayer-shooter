@@ -109,6 +109,8 @@ void AWeapon::Fire(const FVector& HitTarget)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
+
+	// Spawn shell casings.
 	if (CasingClass)
 	{
 		// Get the "AmmoEject" socket location.
