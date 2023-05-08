@@ -241,7 +241,7 @@ void ABlasterCharacter::Eliminated()
 {
 	if (Combat && Combat->EquippedWeapon)
 	{
-		Combat->EquippedWeapon->Dropped();
+		Combat->UnequipWeapon();
 	}
 
 	MulticastEliminated();
