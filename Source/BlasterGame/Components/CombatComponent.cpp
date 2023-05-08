@@ -239,6 +239,35 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		ECollisionChannel::ECC_Visibility
 	);
 
+	// Debug line traces.
+	/*
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// Draw a line trace from the crosshair for debugging.
+		DrawDebugLine(World, Start, End, FColor::Red, false, -1.0f, 0, 2.5f);
+
+		// Draw a line trace from the weapon muzzle for debugging.
+		if (EquippedWeapon)
+		{
+			const USkeletalMeshComponent* WeaponMesh = EquippedWeapon->GetWeaponMesh();
+			if (WeaponMesh)
+			{
+				const USkeletalMeshSocket* MuzzleSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
+				if (MuzzleSocket)
+				{
+					FTransform SocketTransform = MuzzleSocket->GetSocketTransform(WeaponMesh);
+					FVector MuzzleStart = SocketTransform.GetLocation();
+					FVector SocketRotation = SocketTransform.GetRotation().Vector();
+					FVector MuzzleEnd = MuzzleStart + SocketRotation * TRACE_LENGTH;
+					FVector ToTarget = MuzzleEnd - SocketTransform.GetLocation(); // We use ToTarget.GetRotation() when spawning projectiles.
+					DrawDebugLine(World, MuzzleStart, ToTarget, FColor::Magenta, false, -1.0f, 0, 2.5f);
+				}
+			}
+		}
+	}
+	*/
+
 	// Detect targets under crosshair.
 	if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UCrosshairInteractionInterface>())
 	{
