@@ -10,7 +10,8 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"UMG"
+				"UMG",
+				"DeveloperSettings"
 			]
 		}
 	],
@@ -27,7 +28,5 @@
 			"Enabled": true
 		}
 	],
-	"TargetPlatforms": [
-		"Windows"
-	]
+	"TargetPlatforms": ["Windows"]
 }
