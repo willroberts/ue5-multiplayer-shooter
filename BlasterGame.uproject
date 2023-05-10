@@ -28,5 +28,7 @@
 			"Enabled": true
 		}
 	],
-	"TargetPlatforms": ["Windows"]
+	"TargetPlatforms": [
+		"Windows"
+	]
 }
