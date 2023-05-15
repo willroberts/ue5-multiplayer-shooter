@@ -34,11 +34,14 @@ public:
 	void SetWeaponState(EWeaponState State);
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
+	void AddAmmo(int32 AmmoToAdd);
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; };
 	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; };
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; };
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; };
+	FORCEINLINE int32 GetAmmo() const { return Ammo; };
+	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; };
 
 	/*
 	* Textures for weapon crosshair.
