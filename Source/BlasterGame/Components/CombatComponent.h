@@ -95,11 +95,12 @@ private:
 	void InterpFOV(float DeltaTime);
 
 	/*
-	* Automatic fire mode
+	* Fire modes
 	*/
 
 	FTimerHandle FireTimer;
 	bool bCanFire = true;
 	void StartFireTimer();
 	void FireTimerFinished();
+	bool CanFire();
 };

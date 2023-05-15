@@ -66,6 +66,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	bool bAutomaticFireMode = false;
 
+	bool IsEmpty();
+
 protected:
 	virtual void BeginPlay() override;
 

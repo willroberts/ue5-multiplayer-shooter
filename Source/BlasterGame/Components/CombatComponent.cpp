@@ -141,7 +141,7 @@ void UCombatComponent::SetAiming(bool bAiming)
 
 void UCombatComponent::FireWeapon()
 {
-	if (!bCanFire || !EquippedWeapon)
+	if (!CanFire())
 	{
 		return;
 	}
@@ -411,4 +411,13 @@ void UCombatComponent::FireTimerFinished()
 	{
 		FireWeapon();
 	}
+}
+
+void UCombatComponent::CanFire()
+{
+	if (!EquippedWeapon) return false;
+	if (EquippedWeapon->IsEmpty()) return false;
+	if (!bCanFire) return false;
+
+	return true;
 }

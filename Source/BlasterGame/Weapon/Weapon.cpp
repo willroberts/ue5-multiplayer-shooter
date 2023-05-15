@@ -203,7 +203,7 @@ void AWeapon::OnSphereEndOverlap(
 
 void AWeapon::ConsumeAmmo()
 {
-	Ammo--; // Triggers replication.
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity); // Triggers replication.
 	SetHUDAmmo();
 }
 
@@ -243,4 +243,9 @@ void AWeapon::SetHUDAmmo()
 	}
 
 	OwnerController->SetHUDAmmo(Ammo);
+}
+
+bool AWeapon::IsEmpty()
+{
+	return Ammo <= 0;
 }
