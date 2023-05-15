@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+
+#include "BlasterGame/Weapon/WeaponTypes.h"
+
 #include "BlasterPlayerController.generated.h"
 
 UCLASS()
@@ -16,6 +19,7 @@ public:
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
+	void SetHUDWeaponType(EWeaponType WeaponType);
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);
 	void ShowEliminationPopup(FString Message);

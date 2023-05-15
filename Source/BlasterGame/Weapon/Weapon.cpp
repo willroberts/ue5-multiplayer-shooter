@@ -144,6 +144,12 @@ void AWeapon::Dropped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 
+	// Clear HUD text for previous owner.
+	if (OwnerController)
+	{
+		OwnerController->SetHUDWeaponType(EWeaponType::EWT_MAX);
+	}
+
 	SetOwner(nullptr);
 	OwnerCharacter = nullptr;
 	OwnerController = nullptr;
@@ -224,31 +230,41 @@ void AWeapon::OnRep_Owner()
 
 	if (!Owner)
 	{
+		// Clear HUD text for previous owner.
+		if (OwnerController)
+		{
+			OwnerController->SetHUDWeaponType(EWeaponType::EWT_MAX);
+		}
+
 		OwnerCharacter = nullptr;
 		OwnerController = nullptr;
 		return;
 	}
 
 	SetHUDAmmo();
+	SetHUDWeaponType();
 }
 
 void AWeapon::SetHUDAmmo()
 {
 	OwnerCharacter = OwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : OwnerCharacter;
-	if (!OwnerCharacter)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OwnerCharacter could not be set"));
-		return;
-	}
+	if (!OwnerCharacter) return;
 
 	OwnerController = OwnerController == nullptr ? Cast<ABlasterPlayerController>(OwnerCharacter->Controller) : OwnerController;
-	if (!OwnerController)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OwnerController could not be set"));
-		return;
-	}
+	if (!OwnerController) return;
 
 	OwnerController->SetHUDWeaponAmmo(Ammo);
+}
+
+void AWeapon::SetHUDWeaponType()
+{
+	OwnerCharacter = OwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : OwnerCharacter;
+	if (!OwnerCharacter) return;
+
+	OwnerController = OwnerController == nullptr ? Cast<ABlasterPlayerController>(OwnerCharacter->Controller) : OwnerController;
+	if (!OwnerController) return;
+
+	OwnerController->SetHUDWeaponType(GetWeaponType());
 }
 
 bool AWeapon::IsEmpty()

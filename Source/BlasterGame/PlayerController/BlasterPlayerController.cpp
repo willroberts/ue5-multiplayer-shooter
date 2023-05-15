@@ -73,6 +73,26 @@ void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 	}
 }
 
+void ABlasterPlayerController::SetHUDWeaponType(EWeaponType WeaponType)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	if (BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->WeaponTypeText)
+	{
+		switch (WeaponType)
+		{
+		case EWeaponType::EWT_AssaultRifle:
+			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Assault Rifle"));
+			break;
+		default:
+			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Unarmed"));
+			break;
+		}
+	}
+}
+
 void ABlasterPlayerController::SetHUDWeaponAmmo(int32 Ammo)
 {
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;

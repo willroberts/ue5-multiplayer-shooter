@@ -82,7 +82,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
 	}
 
-	// Update ammo counts.
+	// Update HUD.
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
@@ -90,6 +90,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
+		Controller->SetHUDWeaponType(EquippedWeapon->GetWeaponType());
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
 
@@ -132,7 +133,6 @@ void UCombatComponent::OnRep_EquippedWeapon()
 void UCombatComponent::Reload()
 {
 	// TODO: Prevent reloading when magazine is already full.
-	// TODO: Prevent firing while reload animation is playing.
 	if (CarriedAmmo <= 0) return;
 	if (CombatState == ECombatState::ECS_Reloading) return;
 

@@ -30,6 +30,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnRep_Owner() override;
 	void SetHUDAmmo();
+	void SetHUDWeaponType();
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
 	virtual void Fire(const FVector& HitTarget);

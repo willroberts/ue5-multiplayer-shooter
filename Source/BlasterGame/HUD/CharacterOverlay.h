@@ -28,6 +28,9 @@ public:
 	UTextBlock* EliminationPopupText;
 
 	UPROPERTY(meta = (BindWidget))
+	UTextBlock* WeaponTypeText;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponAmmoValueText;
 
 	UPROPERTY(meta = (BindWidget))
