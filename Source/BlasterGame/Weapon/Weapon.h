@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "WeaponTypes.h"
+
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
@@ -36,6 +38,7 @@ public:
 	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; };
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; };
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; };
 
 	/*
 	* Textures for weapon crosshair.
@@ -111,6 +114,15 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AShellCasing> CasingClass;
 
+	UPROPERTY()
+	class ABlasterCharacter* OwnerCharacter;
+
+	UPROPERTY()
+	class ABlasterPlayerController* OwnerController;
+
+	UPROPERTY(EditAnywhere)
+	EWeaponType WeaponType;
+
 	/*
 	* Zoomed FOV while aiming
 	*/
@@ -124,12 +136,6 @@ private:
 	/*
 	* Ammo
 	*/
-
-	UPROPERTY()
-	class ABlasterCharacter* OwnerCharacter;
-
-	UPROPERTY()
-	class ABlasterPlayerController* OwnerController;
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
 	int32 Ammo;

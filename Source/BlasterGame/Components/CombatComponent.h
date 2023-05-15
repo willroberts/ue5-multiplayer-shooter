@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 
 #include "BlasterGame/HUD/BlasterHUD.h"
+#include "BlasterGame/Weapon/WeaponTypes.h"
 
 #include "CombatComponent.generated.h"
 
@@ -95,7 +96,7 @@ private:
 	void InterpFOV(float DeltaTime);
 
 	/*
-	* Fire modes
+	* Weapong firing
 	*/
 
 	FTimerHandle FireTimer;
@@ -103,4 +104,13 @@ private:
 	void StartFireTimer();
 	void FireTimerFinished();
 	bool CanFire();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo; // For current weapon.
+
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	TMap<EWeaponType, int32> CarriedAmmoMap;
+	void InitializeCarriedAmmo();
 };

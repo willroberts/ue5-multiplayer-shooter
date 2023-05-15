@@ -242,7 +242,7 @@ void AWeapon::SetHUDAmmo()
 		return;
 	}
 
-	OwnerController->SetHUDAmmo(Ammo);
+	OwnerController->SetHUDWeaponAmmo(Ammo);
 }
 
 bool AWeapon::IsEmpty()

@@ -16,7 +16,8 @@ public:
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
-	void SetHUDAmmo(int32 Ammo);
+	void SetHUDWeaponAmmo(int32 Ammo);
+	void SetHUDCarriedAmmo(int32 Ammo);
 	void ShowEliminationPopup(FString Message);
 	void HideEliminationPopup();
 

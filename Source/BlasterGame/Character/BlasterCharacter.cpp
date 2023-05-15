@@ -265,7 +265,7 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 	PlayEliminatedMontage();
 	if (BlasterPlayerController)
 	{
-		BlasterPlayerController->SetHUDAmmo(0);
+		BlasterPlayerController->SetHUDWeaponAmmo(0);
 	}
 
 	// Apply dissolve VFX to the eliminated character.
