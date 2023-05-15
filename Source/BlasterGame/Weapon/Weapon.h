@@ -1,4 +1,4 @@
-// © 2023 Will Roberts
+// (c) 2023 Will Roberts
 
 #pragma once
 
@@ -26,6 +26,8 @@ public:
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnRep_Owner() override;
+	void SetHUDAmmo();
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
 	virtual void Fire(const FVector& HitTarget);
@@ -116,4 +118,25 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float ZoomInterpSpeed = 20.f;
+
+	/*
+	* Ammo
+	*/
+
+	UPROPERTY()
+	class ABlasterCharacter* OwnerCharacter;
+
+	UPROPERTY()
+	class ABlasterPlayerController* OwnerController;
+
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
+	int32 Ammo;
+
+	void ConsumeAmmo();
+
+	UFUNCTION()
+	void OnRep_Ammo();
+
+	UPROPERTY(EditAnywhere)
+	int32 MagCapacity;
 };

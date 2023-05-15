@@ -1,4 +1,4 @@
-// © 2023 Will Roberts
+// (c) 2023 Will Roberts
 
 #include "CombatComponent.h"
 
@@ -75,6 +75,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	}
 
 	EquippedWeapon->SetOwner(Character);
+	EquippedWeapon->SetHUDAmmo();
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
 }

@@ -1,4 +1,4 @@
-// © 2023 Will Roberts
+// (c) 2023 Will Roberts
 
 #pragma once
 
@@ -26,4 +26,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* EliminationPopupText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* AmmoValueText;
 };

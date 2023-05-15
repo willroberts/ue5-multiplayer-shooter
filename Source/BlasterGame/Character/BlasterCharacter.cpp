@@ -1,4 +1,4 @@
-// © 2023 Will Roberts
+// (c) 2023 Will Roberts
 
 #include "BlasterCharacter.h"
 
@@ -263,6 +263,10 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 {
 	bEliminated = true;
 	PlayEliminatedMontage();
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDAmmo(0);
+	}
 
 	// Apply dissolve VFX to the eliminated character.
 	if (DissolveMaterialInstance)

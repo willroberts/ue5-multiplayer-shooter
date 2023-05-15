@@ -1,4 +1,4 @@
-// © 2023 Will Roberts
+// (c) 2023 Will Roberts
 
 #include "Weapon.h"
 
@@ -10,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
+#include "BlasterGame/PlayerController/BlasterPlayerController.h"
 #include "ShellCasing.h"
 
 //
@@ -49,7 +50,8 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AWeapon, WeaponState); // Enable replication for WeaponState.
+	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
@@ -132,6 +134,8 @@ void AWeapon::Fire(const FVector& HitTarget)
 			);
 		}
 	}
+
+	ConsumeAmmo();
 }
 
 void AWeapon::Dropped()
@@ -139,7 +143,10 @@ void AWeapon::Dropped()
 	SetWeaponState(EWeaponState::EWS_Dropped);
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
+
 	SetOwner(nullptr);
+	OwnerCharacter = nullptr;
+	OwnerController = nullptr;
 }
 
 //
@@ -192,4 +199,48 @@ void AWeapon::OnSphereEndOverlap(
 	{
 		Character->SetOverlappingWeapon(nullptr);
 	}
+}
+
+void AWeapon::ConsumeAmmo()
+{
+	Ammo--; // Triggers replication.
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+
+	if (!Owner)
+	{
+		OwnerCharacter = nullptr;
+		OwnerController = nullptr;
+		return;
+	}
+
+	SetHUDAmmo();
+}
+
+void AWeapon::SetHUDAmmo()
+{
+	OwnerCharacter = OwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : OwnerCharacter;
+	if (!OwnerCharacter)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OwnerCharacter could not be set"));
+		return;
+	}
+
+	OwnerController = OwnerController == nullptr ? Cast<ABlasterPlayerController>(OwnerCharacter->Controller) : OwnerController;
+	if (!OwnerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OwnerController could not be set"));
+		return;
+	}
+
+	OwnerController->SetHUDAmmo(Ammo);
 }

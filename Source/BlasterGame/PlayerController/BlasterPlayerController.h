@@ -1,4 +1,4 @@
-// © 2023 Will Roberts
+// (c) 2023 Will Roberts
 
 #pragma once
 
@@ -16,6 +16,7 @@ public:
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
+	void SetHUDAmmo(int32 Ammo);
 	void ShowEliminationPopup(FString Message);
 	void HideEliminationPopup();
 
