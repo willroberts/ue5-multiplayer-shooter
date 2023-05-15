@@ -1,4 +1,4 @@
-// © 2023 Will Roberts
+// (c) 2023 Will Roberts
 
 #include "ProjectileBullet.h"
 #include "GameFramework/Character.h"

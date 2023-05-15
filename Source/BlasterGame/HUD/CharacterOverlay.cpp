@@ -1,3 +1,3 @@
-// © 2023 Will Roberts
+// (c) 2023 Will Roberts
 
 #include "CharacterOverlay.h"
