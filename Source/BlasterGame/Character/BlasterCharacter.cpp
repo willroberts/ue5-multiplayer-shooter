@@ -760,3 +760,10 @@ void ABlasterCharacter::StartDissolve()
 		DissolveTimeline->Play();
 	}
 }
+
+ECombatState ABlasterCharacter::GetCombatState() const
+{
+	if (!Combat) return ECombatState::ECS_MAX; // Something went wrong!
+	
+	return Combat->CombatState;
+}

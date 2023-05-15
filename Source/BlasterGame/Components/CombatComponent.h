@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
+#include "BlasterGame/BlasterTypes/CombatState.h"
 #include "BlasterGame/HUD/BlasterHUD.h"
 #include "BlasterGame/Weapon/WeaponTypes.h"
 
@@ -48,6 +49,11 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
+
+	void HandleReload();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
 
 private:
 	UPROPERTY()
@@ -117,4 +123,10 @@ private:
 
 	TMap<EWeaponType, int32> CarriedAmmoMap;
 	void InitializeCarriedAmmo();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+
+	UFUNCTION()
+	void OnRep_CombatState();
 };

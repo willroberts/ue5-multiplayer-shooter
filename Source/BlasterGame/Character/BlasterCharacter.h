@@ -6,6 +6,7 @@
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
 
+#include "BlasterGame/BlasterTypes/CombatState.h"
 #include "BlasterGame/BlasterTypes/TurningInPlace.h"
 #include "BlasterGame/Interfaces/CrosshairInteractionInterface.h"
 #include "BlasterGame/Weapon/Weapon.h"
@@ -45,6 +46,8 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminated();
+
+	ECombatState GetCombatState() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -96,7 +99,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
 
 	// Server RPC.

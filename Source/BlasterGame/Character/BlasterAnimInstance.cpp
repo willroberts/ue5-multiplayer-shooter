@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "BlasterCharacter.h"
+#include "BlasterGame/BlasterTypes/CombatState.h"
 #include "BlasterGame/Weapon/Weapon.h"
 
 void UBlasterAnimInstance::NativeInitializeAnimation()
@@ -94,4 +95,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaTime, 20.f);
 		}
 	}
+
+	// Determine whether or not to use FABRIK IK next frame.
+	bUseFabrik = BlasterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }

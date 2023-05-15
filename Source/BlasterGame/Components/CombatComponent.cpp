@@ -52,6 +52,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
+	DOREPLIFETIME(UCombatComponent, CombatState);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -115,27 +116,56 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
+// Triggered on client input.
 void UCombatComponent::Reload()
 {
 	// TODO: Prevent reloading when magazine is already full.
 	// TODO: Prevent firing while reload animation is playing.
-	// TODO: Fix IK on animation.
-	// TODO: Replicate animation back to clients.
 	if (CarriedAmmo <= 0) return;
+	if (CombatState == ECombatState::ECS_Reloading) return;
 
 	ServerReload();
+}
+
+// Performs actions needed on both server and clients.
+void UCombatComponent::HandleReload()
+{
+	Character->PlayReloadMontage();
+}
+
+// Performs actions needed on server only.
+void UCombatComponent::ServerReload_Implementation()
+{
+	if (!Character) return;
+
+	CombatState = ECombatState::ECS_Reloading;
+	HandleReload();
+}
+
+// Called from animation blueprint when reload animation completes.
+void UCombatComponent::FinishReloading()
+{
+	if (!Character) return;
+
+	if (Character->HasAuthority())
+	{
+		CombatState = ECombatState::ECS_Unoccupied;
+	}
+}
+
+void UCombatComponent::OnRep_CombatState()
+{
+	switch (CombatState)
+	{
+	case ECombatState::ECS_Reloading:
+		HandleReload();
+		break;
+	}
 }
 
 //
 // Protected Methods
 //
-
-void UCombatComponent::ServerReload_Implementation()
-{
-	if (!Character) return;
-
-	Character->PlayReloadMontage();
-}
 
 void UCombatComponent::BeginPlay()
 {
