@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Sound/SoundCue.h"
 #include "TimerManager.h"
 
 #include "BlasterGame/Weapon/Weapon.h"
@@ -57,20 +58,16 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
-	if (!Character || !WeaponToEquip)
-	{
-		return;
-	}
+	if (!Character || !WeaponToEquip) return;
 
-	// Drop any existing weapon.
-	if (EquippedWeapon)
-	{
-		UnequipWeapon();
-	}
+	if (EquippedWeapon) UnequipWeapon(); // Drop any existing weapon.
 
 	EquippedWeapon = WeaponToEquip; // Triggers replication.
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	EquippedWeapon->SetOwner(Character);
+	EquippedWeapon->SetHUDAmmo();
 
+	// Update animation bits.
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	if (HandSocket)
 	{
@@ -79,14 +76,17 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
 
-	EquippedWeapon->SetOwner(Character);
-	EquippedWeapon->SetHUDAmmo();
+	// Play sound.
+	if (EquippedWeapon->EquipSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
+	}
 
+	// Update ammo counts.
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 	}
-
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
@@ -109,6 +109,12 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		if (HandSocket)
 		{
 			HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+		}
+
+		// Play sound.
+		if (EquippedWeapon->EquipSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
 		}
 
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;

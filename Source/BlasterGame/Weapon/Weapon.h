@@ -74,6 +74,13 @@ public:
 
 	bool IsEmpty();
 
+	/*
+	* Sounds
+	*/
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* EquipSound;
+
 protected:
 	virtual void BeginPlay() override;
 
