@@ -46,6 +46,9 @@ protected:
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 	void SetHUDCrosshair(float DeltaTime);
 
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
+
 private:
 	UPROPERTY()
 	class ABlasterCharacter* Character;

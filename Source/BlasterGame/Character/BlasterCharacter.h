@@ -28,6 +28,7 @@ public:
 	bool IsAiming();
 	AWeapon* GetEquippedWeapon();
 	void PlayFireMontage(bool bAiming);
+	void PlayReloadMontage();
 	void PlayEliminatedMontage();
 	FVector GetHitTarget() const;
 	virtual void OnRep_ReplicatedMovement() override;
@@ -114,14 +115,25 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 
+	/*
+	* Animation Montages
+	*/
+
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* ReloadMontage;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* HitReactMontage;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* EliminatedMontage;
+
+	/*
+	* Camera and Movement
+	*/
 
 	UPROPERTY(EditAnywhere)
 	float CameraHideMeshThreshold = 200.f;

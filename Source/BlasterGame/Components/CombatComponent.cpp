@@ -117,12 +117,25 @@ void UCombatComponent::OnRep_EquippedWeapon()
 
 void UCombatComponent::Reload()
 {
-	// Play reload animation montage.
+	// TODO: Prevent reloading when magazine is already full.
+	// TODO: Prevent firing while reload animation is playing.
+	// TODO: Fix IK on animation.
+	// TODO: Replicate animation back to clients.
+	if (CarriedAmmo <= 0) return;
+
+	ServerReload();
 }
 
 //
 // Protected Methods
 //
+
+void UCombatComponent::ServerReload_Implementation()
+{
+	if (!Character) return;
+
+	Character->PlayReloadMontage();
+}
 
 void UCombatComponent::BeginPlay()
 {
