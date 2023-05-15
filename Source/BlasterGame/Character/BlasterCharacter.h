@@ -56,6 +56,7 @@ protected:
 	void CrouchButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
+	void ReloadButtonPressed();
 	void CalculateAO_Pitch();
 	float CalculateSpeed();
 	void AimOffset(float DeltaTime);

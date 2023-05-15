@@ -115,6 +115,11 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
+void UCombatComponent::Reload()
+{
+	// Play reload animation montage.
+}
+
 //
 // Protected Methods
 //
