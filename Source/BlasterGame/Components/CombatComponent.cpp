@@ -151,12 +151,24 @@ void UCombatComponent::FinishReloading()
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
 	}
+
+	// Attempt to fire again if button is pressed when reload ends.
+	if (bFireButtonPressed)
+	{
+		FireWeapon();
+	}
 }
 
 void UCombatComponent::OnRep_CombatState()
 {
 	switch (CombatState)
 	{
+	case ECombatState::ECS_Unoccupied:
+		if (bFireButtonPressed)
+		{
+			FireWeapon();
+		}
+		break;
 	case ECombatState::ECS_Reloading:
 		HandleReload();
 		break;
@@ -255,7 +267,7 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	if (Character && EquippedWeapon)
+	if (Character && EquippedWeapon && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		Character->PlayFireMontage(bIsAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
@@ -484,6 +496,7 @@ bool UCombatComponent::CanFire()
 	if (!EquippedWeapon) return false;
 	if (EquippedWeapon->IsEmpty()) return false;
 	if (!bCanFire) return false;
+	if (CombatState != ECombatState::ECS_Unoccupied) return false;
 
 	return true;
 }
