@@ -92,6 +92,12 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
+
+	// Automatically reload when magazine is empty.
+	if (EquippedWeapon->IsEmpty())
+	{
+		Reload();
+	}
 }
 
 void UCombatComponent::UnequipWeapon()
@@ -526,6 +532,12 @@ void UCombatComponent::FireTimerFinished()
 	if (bFireButtonPressed && EquippedWeapon && EquippedWeapon->bAutomaticFireMode)
 	{
 		FireWeapon();
+	}
+
+	// Automatically reload when magazine is empty.
+	if (EquippedWeapon->IsEmpty())
+	{
+		Reload();
 	}
 }
 
