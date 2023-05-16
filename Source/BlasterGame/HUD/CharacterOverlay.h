@@ -19,6 +19,9 @@ public:
 	class UTextBlock* HealthText;
 
 	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MatchTimerText;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* ScoreValueText;
 
 	UPROPERTY(meta = (BindWidget))

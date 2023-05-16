@@ -16,6 +16,13 @@ void ABlasterPlayerController::BeginPlay()
 	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
 }
 
+void ABlasterPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	SetHUDTime();
+}
+
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -44,6 +51,22 @@ void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 			FMath::CeilToInt(MaxHealth)
 		);
 		BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
+	}
+}
+
+void ABlasterPlayerController::SetHUDMatchTimer(float Time)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	if (BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->MatchTimerText)
+	{
+		int32 Minutes = FMath::FloorToInt(Time / 60.f);
+		int32 Seconds = Time - (Minutes * 60);
+
+		FString TimerText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		BlasterHUD->CharacterOverlay->MatchTimerText->SetText(FText::FromString(TimerText));
 	}
 }
 
@@ -144,4 +167,14 @@ void ABlasterPlayerController::HideEliminationPopup()
 		BlasterHUD->CharacterOverlay->EliminationPopupText->SetText(FText::FromString(""));
 		BlasterHUD->CharacterOverlay->EliminationPopupText->SetVisibility(ESlateVisibility::Collapsed);
 	}
+}
+
+void ABlasterPlayerController::SetHUDTime()
+{
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	if (CountdownInt != SecondsLeft)
+	{
+		SetHUDMatchTimer(MatchTime - GetWorld()->GetTimeSeconds());
+	}
+	CountdownInt = SecondsLeft;
 }
