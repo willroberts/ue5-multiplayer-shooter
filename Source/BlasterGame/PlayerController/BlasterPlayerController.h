@@ -17,6 +17,7 @@ class BLASTERGAME_API ABlasterPlayerController : public APlayerController
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void ReceivedPlayer() override;
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDMatchTimer(float Time);
 	void SetHUDScore(float Score);
@@ -26,11 +27,26 @@ public:
 	void SetHUDCarriedAmmo(int32 Ammo);
 	void ShowEliminationPopup(FString Message);
 	void HideEliminationPopup();
+	virtual float GetServerTime();
 
 protected:
 	virtual void BeginPlay() override;
 	void SetHUDTime();
 
+	UFUNCTION(Server, Reliable)
+	void ServerRequestServerTime(float SendTime);
+
+	UFUNCTION(Client, Reliable)
+	void ClientReportServerTime(float SendTime, float RecvTime);
+
+	float ClientServerTimeDelta = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = Time)
+	float TimeSyncFreq = 5.f;
+
+	float TimeSinceLastSync = 0.f;
+
+	void SyncTime(float DeltaTime);
 private:
 	UPROPERTY()
 	class ABlasterHUD* BlasterHUD;

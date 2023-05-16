@@ -21,6 +21,17 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	SetHUDTime();
+	SyncTime(DeltaTime);
+}
+
+void ABlasterPlayerController::SyncTime(float DeltaTime)
+{
+	TimeSinceLastSync += DeltaTime;
+	if (IsLocalController() && TimeSinceLastSync > TimeSyncFreq)
+	{
+		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+		TimeSinceLastSync = 0.f;
+	}
 }
 
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
@@ -31,6 +42,15 @@ void ABlasterPlayerController::OnPossess(APawn* InPawn)
 	if (BlasterCharacter)
 	{
 		SetHUDHealth(BlasterCharacter->GetHealth(), BlasterCharacter->GetMaxHealth());
+	}
+}
+
+void ABlasterPlayerController::ReceivedPlayer()
+{
+	Super::ReceivedPlayer();
+
+	if (IsLocalController()) {
+		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
 	}
 }
 
@@ -171,10 +191,33 @@ void ABlasterPlayerController::HideEliminationPopup()
 
 void ABlasterPlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	float ServerTime = GetServerTime();
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - ServerTime);
 	if (CountdownInt != SecondsLeft)
 	{
-		SetHUDMatchTimer(MatchTime - GetWorld()->GetTimeSeconds());
+		SetHUDMatchTimer(MatchTime - ServerTime);
 	}
 	CountdownInt = SecondsLeft;
+}
+
+void ABlasterPlayerController::ServerRequestServerTime_Implementation(float SendTime)
+{
+	float RecvTime = GetWorld()->GetTimeSeconds();
+	ClientReportServerTime(SendTime, RecvTime);
+}
+
+void ABlasterPlayerController::ClientReportServerTime_Implementation(float SendTime, float RecvTime)
+{
+	float RTT = GetWorld()->GetTimeSeconds() - SendTime;
+	float CurrentServerTime = RecvTime + (RTT * 0.5f);
+	ClientServerTimeDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+}
+
+float ABlasterPlayerController::GetServerTime()
+{
+	if (HasAuthority())
+	{
+		return GetWorld()->GetTimeSeconds();
+	}
+	return GetWorld()->GetTimeSeconds() + ClientServerTimeDelta;
 }
