@@ -30,6 +30,7 @@ public:
 	void HideEliminationPopup();
 	virtual float GetServerTime();
 	void OnMatchStateSet(FName State);
+	void HandleMatchStart();
 
 protected:
 	virtual void BeginPlay() override;

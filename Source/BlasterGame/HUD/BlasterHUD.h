@@ -48,6 +48,14 @@ public:
 
 	void AddCharacterOverlay();
 
+	UPROPERTY(EditAnywhere, Category = "Announcements")
+	TSubclassOf<class UUserWidget> AnnouncementWidgetClass;
+
+	UPROPERTY()
+	class UAnnouncementWidget* AnnouncementWidget;
+
+	void AddAnnouncement();
+
 protected:
 	virtual void BeginPlay() override;
 

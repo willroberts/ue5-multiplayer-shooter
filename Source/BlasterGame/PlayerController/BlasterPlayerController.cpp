@@ -8,6 +8,7 @@
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/GameModes/BlasterGameMode.h"
+#include "BlasterGame/HUD/AnnouncementWidget.h"
 #include "BlasterGame/HUD/BlasterHUD.h"
 #include "BlasterGame/HUD/CharacterOverlay.h"
 
@@ -16,6 +17,10 @@ void ABlasterPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
+	if (BlasterHUD)
+	{
+		BlasterHUD->AddAnnouncement();
+	}
 }
 
 void ABlasterPlayerController::PollOverlayState()
@@ -267,11 +272,7 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 
 	if (MatchState == MatchState::InProgress)
 	{
-		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
-		if (BlasterHUD)
-		{
-			BlasterHUD->AddCharacterOverlay();
-		}
+		HandleMatchStart();
 	}
 }
 
@@ -279,10 +280,19 @@ void ABlasterPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
-		if (BlasterHUD)
+		HandleMatchStart();
+	}
+}
+
+void ABlasterPlayerController::HandleMatchStart()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD)
+	{
+		BlasterHUD->AddCharacterOverlay();
+		if (BlasterHUD->AnnouncementWidget)
 		{
-			BlasterHUD->AddCharacterOverlay();
+			BlasterHUD->AnnouncementWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
