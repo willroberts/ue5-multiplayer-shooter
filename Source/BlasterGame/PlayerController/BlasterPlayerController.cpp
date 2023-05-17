@@ -87,6 +87,10 @@ void ABlasterPlayerController::ClientJoinMidGame_Implementation(FName State, flo
 	LevelStartTime = StartTime;
 
 	OnMatchStateSet(MatchState);
+	if (BlasterHUD && MatchState == MatchState::WaitingToStart)
+	{
+		BlasterHUD->AddAnnouncement();
+	}
 }
 
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
