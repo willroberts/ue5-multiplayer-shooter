@@ -58,7 +58,7 @@ protected:
 	void ServerCheckMatchState();
 
 	UFUNCTION(Client, Reliable)
-	void ClientJoinMidGame(FName State, float WTime, float MTime, float StartTime);
+	void ClientJoinMidGame(FName State, float WTime, float MTime, float CTime, float StartTime);
 
 private:
 	UPROPERTY()
@@ -66,7 +66,11 @@ private:
 	float LevelStartTime = 0.f; // Seconds since server started the level.
 	float WarmupTime = 0.f;
 	float MatchTime = 0.f;
+	float CooldownTime = 0.f;
 	uint32 CountdownInt = 0;
+
+	UPROPERTY()
+	class ABlasterGameMode* GameMode;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 	FName MatchState;

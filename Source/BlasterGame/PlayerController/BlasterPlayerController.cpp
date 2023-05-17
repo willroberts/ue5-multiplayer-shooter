@@ -35,7 +35,7 @@ void ABlasterPlayerController::PollOverlayState()
 	// Ensure level start time is set in the case where Controller::BeginPlay runs before GameMode::BeginPlay.
 	if (LevelStartTime == 0.f)
 	{
-		ABlasterGameMode* GameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+		GameMode = GameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : GameMode;
 		if (GameMode)
 		{
 			LevelStartTime = GameMode->LevelStartTime;
@@ -71,15 +71,16 @@ void ABlasterPlayerController::SyncTime(float DeltaTime)
 
 void ABlasterPlayerController::ServerCheckMatchState_Implementation()
 {
-	ABlasterGameMode* GameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	GameMode = GameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : GameMode;
 	if (GameMode)
 	{
 		MatchState = GameMode->GetMatchState();
 		WarmupTime = GameMode->WarmupTime;
 		MatchTime = GameMode->MatchTime;
+		CooldownTime = GameMode->CooldownTime;
 		LevelStartTime = GameMode->LevelStartTime;
 
-		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, LevelStartTime);
+		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, CooldownTime, LevelStartTime);
 
 		if (BlasterHUD && MatchState == MatchState::WaitingToStart)
 		{
@@ -88,11 +89,12 @@ void ABlasterPlayerController::ServerCheckMatchState_Implementation()
 	}
 }
 
-void ABlasterPlayerController::ClientJoinMidGame_Implementation(FName State, float WTime, float MTime, float StartTime)
+void ABlasterPlayerController::ClientJoinMidGame_Implementation(FName State, float WTime, float MTime, float CTime, float StartTime)
 {
 	MatchState = State;
 	WarmupTime = WTime;
 	MatchTime = MTime;
+	CooldownTime = CTime;
 	LevelStartTime = StartTime;
 
 	OnMatchStateSet(MatchState);
@@ -156,6 +158,12 @@ void ABlasterPlayerController::SetHUDMatchTimer(float Time)
 		BlasterHUD->CharacterOverlay &&
 		BlasterHUD->CharacterOverlay->MatchTimerText)
 	{
+		if (Time < 0.f)
+		{
+			BlasterHUD->CharacterOverlay->MatchTimerText->SetText(FText());
+			return;
+		}
+
 		int32 Minutes = FMath::FloorToInt(Time / 60.f);
 		int32 Seconds = Time - (Minutes * 60);
 
@@ -172,6 +180,12 @@ void ABlasterPlayerController::SetHUDAnnouncementTimer(float Time)
 		BlasterHUD->AnnouncementWidget &&
 		BlasterHUD->AnnouncementWidget->MatchTimerText)
 	{
+		if (Time < 0.f)
+		{
+			BlasterHUD->AnnouncementWidget->MatchTimerText->SetText(FText());
+			return;
+		}
+
 		int32 Minutes = FMath::FloorToInt(Time / 60.f);
 		int32 Seconds = Time - (Minutes * 60);
 
@@ -300,11 +314,27 @@ void ABlasterPlayerController::SetHUDTime()
 	{
 		TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartTime;
 	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		TimeLeft = WarmupTime + MatchTime + CooldownTime - GetServerTime() + LevelStartTime;
+	}
 
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
+	if (HasAuthority())
+	{
+		GameMode = GameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : GameMode;
+		if (GameMode)
+		{
+			SecondsLeft = FMath::CeilToInt(GameMode->GetCountdownTime() + LevelStartTime);
+		}
+	}
+	
 	if (CountdownInt != SecondsLeft)
 	{
-		if (MatchState == MatchState::WaitingToStart) SetHUDAnnouncementTimer(TimeLeft);
+		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
+		{
+			SetHUDAnnouncementTimer(TimeLeft);
+		}
 		else if (MatchState == MatchState::InProgress) SetHUDMatchTimer(TimeLeft);
 	}
 
@@ -381,6 +411,16 @@ void ABlasterPlayerController::HandleMatchCooldown()
 		if (BlasterHUD->AnnouncementWidget)
 		{
 			BlasterHUD->AnnouncementWidget->SetVisibility(ESlateVisibility::Visible);
+			if (BlasterHUD->AnnouncementWidget->AnnouncementText)
+			{
+				FText AnnouncementText = FText::FromString("A new match will begin soon!");
+				BlasterHUD->AnnouncementWidget->AnnouncementText->SetText(AnnouncementText);
+			}
+			if (BlasterHUD->AnnouncementWidget->InfoText)
+			{
+				FText InfoText = FText::FromString("SomePlayer wins the round!");
+				BlasterHUD->AnnouncementWidget->InfoText->SetText(InfoText);
+			}
 		}
 	}
 }

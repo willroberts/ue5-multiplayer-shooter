@@ -40,6 +40,8 @@ public:
 
 	float LevelStartTime = 0.f; // Seconds since server started the level.
 
+	FORCEINLINE float GetCountdownTime() const { return CountdownTime; };
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;
