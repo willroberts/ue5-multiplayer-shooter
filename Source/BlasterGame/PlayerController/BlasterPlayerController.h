@@ -32,6 +32,7 @@ public:
 	virtual float GetServerTime();
 	void OnMatchStateSet(FName State);
 	void HandleMatchStart();
+	void HandleMatchCooldown();
 
 protected:
 	virtual void BeginPlay() override;

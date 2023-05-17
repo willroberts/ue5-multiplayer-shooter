@@ -341,6 +341,10 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 	{
 		HandleMatchStart();
 	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleMatchCooldown();
+	}
 }
 
 void ABlasterPlayerController::OnRep_MatchState()
@@ -348,6 +352,10 @@ void ABlasterPlayerController::OnRep_MatchState()
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchStart();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleMatchCooldown();
 	}
 }
 
@@ -360,6 +368,19 @@ void ABlasterPlayerController::HandleMatchStart()
 		if (BlasterHUD->AnnouncementWidget)
 		{
 			BlasterHUD->AnnouncementWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void ABlasterPlayerController::HandleMatchCooldown()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD)
+	{
+		BlasterHUD->CharacterOverlay->RemoveFromParent();
+		if (BlasterHUD->AnnouncementWidget)
+		{
+			BlasterHUD->AnnouncementWidget->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }
