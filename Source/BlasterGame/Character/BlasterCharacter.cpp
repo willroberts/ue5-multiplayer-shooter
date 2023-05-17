@@ -304,6 +304,10 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 	{
 		DisableInput(BlasterPlayerController);
 	}
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 

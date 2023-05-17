@@ -10,9 +10,11 @@
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/Components/CombatComponent.h"
 #include "BlasterGame/GameModes/BlasterGameMode.h"
+#include "BlasterGame/GameState/BlasterGameState.h"
 #include "BlasterGame/HUD/AnnouncementWidget.h"
 #include "BlasterGame/HUD/BlasterHUD.h"
 #include "BlasterGame/HUD/CharacterOverlay.h"
+#include "BlasterGame/PlayerState/BlasterPlayerState.h"
 
 void ABlasterPlayerController::BeginPlay()
 {
@@ -419,8 +421,38 @@ void ABlasterPlayerController::HandleMatchCooldown()
 			}
 			if (BlasterHUD->AnnouncementWidget->InfoText)
 			{
-				FText InfoText = FText::FromString("SomePlayer wins the round!");
-				BlasterHUD->AnnouncementWidget->InfoText->SetText(InfoText);
+				FString InfoTextString = FString("");
+				ABlasterGameState* BlasterGameState = Cast<ABlasterGameState>(UGameplayStatics::GetGameState(this));
+				if (BlasterGameState)
+				{
+					TArray<ABlasterPlayerState*> TopPlayers = BlasterGameState->TopScoringPlayers;
+
+					if (TopPlayers.Num() == 0)
+					{
+						InfoTextString = FString("No one wins the round!");
+					}
+					else if (TopPlayers.Num() == 1)
+					{
+						ABlasterPlayerState* CurrentPlayer = GetPlayerState<ABlasterPlayerState>();
+						if (CurrentPlayer && CurrentPlayer == TopPlayers[0])
+						{
+							InfoTextString = FString("You win the round!");
+						}
+						else
+						{
+							InfoTextString = FString(FString::Printf(TEXT("%s wins the round!"), *TopPlayers[0]->GetPlayerName()));
+						}
+					}
+					else if (TopPlayers.Num() > 1)
+					{
+						InfoTextString = FString("Multiple players tied the round!\n\n");
+						for (auto TiedPlayer : TopPlayers)
+						{
+							InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+						}
+					}
+				}
+				BlasterHUD->AnnouncementWidget->InfoText->SetText(FText::FromString(InfoTextString));
 			}
 		}
 	}

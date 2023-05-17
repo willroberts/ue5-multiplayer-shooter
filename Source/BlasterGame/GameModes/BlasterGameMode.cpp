@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
+#include "BlasterGame/GameState/BlasterGameState.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
 #include "BlasterGame/PlayerState/BlasterPlayerState.h"
 
@@ -78,6 +79,7 @@ void ABlasterGameMode::PlayerEliminated(
 {
 	ABlasterPlayerState* AttackingPlayerState = AttackingController ? Cast<ABlasterPlayerState>(AttackingController->PlayerState) : nullptr;
 	ABlasterPlayerState* EliminatedPlayerState = EliminatedController ? Cast<ABlasterPlayerState>(EliminatedController->PlayerState) : nullptr;
+	ABlasterGameState* BlasterGameState = GetGameState<ABlasterGameState>();
 
 	// Increment score for the attacking player if they did not eliminate themselves.
 	// Decrement score for the attacking player if they did.
@@ -86,6 +88,10 @@ void ABlasterGameMode::PlayerEliminated(
 		if (AttackingPlayerState != EliminatedPlayerState)
 		{
 			AttackingPlayerState->AddToScore(1.f);
+			if (BlasterGameState)
+			{
+				BlasterGameState->UpdatePlayerScore(AttackingPlayerState);
+			}
 		}
 		else
 		{
