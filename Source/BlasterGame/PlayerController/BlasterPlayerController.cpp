@@ -23,14 +23,23 @@ void ABlasterPlayerController::BeginPlay()
 
 void ABlasterPlayerController::PollOverlayState()
 {
-	if (CharacterOverlay) return;
-
-	if (BlasterHUD && BlasterHUD->CharacterOverlay)
+	// Ensure health, score, and defeats are set.
+	if (!CharacterOverlay && BlasterHUD && BlasterHUD->CharacterOverlay)
 	{
 		CharacterOverlay = BlasterHUD->CharacterOverlay;
 		SetHUDHealth(HUDHealth, HUDMaxHealth);
 		SetHUDScore(HUDScore);
 		SetHUDDefeats(HUDDefeats);
+	}
+
+	// Ensure level start time is set in the case where Controller::BeginPlay runs before GameMode::BeginPlay.
+	if (LevelStartTime == 0.f)
+	{
+		ABlasterGameMode* GameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+		if (GameMode)
+		{
+			LevelStartTime = GameMode->LevelStartTime;
+		}
 	}
 }
 
@@ -38,9 +47,9 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SetHUDTime();
-	SyncTime(DeltaTime);
 	PollOverlayState();
+	SyncTime(DeltaTime);
+	SetHUDTime();
 }
 
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
