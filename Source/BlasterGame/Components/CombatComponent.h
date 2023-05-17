@@ -24,13 +24,13 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void EquipWeapon(class AWeapon* Weapon);
 	void UnequipWeapon();
+	void FireButtonPressed(bool bPressed);
 	void Reload();
 
 protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bAiming);
 	void FireWeapon();
-	void FireButtonPressed(bool bPressed);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bAiming);

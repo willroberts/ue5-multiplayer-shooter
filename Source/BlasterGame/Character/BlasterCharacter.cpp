@@ -73,22 +73,8 @@ void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Applies to ROLE_AutonomousProxy and ROLE_Authority.
-	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
-	{
-		// Store look orientation for aim offset tracking.
-		AimOffset(DeltaTime);
-	}
-	else
-	{
-		// Keep track of movement replication to ensure regular updates.
-		TimeSinceLastMovementRep += DeltaTime;
-		if (TimeSinceLastMovementRep > 0.25f)
-		{
-			OnRep_ReplicatedMovement();
-		}
-		CalculateAO_Pitch();
-	}
+	// Replicates character rotation and aim offsets.
+	RotateInPlace(DeltaTime);
 
 	// Make the Character invisible when the Camera is too close, obscuring vision.
 	CameraHideMesh();
@@ -103,6 +89,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ABlasterCharacter, Health);
+	DOREPLIFETIME(ABlasterCharacter, bDisableCombatActions);
 }
 
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -280,6 +267,12 @@ void ABlasterCharacter::Destroyed()
 	{
 		RespawnBotComponent->DestroyComponent();
 	}
+
+	// Handle the case where a player is destroyed by disconnecting rather than by elimination.
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->UnequipWeapon();
+	}
 }
 
 // Server+Client RPC.
@@ -386,6 +379,26 @@ void ABlasterCharacter::MoveRight(float Value)
 	}
 }
 
+void ABlasterCharacter::RotateInPlace(float DeltaTime)
+{
+	// Applies to ROLE_AutonomousProxy and ROLE_Authority.
+	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		// Store look orientation for aim offset tracking.
+		AimOffset(DeltaTime);
+	}
+	else
+	{
+		// Keep track of movement replication to ensure regular updates.
+		TimeSinceLastMovementRep += DeltaTime;
+		if (TimeSinceLastMovementRep > 0.25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+		CalculateAO_Pitch();
+	}
+}
+
 void ABlasterCharacter::Turn(float Value)
 {
 	if (Value == 0.f)
@@ -408,6 +421,8 @@ void ABlasterCharacter::LookUp(float Value)
 
 void ABlasterCharacter::EquipButtonPressed()
 {
+	if (bDisableCombatActions) return;
+
 	if (!HasAuthority())
 	{
 		ServerEquipButtonPressed();
@@ -446,7 +461,6 @@ void ABlasterCharacter::CrouchButtonPressed()
 
 void ABlasterCharacter::AimButtonPressed()
 {
-
 	if (Combat)
 	{
 		Combat->SetAiming(true);
@@ -463,6 +477,8 @@ void ABlasterCharacter::AimButtonReleased()
 
 void ABlasterCharacter::ReloadButtonPressed()
 {
+	if (bDisableCombatActions) return;
+
 	if (Combat)
 	{
 		Combat->Reload();
@@ -571,6 +587,8 @@ void ABlasterCharacter::SimProxiesTurn()
 
 void ABlasterCharacter::FireButtonPressed()
 {
+	if (bDisableCombatActions) return;
+
 	if (Combat)
 	{
 		Combat->FireButtonPressed(true);
@@ -587,6 +605,8 @@ void ABlasterCharacter::FireButtonReleased()
 
 void ABlasterCharacter::DropButtonPressed()
 {
+	if (bDisableCombatActions) return;
+
 	if (!HasAuthority())
 	{
 		ServerDropButtonPressed();

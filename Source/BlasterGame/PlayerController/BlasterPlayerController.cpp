@@ -8,6 +8,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
+#include "BlasterGame/Components/CombatComponent.h"
 #include "BlasterGame/GameModes/BlasterGameMode.h"
 #include "BlasterGame/HUD/AnnouncementWidget.h"
 #include "BlasterGame/HUD/BlasterHUD.h"
@@ -421,6 +422,16 @@ void ABlasterPlayerController::HandleMatchCooldown()
 				FText InfoText = FText::FromString("SomePlayer wins the round!");
 				BlasterHUD->AnnouncementWidget->InfoText->SetText(InfoText);
 			}
+		}
+	}
+
+	ABlasterCharacter* Char = Cast<ABlasterCharacter>(GetPawn());
+	if (Char)
+	{
+		Char->bDisableCombatActions = true;
+		if (Char->GetCombatComponent())
+		{
+			Char->GetCombatComponent()->FireButtonPressed(false);
 		}
 	}
 }

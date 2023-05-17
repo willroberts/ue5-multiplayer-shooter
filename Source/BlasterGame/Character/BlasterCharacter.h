@@ -35,6 +35,7 @@ public:
 	virtual void OnRep_ReplicatedMovement() override;
 	void Eliminated();
 	virtual void Destroyed() override;
+	ECombatState GetCombatState() const;
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
@@ -43,17 +44,23 @@ public:
 	FORCEINLINE bool IsEliminated() const { return bEliminated; };
 	FORCEINLINE float GetHealth() const { return Health; };
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; };
+	FORCEINLINE class UCombatComponent* GetCombatComponent() const { return Combat; };
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminated();
 
-	ECombatState GetCombatState() const;
+	// Disables equipping, dropping, firing, and reloading.
+	// NOTE: Lecture 132 implements bDisableGameplay instead, which also disables movement.
+	// Refer to Lecture 132 to properly disable character rotation and animation transforms.
+	UPROPERTY(Replicated)
+	bool bDisableCombatActions = false;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+	void RotateInPlace(float DeltaTime);
 	void Turn(float Value);
 	void LookUp(float Value);
 	void EquipButtonPressed();
