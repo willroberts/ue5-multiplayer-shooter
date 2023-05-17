@@ -328,7 +328,7 @@ void ABlasterPlayerController::SetHUDTime()
 			SecondsLeft = FMath::CeilToInt(GameMode->GetCountdownTime() + LevelStartTime);
 		}
 	}
-	
+
 	if (CountdownInt != SecondsLeft)
 	{
 		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
