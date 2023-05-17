@@ -21,6 +21,7 @@ public:
 	virtual void ReceivedPlayer() override;
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDMatchTimer(float Time);
+	void SetHUDAnnouncementTimer(float Time);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
 	void SetHUDWeaponType(EWeaponType WeaponType);
@@ -52,10 +53,18 @@ protected:
 
 	void SyncTime(float DeltaTime);
 
+	UFUNCTION(Server, Reliable)
+	void ServerCheckMatchState();
+
+	UFUNCTION(Client, Reliable)
+	void ClientJoinMidGame(FName State, float WTime, float MTime, float StartTime);
+
 private:
 	UPROPERTY()
 	class ABlasterHUD* BlasterHUD;
-	float MatchTime = 120.f;
+	float LevelStartTime = 0.f; // Seconds since server started the level.
+	float WarmupTime = 0.f;
+	float MatchTime = 0.f;
 	uint32 CountdownInt = 0;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)

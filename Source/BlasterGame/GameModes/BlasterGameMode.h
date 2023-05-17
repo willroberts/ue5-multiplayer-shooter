@@ -27,7 +27,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 30.f;
 
-	float LevelStartTime = 0.f;
+	UPROPERTY(EditDefaultsOnly)
+	float MatchTime = 300.f;
+
+	float LevelStartTime = 0.f; // Seconds since server started the level.
 
 protected:
 	virtual void BeginPlay() override;
