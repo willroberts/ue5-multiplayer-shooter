@@ -526,16 +526,17 @@ void UCombatComponent::StartFireTimer()
 
 void UCombatComponent::FireTimerFinished()
 {
+	if (!EquippedWeapon) return;
 	bCanFire = true;
 
 	// Automatically fire again for automatic weapons.
-	if (bFireButtonPressed && EquippedWeapon && EquippedWeapon->bAutomaticFireMode)
+	if (bFireButtonPressed && EquippedWeapon->bAutomaticFireMode)
 	{
 		FireWeapon();
 	}
 
 	// Automatically reload when magazine is empty.
-	if (EquippedWeapon && EquippedWeapon->IsEmpty())
+	if (EquippedWeapon->IsEmpty())
 	{
 		Reload();
 	}
