@@ -48,4 +48,13 @@ protected:
 
 private:
 	float CountdownTime = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ElevatorMusic;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* GameMusic;
+
+	UPROPERTY()
+	class UAudioComponent* MusicComponent;
 };
