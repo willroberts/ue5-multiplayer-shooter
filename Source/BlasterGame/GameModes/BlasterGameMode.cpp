@@ -46,7 +46,7 @@ void ABlasterGameMode::Tick(float DeltaTime)
 		{
 			if (GameMusic)
 			{
-				MusicComponent = UGameplayStatics::SpawnSound2D(this, GameMusic, 0.25);
+				MusicComponent = UGameplayStatics::SpawnSound2D(this, GameMusic, 1.0);
 			}
 			SetMatchState(MatchState::Cooldown);
 		}
@@ -73,7 +73,7 @@ void ABlasterGameMode::BeginPlay()
 	LevelStartTime = GetWorld()->GetTimeSeconds();
 	if (ElevatorMusic)
 	{
-		MusicComponent = UGameplayStatics::SpawnSound2D(this, ElevatorMusic, 0.25);
+		MusicComponent = UGameplayStatics::SpawnSound2D(this, ElevatorMusic, 1.0);
 	}
 }
 
