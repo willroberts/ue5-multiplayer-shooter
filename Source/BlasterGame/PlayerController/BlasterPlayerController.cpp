@@ -38,6 +38,11 @@ void ABlasterPlayerController::PollOverlayState()
 	// Ensure level start time is set in the case where Controller::BeginPlay runs before GameMode::BeginPlay.
 	if (LevelStartTime == 0.f)
 	{
+		if (this == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("`this` was nullptr in BlasterPlayerController::PollOverlayState"));
+			return;
+		}
 		GameMode = GameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : GameMode;
 		if (GameMode)
 		{
@@ -74,6 +79,11 @@ void ABlasterPlayerController::SyncTime(float DeltaTime)
 
 void ABlasterPlayerController::ServerCheckMatchState_Implementation()
 {
+	if (this == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("`this` was nullptr in BlasterPlayerController::ServerCheckMatchState_"));
+		return;
+	}
 	GameMode = GameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : GameMode;
 	if (GameMode)
 	{
@@ -325,10 +335,17 @@ void ABlasterPlayerController::SetHUDTime()
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (HasAuthority())
 	{
-		GameMode = GameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : GameMode;
-		if (GameMode)
+		if (this == nullptr)
 		{
-			SecondsLeft = FMath::CeilToInt(GameMode->GetCountdownTime() + LevelStartTime);
+			UE_LOG(LogTemp, Error, TEXT("`this` was nullptr in BlasterPlayerController::SetHUDTime"));
+		}
+		else
+		{
+			GameMode = GameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : GameMode;
+			if (GameMode)
+			{
+				SecondsLeft = FMath::CeilToInt(GameMode->GetCountdownTime() + LevelStartTime);
+			}
 		}
 	}
 
