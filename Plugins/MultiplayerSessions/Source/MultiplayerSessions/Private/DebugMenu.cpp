@@ -47,11 +47,13 @@ void UDebugMenu::AddMultiplayerDebugMenu(
     }
 
     // Configure mouse input for the menu widget.
+    /*
     FInputModeUIOnly InputModeData;
     InputModeData.SetWidgetToFocus(TakeWidget());
     InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
     PlayerController->SetInputMode(InputModeData);
     PlayerController->SetShowMouseCursor(true);
+    */
 
     // Get the Subsystem from the GameInstance.
     UGameInstance* GameInstance = GetGameInstance();
@@ -264,9 +266,11 @@ void UDebugMenu::Destroy()
     }
 
     // Return input control to the player.
+    /*
     FInputModeGameOnly InputModeData;
     PlayerController->SetInputMode(InputModeData);
     PlayerController->SetShowMouseCursor(false);
+    */
 }
 
 // HostButtonClicked temporarily disables the Host button before initiating session creation.
