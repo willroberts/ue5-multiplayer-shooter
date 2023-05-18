@@ -95,7 +95,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	}
 
 	// Automatically reload when magazine is empty.
-	if (EquippedWeapon->IsEmpty())
+	if (EquippedWeapon && EquippedWeapon->IsEmpty())
 	{
 		Reload();
 	}
@@ -535,7 +535,7 @@ void UCombatComponent::FireTimerFinished()
 	}
 
 	// Automatically reload when magazine is empty.
-	if (EquippedWeapon->IsEmpty())
+	if (EquippedWeapon && EquippedWeapon->IsEmpty())
 	{
 		Reload();
 	}
@@ -544,7 +544,7 @@ void UCombatComponent::FireTimerFinished()
 bool UCombatComponent::CanFire()
 {
 	if (!EquippedWeapon) return false;
-	if (EquippedWeapon->IsEmpty()) return false;
+	if (EquippedWeapon && EquippedWeapon->IsEmpty()) return false;
 	if (!bCanFire) return false;
 	if (CombatState != ECombatState::ECS_Unoccupied) return false;
 
