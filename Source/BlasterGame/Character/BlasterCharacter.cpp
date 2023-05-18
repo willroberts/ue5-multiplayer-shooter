@@ -284,6 +284,7 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 	{
 		BlasterPlayerController->SetHUDWeaponType(EWeaponType::EWT_MAX);
 		BlasterPlayerController->SetHUDWeaponAmmo(0);
+		BlasterPlayerController->SetHUDCarriedAmmo(0);
 	}
 
 	// Apply dissolve VFX to the eliminated character.
