@@ -547,17 +547,16 @@ void UCombatComponent::StartFireTimer()
 
 void UCombatComponent::FireTimerFinished()
 {
-	if (!EquippedWeapon) return;
 	bCanFire = true;
 
 	// Automatically fire again for automatic weapons.
-	if (bFireButtonPressed && EquippedWeapon->bAutomaticFireMode)
+	if (bFireButtonPressed && EquippedWeapon && EquippedWeapon->bAutomaticFireMode)
 	{
 		FireWeapon();
 	}
 
 	// Automatically reload when magazine is empty.
-	if (EquippedWeapon->IsEmpty())
+	if (EquippedWeapon && EquippedWeapon->IsEmpty())
 	{
 		Reload();
 	}
@@ -565,10 +564,25 @@ void UCombatComponent::FireTimerFinished()
 
 bool UCombatComponent::CanFire()
 {
-	if (!EquippedWeapon) return false;
-	if (EquippedWeapon->IsEmpty()) return false;
-	if (!bCanFire) return false;
-	if (CombatState != ECombatState::ECS_Unoccupied) return false;
+	if (!EquippedWeapon) {
+		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because no weapon is equipped."));
+		return false;
+	}
+	if (EquippedWeapon->IsEmpty())
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because equipped weapon is empty."));
+		return false;
+	}
+	if (!bCanFire)
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because FireTimer is incomplete."));
+		return false;
+	}
+	if (CombatState != ECombatState::ECS_Unoccupied)
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because combat state is not UNOCCUPIED."));
+		return false;
+	}
 
 	return true;
 }
