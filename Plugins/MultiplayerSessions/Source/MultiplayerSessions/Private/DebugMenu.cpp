@@ -122,6 +122,8 @@ void UDebugMenu::NativeDestruct()
 // When session creation was successful, initiates server travel to the lobby map.
 void UDebugMenu::OnCreateSession(bool bWasSuccessful)
 {
+    Logger::Log(FString(TEXT("UDebugMenu::OnCreateSession callback fired")), false);
+
     if (!bWasSuccessful)
     {
         Logger::Log(FString(TEXT("OnCreateSession: Failed to create session")), true);
@@ -250,27 +252,6 @@ void UDebugMenu::Destroy()
 {
     // Remove the Widget from the UI.
     RemoveFromParent();
-
-    // Get the PlayerController from the World.
-    UWorld* World = GetWorld();
-    if (!World)
-    {
-        Logger::Log(FString(TEXT("Destroy: Failed to get World")), true);
-        return;
-    }
-    APlayerController* PlayerController = World->GetFirstPlayerController();
-    if (!PlayerController)
-    {
-        Logger::Log(FString(TEXT("Destroy: Failed to get PlayerController")), true);
-        return;
-    }
-
-    // Return input control to the player.
-    /*
-    FInputModeGameOnly InputModeData;
-    PlayerController->SetInputMode(InputModeData);
-    PlayerController->SetShowMouseCursor(false);
-    */
 }
 
 // HostButtonClicked temporarily disables the Host button before initiating session creation.
@@ -283,12 +264,15 @@ void UDebugMenu::HostButtonClicked()
         Logger::Log(FString(TEXT("HostButtonClicked: Failed to get MultiplayerSessionsSubsystem")), true);
         return;
     }
+
     Logger::Log(
         FString::Printf(
             TEXT("HostButtonClicked: Creating session with match type: %s, connections: %d"),
             *MatchType,
             NumPublicConnections
         ), false);
+
+    Logger::Log(FString(TEXT("UDebugMenu::HostButtonClicked creating session")), false);
     MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, MatchType); 
 }
 
@@ -302,5 +286,6 @@ void UDebugMenu::JoinButtonClicked()
         Logger::Log(FString(TEXT("JoinButtonClicked: Failed to get MultiplayerSessionsSubsystem")), true);
         return;
     }
+
     MultiplayerSessionsSubsystem->FindSessions(SessionSearchLimit);
 }
