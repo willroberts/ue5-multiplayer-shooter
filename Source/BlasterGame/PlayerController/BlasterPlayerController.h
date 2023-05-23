@@ -31,6 +31,7 @@ public:
 	void HideEliminationPopup();
 	virtual float GetServerTime();
 	void OnMatchStateSet(FName State);
+	void HandleMatchWarmup();
 	void HandleMatchStart();
 	void HandleMatchCooldown();
 
@@ -86,4 +87,17 @@ private:
 	float HUDMaxHealth;
 	float HUDScore;
 	int32 HUDDefeats;
+
+	/*
+	* Music
+	*/
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ElevatorMusic;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* GameMusic;
+
+	UPROPERTY()
+	class UAudioComponent* MusicComponent;
 };

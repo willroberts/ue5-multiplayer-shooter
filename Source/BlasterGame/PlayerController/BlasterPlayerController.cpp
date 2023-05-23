@@ -2,10 +2,12 @@
 
 #include "BlasterPlayerController.h"
 
+#include "Components/AudioComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Sound/SoundCue.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/Components/CombatComponent.h"
@@ -387,7 +389,11 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 {
 	MatchState = State;
 
-	if (MatchState == MatchState::InProgress)
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		HandleMatchWarmup();
+	}
+	else if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchStart();
 	}
@@ -399,13 +405,30 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 
 void ABlasterPlayerController::OnRep_MatchState()
 {
-	if (MatchState == MatchState::InProgress)
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		HandleMatchWarmup();
+	}
+	else if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchStart();
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
 		HandleMatchCooldown();
+	}
+}
+
+void ABlasterPlayerController::HandleMatchWarmup()
+{
+	if (MusicComponent)
+	{
+		MusicComponent->Stop();
+		MusicComponent = nullptr;
+	}
+	if (ElevatorMusic)
+	{
+		MusicComponent = UGameplayStatics::SpawnSound2D(this, ElevatorMusic, 1.0);
 	}
 }
 
@@ -419,6 +442,12 @@ void ABlasterPlayerController::HandleMatchStart()
 		{
 			BlasterHUD->AnnouncementWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
+	}
+
+	if (MusicComponent)
+	{
+		MusicComponent->Stop();
+		MusicComponent = nullptr;
 	}
 }
 
@@ -482,5 +511,15 @@ void ABlasterPlayerController::HandleMatchCooldown()
 		{
 			Char->GetCombatComponent()->FireButtonPressed(false);
 		}
+	}
+
+	if (MusicComponent)
+	{
+		MusicComponent->Stop();
+		MusicComponent = nullptr;
+	}
+	if (GameMusic)
+	{
+		MusicComponent = UGameplayStatics::SpawnSound2D(this, GameMusic, 1.0);
 	}
 }

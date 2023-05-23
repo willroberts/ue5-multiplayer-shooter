@@ -2,10 +2,8 @@
 
 #include "BlasterGameMode.h"
 
-#include "Components/AudioComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
-#include "Sound/SoundCue.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/GameState/BlasterGameState.h"
@@ -31,11 +29,6 @@ void ABlasterGameMode::Tick(float DeltaTime)
 		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartTime;
 		if (CountdownTime <= 0.f)
 		{
-			if (MusicComponent)
-			{
-				MusicComponent->Stop();
-				MusicComponent = nullptr;
-			}
 			StartMatch();
 		}
 	}
@@ -44,10 +37,6 @@ void ABlasterGameMode::Tick(float DeltaTime)
 		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartTime;
 		if (CountdownTime <= 0.f)
 		{
-			if (GameMusic)
-			{
-				MusicComponent = UGameplayStatics::SpawnSound2D(this, GameMusic, 1.0);
-			}
 			SetMatchState(MatchState::Cooldown);
 		}
 	}
@@ -56,11 +45,6 @@ void ABlasterGameMode::Tick(float DeltaTime)
 		CountdownTime = WarmupTime + MatchTime + CooldownTime - GetWorld()->GetTimeSeconds() + LevelStartTime;
 		if (CountdownTime <= 0.f)
 		{
-			if (MusicComponent)
-			{
-				MusicComponent->Stop();
-				MusicComponent = nullptr;
-			}
 			RestartGame();
 		}
 	}
@@ -71,10 +55,6 @@ void ABlasterGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	LevelStartTime = GetWorld()->GetTimeSeconds();
-	if (ElevatorMusic)
-	{
-		MusicComponent = UGameplayStatics::SpawnSound2D(this, ElevatorMusic, 1.0);
-	}
 }
 
 void ABlasterGameMode::OnMatchStateSet()
