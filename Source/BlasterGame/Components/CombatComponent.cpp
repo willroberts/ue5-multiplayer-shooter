@@ -103,8 +103,18 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 void UCombatComponent::UnequipWeapon()
 {
+	if (!EquippedWeapon) return;
+
 	EquippedWeapon->Dropped();
 	EquippedWeapon = nullptr; // Triggers replication.
+
+	// Reset ammo counts in HUD.
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDWeaponAmmo(0);
+		Controller->SetHUDCarriedAmmo(0);
+	}
 }
 
 void UCombatComponent::OnRep_EquippedWeapon()
