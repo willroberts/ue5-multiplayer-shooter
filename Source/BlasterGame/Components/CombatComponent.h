@@ -107,7 +107,7 @@ private:
 	void InterpFOV(float DeltaTime);
 
 	/*
-	* Weapong firing
+	* Weapon firing
 	*/
 
 	FTimerHandle FireTimer;
@@ -135,4 +135,6 @@ private:
 	void OnRep_CombatState();
 
 	void UpdateAmmoValues();
+
+	FTimerHandle ReloadTimer;
 };

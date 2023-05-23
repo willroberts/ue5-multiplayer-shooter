@@ -132,9 +132,12 @@ void UCombatComponent::OnRep_EquippedWeapon()
 // Triggered on client input.
 void UCombatComponent::Reload()
 {
-	// TODO: Prevent reloading when magazine is already full.
-	if (CarriedAmmo <= 0) return;
+	// Prevent reloading when already reloading.
 	if (CombatState == ECombatState::ECS_Reloading) return;
+	// Prevent reloading when out of ammo to load.
+	if (CarriedAmmo <= 0) return;
+	// Prevent reloading when weapon is already full.
+	if (EquippedWeapon && EquippedWeapon->GetAmmo() == EquippedWeapon->GetMagCapacity()) return;
 
 	ServerReload();
 }
@@ -142,7 +145,15 @@ void UCombatComponent::Reload()
 // Performs actions needed on both server and clients.
 void UCombatComponent::HandleReload()
 {
+	if (!Character) return;
+
 	Character->PlayReloadMontage();
+
+	// Call FinishReloading() after 2.1667 seconds (reload animation duration).
+	// Prevents reloading bugs when the animation notify never happens.
+	// NOTE: Need to adjust this when adding additional weapons with different reload durations.
+	// TODO: Make reload duration a property of the weapon.
+	Character->GetWorldTimerManager().SetTimer(ReloadTimer, this, &UCombatComponent::FinishReloading, 2.1667f);
 }
 
 int32 UCombatComponent::AmountToReload()
