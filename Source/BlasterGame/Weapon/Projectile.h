@@ -40,6 +40,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
 
+	UPROPERTY(VisibleAnywhere)
+	class UProjectileMovementComponent* ProjectileMovementComponent;
+
 	/*
 	* Impact FX
 	*/
@@ -57,9 +60,6 @@ protected:
 	class USoundCue* PlayerImpactSound;
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementComponent;
-
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* Tracer;
 

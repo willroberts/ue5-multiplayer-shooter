@@ -11,6 +11,9 @@ class BLASTERGAME_API AProjectileBullet : public AProjectile
 {
 	GENERATED_BODY()
 
+public:
+	AProjectileBullet();
+
 protected:
 	virtual void OnHit(
 		UPrimitiveComponent* HitComp,

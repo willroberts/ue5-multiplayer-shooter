@@ -26,6 +26,9 @@ protected:
 		const FHitResult& Hit
 	) override;
 
+	UPROPERTY(VisibleAnywhere)
+	class URocketMovementComponent* MovementComponent;
+
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* RocketTrailSystem;
 
