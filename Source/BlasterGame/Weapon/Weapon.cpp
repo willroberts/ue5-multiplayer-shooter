@@ -22,6 +22,7 @@ AWeapon::AWeapon()
 	// Configure ticking and replication.
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true; // Enable network replication.
+	SetReplicateMovement(true); // Synchronize actor movement and location.
 
 	// Create WeaponMesh component.
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
