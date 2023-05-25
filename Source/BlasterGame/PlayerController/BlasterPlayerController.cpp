@@ -258,6 +258,12 @@ void ABlasterPlayerController::SetHUDWeaponType(EWeaponType WeaponType)
 		case EWeaponType::EWT_AssaultRifle:
 			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Assault Rifle"));
 			break;
+		case EWeaponType::EWT_RocketLauncher:
+			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Rocket Launcher"));
+			break;
+		case EWeaponType::EWT_Pistol:
+			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Pistol"));
+			break;
 		default:
 			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Unarmed"));
 			break;
