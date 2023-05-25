@@ -5,6 +5,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
 
 void AHitscanWeapon::Fire(const FVector& HitTarget)
@@ -46,6 +47,20 @@ void AHitscanWeapon::Fire(const FVector& HitTarget)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticles, BeamEnd, FireHit.ImpactNormal.Rotation());
 		}
+		if (ImpactSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, BeamEnd);
+		}
+	}
+
+	if (MuzzleFlashParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(World, MuzzleFlashParticles, SocketTransform);
+	}
+
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 	}
 
 	if (SmokeBeamParticles)
