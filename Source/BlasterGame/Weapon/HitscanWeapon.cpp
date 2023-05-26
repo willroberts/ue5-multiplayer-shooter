@@ -75,7 +75,7 @@ void AHitscanWeapon::Fire(const FVector& HitTarget)
 FVector AHitscanWeapon::TraceWithSpread(const FVector& TraceStart, const FVector& HitTarget)
 {
 	FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-	FVector SphereCenter = TraceStart + ToTargetNormalized * TraceDistance;
+	FVector SphereCenter = TraceStart + ToTargetNormalized * SpreadTraceDistance;
 	FVector RandomVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SpreadRadius);
 	FVector EndLocation = SphereCenter + RandomVec;
 	FVector ToEndLocation = EndLocation - TraceStart;

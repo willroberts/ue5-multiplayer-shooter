@@ -45,24 +45,13 @@ void ABlasterHUD::DrawHUD()
 	{
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 		const FVector2D ViewportCenter(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-
-		if (!HUDPackage.CrosshairCenter ||
-			!HUDPackage.CrosshairTop ||
-			!HUDPackage.CrosshairBottom ||
-			!HUDPackage.CrosshairLeft ||
-			!HUDPackage.CrosshairRight)
-		{
-			// Missing textures!
-			return;
-		}
-
 		float SpreadScaled = CrosshairSpreadMax * HUDPackage.CrosshairSpread;
 
-		DrawCrosshair(HUDPackage.CrosshairCenter, ViewportCenter, FVector2D(0.f, 0.f), HUDPackage.CrosshairColor);
-		DrawCrosshair(HUDPackage.CrosshairTop, ViewportCenter, FVector2D(0.f, -SpreadScaled), HUDPackage.CrosshairColor);
-		DrawCrosshair(HUDPackage.CrosshairBottom, ViewportCenter, FVector2D(0.f, SpreadScaled), HUDPackage.CrosshairColor);
-		DrawCrosshair(HUDPackage.CrosshairLeft, ViewportCenter, FVector2D(-SpreadScaled, 0.f), HUDPackage.CrosshairColor);
-		DrawCrosshair(HUDPackage.CrosshairRight, ViewportCenter, FVector2D(SpreadScaled, 0.f), HUDPackage.CrosshairColor);
+		if (HUDPackage.CrosshairCenter) DrawCrosshair(HUDPackage.CrosshairCenter, ViewportCenter, FVector2D(0.f, 0.f), HUDPackage.CrosshairColor);
+		if (HUDPackage.CrosshairTop) DrawCrosshair(HUDPackage.CrosshairTop, ViewportCenter, FVector2D(0.f, -SpreadScaled), HUDPackage.CrosshairColor);
+		if (HUDPackage.CrosshairBottom) DrawCrosshair(HUDPackage.CrosshairBottom, ViewportCenter, FVector2D(0.f, SpreadScaled), HUDPackage.CrosshairColor);
+		if (HUDPackage.CrosshairLeft) DrawCrosshair(HUDPackage.CrosshairLeft, ViewportCenter, FVector2D(-SpreadScaled, 0.f), HUDPackage.CrosshairColor);
+		if (HUDPackage.CrosshairRight) DrawCrosshair(HUDPackage.CrosshairRight, ViewportCenter, FVector2D(SpreadScaled, 0.f), HUDPackage.CrosshairColor);
 	}
 }
 
