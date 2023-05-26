@@ -1,12 +1,14 @@
 // (c) 2023 Will Roberts
 
-
 #include "HitscanWeapon.h"
+#include "DrawDebugHelpers.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
+#include "BlasterGame/Weapon/WeaponTypes.h"
 
 void AHitscanWeapon::Fire(const FVector& HitTarget)
 {
@@ -68,4 +70,22 @@ void AHitscanWeapon::Fire(const FVector& HitTarget)
 		UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, SmokeBeamParticles, SocketTransform);
 		if (Beam) Beam->SetVectorParameter(FName("Target"), BeamEnd);
 	}
+}
+
+FVector AHitscanWeapon::TraceWithSpread(const FVector& TraceStart, const FVector& HitTarget)
+{
+	FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	FVector SphereCenter = TraceStart + ToTargetNormalized * TraceDistance;
+	FVector RandomVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SpreadRadius);
+	FVector EndLocation = SphereCenter + RandomVec;
+	FVector ToEndLocation = EndLocation - TraceStart;
+	FVector WithSpread = FVector(TraceStart + ToEndLocation * TRACE_LENGTH / ToEndLocation.Size());
+
+	float NumSegments = 12;
+	bool bPersistentLines = true;
+	DrawDebugSphere(GetWorld(), SphereCenter, SpreadRadius, NumSegments, FColor::Red, bPersistentLines);
+	DrawDebugSphere(GetWorld(), EndLocation, 4.f, NumSegments, FColor::Orange, bPersistentLines);
+	DrawDebugLine(GetWorld(), TraceStart, WithSpread, FColor::Cyan, bPersistentLines);
+
+	return WithSpread;
 }

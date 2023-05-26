@@ -14,9 +14,21 @@ class BLASTERGAME_API AHitscanWeapon : public AWeapon
 public:
 	virtual void Fire(const FVector& HitTarget) override;
 
+protected:
+	FVector TraceWithSpread(const FVector& TraceStart, const FVector& HitTarget);
+
 private:
 	UPROPERTY(EditAnywhere)
 	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	bool bUseSpread = false;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float SpreadTraceDistance = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float SpreadRadius = 50.f;
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* ImpactParticles;

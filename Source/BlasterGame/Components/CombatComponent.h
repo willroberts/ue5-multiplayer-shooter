@@ -137,6 +137,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 StartingSMGAmmo;
 
+	UPROPERTY(EditAnywhere)
+	int32 StartingShotgunAmmo;
+
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;
 

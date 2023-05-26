@@ -267,6 +267,9 @@ void ABlasterPlayerController::SetHUDWeaponType(EWeaponType WeaponType)
 		case EWeaponType::EWT_Submachinegun:
 			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Submachinegun"));
 			break;
+		case EWeaponType::EWT_Shotgun:
+			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Shotgun"));
+			break;
 		default:
 			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Unarmed"));
 			break;
