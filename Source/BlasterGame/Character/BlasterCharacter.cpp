@@ -212,7 +212,7 @@ void ABlasterCharacter::PlayReloadMontage()
 		FName SectionName;
 		switch (Combat->EquippedWeapon->GetWeaponType())
 		{
-		case EWeaponType::EWT_AssaultRifle:
+		case EWeaponType::EWT_AutomaticRifle:
 			SectionName = FName("Rifle");
 			break;
 		default:

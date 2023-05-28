@@ -257,8 +257,8 @@ void ABlasterPlayerController::SetHUDWeaponType(EWeaponType WeaponType)
 
 		switch (WeaponType)
 		{
-		case EWeaponType::EWT_AssaultRifle:
-			WeaponText = FText::FromString("Assault Rifle");
+		case EWeaponType::EWT_AutomaticRifle:
+			WeaponText = FText::FromString("Automatic Rifle");
 			break;
 		case EWeaponType::EWT_RocketLauncher:
 			WeaponText = FText::FromString("Rocket Launcher");
