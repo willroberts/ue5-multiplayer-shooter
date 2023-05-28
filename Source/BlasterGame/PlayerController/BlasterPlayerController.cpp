@@ -267,7 +267,7 @@ void ABlasterPlayerController::SetHUDWeaponType(EWeaponType WeaponType)
 			WeaponText = FText::FromString("Pistol");
 			break;
 		case EWeaponType::EWT_Submachinegun:
-			WeaponText = FText::FromString("Submachinegun");
+			WeaponText = FText::FromString("Submachine Gun");
 			break;
 		case EWeaponType::EWT_Shotgun:
 			WeaponText = FText::FromString("Shotgun");
