@@ -331,6 +331,16 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 	{
 		UGameplayStatics::SpawnSoundAtLocation(this, RespawnBotSound, GetActorLocation());
 	}
+
+	// Hide the scope if in use.
+	if (IsLocallyControlled()
+		&& Combat
+		&& Combat->bIsAiming
+		&& Combat->EquippedWeapon
+		&& Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	{
+		ShowSniperScopeWidget(false);
+	}
 }
 
 //

@@ -267,6 +267,8 @@ void UCombatComponent::BeginPlay()
 
 void UCombatComponent::SetAiming(bool bAiming)
 {
+	if (!Character || !EquippedWeapon) return;
+
 	// Initiate aiming on the client (before waiting for replication).
 	bIsAiming = bAiming;
 
@@ -274,9 +276,15 @@ void UCombatComponent::SetAiming(bool bAiming)
 	ServerSetAiming(bAiming);
 
 	// Reduce walk speed when aiming.
-	if (Character)
+	Character->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkSpeed;
+
+	if (Character->IsLocallyControlled())
 	{
-		Character->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkSpeed;
+		// Show scope on sniper rifles.
+		if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+		{
+			Character->ShowSniperScopeWidget(bIsAiming);
+		}
 	}
 }
 
