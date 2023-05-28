@@ -91,6 +91,8 @@ private:
 	float CrosshairFiringFactor;
 	FVector HitTarget;
 
+	void UpdateWeaponHUD();
+
 	/*
 	* Aiming and FOV
 	*/

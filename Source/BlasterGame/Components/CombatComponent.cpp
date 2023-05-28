@@ -63,7 +63,15 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon = WeaponToEquip; // Triggers replication.
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	EquippedWeapon->SetOwner(Character);
-	EquippedWeapon->SetHUDAmmo();
+
+	// Update ammo counts. Map only exists on the server.
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()]; // Triggers replication.
+	}
+
+	// Update weapon HUD on the server.
+	if (Controller && Controller->HasAuthority()) UpdateWeaponHUD();
 
 	// Update animation bits.
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
@@ -80,18 +88,6 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
 	}
 
-	// Update HUD.
-	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
-	{
-		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
-	}
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDWeaponType(EquippedWeapon->GetWeaponType());
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	}
-
 	// Automatically reload when magazine is empty.
 	if (EquippedWeapon->IsEmpty())
 	{
@@ -105,19 +101,16 @@ void UCombatComponent::UnequipWeapon()
 
 	EquippedWeapon->Dropped();
 	EquippedWeapon = nullptr; // Triggers replication.
-
-	// Reset ammo counts in HUD.
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDWeaponAmmo(0);
-		Controller->SetHUDCarriedAmmo(0);
-	}
+	if (Controller && Controller->HasAuthority()) UpdateWeaponHUD();
 }
 
+// Runs on clients only.
 void UCombatComponent::OnRep_EquippedWeapon()
 {
-	if (EquippedWeapon && Character)
+	if (!Character) return;
+
+	// Attach any new weapon to the character.
+	if (EquippedWeapon)
 	{
 		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 		const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
@@ -125,16 +118,29 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		{
 			HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
 		}
-
-		// Play sound.
-		if (EquippedWeapon->EquipSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
-		}
-
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
 	}
+
+	// Play equip sound.
+	if (EquippedWeapon && EquippedWeapon->EquipSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
+	}
+
+	// Update the HUD.
+	UpdateWeaponHUD();
+}
+
+void UCombatComponent::UpdateWeaponHUD()
+{
+	if (!Character) return;
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (!Controller) return;
+
+	Controller->SetHUDWeaponType(EquippedWeapon != nullptr ? EquippedWeapon->GetWeaponType() : EWeaponType::EWT_MAX);
+	Controller->SetHUDWeaponAmmo(EquippedWeapon != nullptr ? EquippedWeapon->GetAmmo() : 0);
+	Controller->SetHUDCarriedAmmo(EquippedWeapon != nullptr ? CarriedAmmo : 0);
 }
 
 // Triggered on client input.
