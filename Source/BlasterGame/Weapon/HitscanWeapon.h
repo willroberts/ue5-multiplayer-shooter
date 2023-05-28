@@ -18,13 +18,13 @@ protected:
 	FVector TraceWithSpread(const FVector& TraceStart, const FVector& HitTarget);
 	void TraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHitResult);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float Damage = 20.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class UParticleSystem* ImpactParticles;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class USoundCue* ImpactSound;
 
 private:
@@ -37,12 +37,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float SpreadRadius = 50.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class UParticleSystem* SmokeBeamParticles;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Optional Weapon Properties")
 	class UParticleSystem* MuzzleFlashParticles;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Optional Weapon Properties")
 	class USoundCue* FireSound;
 };

@@ -48,19 +48,19 @@ public:
 	* Textures for weapon crosshair.
 	*/
 
-	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UPROPERTY(EditAnywhere, Category = "Crosshair Properties")
 	class UTexture2D* CrosshairCenter;
 
-	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UPROPERTY(EditAnywhere, Category = "Crosshair Properties")
 	UTexture2D* CrosshairTop;
 
-	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UPROPERTY(EditAnywhere, Category = "Crosshair Properties")
 	UTexture2D* CrosshairBottom;
 
-	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UPROPERTY(EditAnywhere, Category = "Crosshair Properties")
 	UTexture2D* CrosshairLeft;
 
-	UPROPERTY(EditAnywhere, Category = Crosshair)
+	UPROPERTY(EditAnywhere, Category = "Crosshair Properties")
 	UTexture2D* CrosshairRight;
 
 	/*
@@ -79,7 +79,7 @@ public:
 	* Sounds
 	*/
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class USoundCue* EquipSound;
 
 protected:
@@ -122,7 +122,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class UAnimationAsset* FireAnimation;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	TSubclassOf<class AShellCasing> CasingClass;
 
 	UPROPERTY()
@@ -131,24 +131,24 @@ private:
 	UPROPERTY()
 	class ABlasterPlayerController* OwnerController;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	EWeaponType WeaponType;
 
 	/*
 	* Zoomed FOV while aiming
 	*/
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float ZoomedFOV = 50.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float ZoomInterpSpeed = 20.f;
 
 	/*
 	* Ammo
 	*/
 
-	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties", ReplicatedUsing = OnRep_Ammo)
 	int32 Ammo;
 
 	void ConsumeAmmo();
@@ -156,6 +156,6 @@ private:
 	UFUNCTION()
 	void OnRep_Ammo();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	int32 MagCapacity;
 };
