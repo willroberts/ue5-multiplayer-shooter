@@ -170,12 +170,6 @@ void AWeapon::Dropped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 
-	// Clear HUD text for previous owner.
-	if (OwnerController)
-	{
-		OwnerController->SetHUDWeaponType(EWeaponType::EWT_MAX);
-	}
-
 	SetOwner(nullptr);
 	OwnerCharacter = nullptr;
 	OwnerController = nullptr;
@@ -256,19 +250,10 @@ void AWeapon::OnRep_Owner()
 
 	if (!Owner)
 	{
-		// Clear HUD text for previous owner.
-		if (OwnerController)
-		{
-			OwnerController->SetHUDWeaponType(EWeaponType::EWT_MAX);
-		}
-
 		OwnerCharacter = nullptr;
 		OwnerController = nullptr;
 		return;
 	}
-
-	SetHUDAmmo();
-	SetHUDWeaponType();
 }
 
 void AWeapon::SetHUDAmmo()
