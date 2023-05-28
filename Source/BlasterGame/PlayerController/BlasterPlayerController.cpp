@@ -253,27 +253,37 @@ void ABlasterPlayerController::SetHUDWeaponType(EWeaponType WeaponType)
 		BlasterHUD->CharacterOverlay &&
 		BlasterHUD->CharacterOverlay->WeaponTypeText)
 	{
+		FText WeaponText;
+
 		switch (WeaponType)
 		{
 		case EWeaponType::EWT_AssaultRifle:
-			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Assault Rifle"));
+			WeaponText = FText::FromString("Assault Rifle");
 			break;
 		case EWeaponType::EWT_RocketLauncher:
-			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Rocket Launcher"));
+			WeaponText = FText::FromString("Rocket Launcher");
 			break;
 		case EWeaponType::EWT_Pistol:
-			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Pistol"));
+			WeaponText = FText::FromString("Pistol");
 			break;
 		case EWeaponType::EWT_Submachinegun:
-			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Submachinegun"));
+			WeaponText = FText::FromString("Submachinegun");
 			break;
 		case EWeaponType::EWT_Shotgun:
-			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Shotgun"));
+			WeaponText = FText::FromString("Shotgun");
+			break;
+		case EWeaponType::EWT_MarksmanRifle:
+			WeaponText = FText::FromString("Marksman Rifle");
+			break;
+		case EWeaponType::EWT_SniperRifle:
+			WeaponText = FText::FromString("Sniper Rifle");
 			break;
 		default:
-			BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(FText::FromString("Unarmed"));
+			WeaponText = FText::FromString("Unarmed");
 			break;
 		}
+
+		BlasterHUD->CharacterOverlay->WeaponTypeText->SetText(WeaponText);
 	}
 }
 
