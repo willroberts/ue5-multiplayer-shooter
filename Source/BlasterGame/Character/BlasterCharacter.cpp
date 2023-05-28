@@ -649,10 +649,7 @@ void ABlasterCharacter::ServerDropButtonPressed_Implementation()
 
 void ABlasterCharacter::PlayHitReactMontage()
 {
-	if (!Combat || !Combat->EquippedWeapon)
-	{
-		return;
-	}
+	if (!Combat || !Combat->EquippedWeapon) return;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
