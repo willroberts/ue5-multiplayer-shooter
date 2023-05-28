@@ -306,6 +306,9 @@ void UCombatComponent::FireWeapon()
 
 	// Enable automatic fire modes by scheduling a callback based on weapon fire rate.
 	StartFireTimer();
+
+	// Automatically reload empty weapons 1 second after firing the last round.
+	ScheduleAutoReload();
 }
 
 void UCombatComponent::FireButtonPressed(bool bPressed)
@@ -560,7 +563,25 @@ void UCombatComponent::FireTimerFinished()
 	{
 		FireWeapon();
 	}
+}
 
+void UCombatComponent::ScheduleAutoReload()
+{
+	if (!EquippedWeapon || !Character)
+	{
+		return;
+	}
+
+	Character->GetWorldTimerManager().SetTimer(
+		AutoReloadTimer,
+		this,
+		&UCombatComponent::AutoReloadTimerFinished,
+		AutoReloadAfter
+	);
+}
+
+void UCombatComponent::AutoReloadTimerFinished()
+{
 	// Automatically reload when magazine is empty.
 	if (EquippedWeapon && EquippedWeapon->IsEmpty())
 	{

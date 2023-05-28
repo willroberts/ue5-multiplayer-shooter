@@ -116,6 +116,13 @@ private:
 	void FireTimerFinished();
 	bool CanFire();
 
+	FTimerHandle AutoReloadTimer;
+	void ScheduleAutoReload();
+	void AutoReloadTimerFinished();
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float AutoReloadAfter = 0.75f; // Seconds
+
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
 	int32 CarriedAmmo; // For current weapon.
 
