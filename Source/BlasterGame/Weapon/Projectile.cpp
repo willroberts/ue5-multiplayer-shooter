@@ -89,12 +89,12 @@ void AProjectile::DealAreaDamage()
 			{
 				UGameplayStatics::ApplyRadialDamageWithFalloff(
 					this,
-					Damage,       // Maximum damage.
-					Damage * 0.5, // Minimum damage.
+					Damage,             // Maximum damage.
+					Damage * 0.5,       // Minimum damage.
 					GetActorLocation(),
-					200.f,        // Inner radius.
-					500.f,        // Outer radius.
-					1.f,          // Linear damage falloff.
+					DamageRadius * 0.5, // Inner radius.
+					DamageRadius,       // Outer radius.
+					1.f,                // Linear damage falloff.
 					UDamageType::StaticClass(),
 					TArray<AActor*>(),
 					this,

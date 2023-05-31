@@ -43,6 +43,9 @@ protected:
 	float Damage = 12.5f;
 
 	UPROPERTY(EditAnywhere)
+	float DamageRadius = 500.f;
+
+	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
 
 	UPROPERTY(VisibleAnywhere)
