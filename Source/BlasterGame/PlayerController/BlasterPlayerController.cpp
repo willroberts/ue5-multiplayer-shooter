@@ -278,6 +278,9 @@ void ABlasterPlayerController::SetHUDWeaponType(EWeaponType WeaponType)
 		case EWeaponType::EWT_SniperRifle:
 			WeaponText = FText::FromString("Sniper Rifle");
 			break;
+		case EWeaponType::EWT_GrenadeLauncher:
+			WeaponText = FText::FromString("Grenade Launcher");
+			break;
 		default:
 			WeaponText = FText::FromString("Unarmed");
 			break;
