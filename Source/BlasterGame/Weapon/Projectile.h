@@ -26,9 +26,14 @@ protected:
 		const FHitResult& Hit
 	);
 
+	void DealAreaDamage();
+
 	// This RPC must be Reliable, since Projectiles are destroyed on hit.
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastHitFX(FVector_NetQuantize HitLocation, bool bHitPlayer);
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* ProjectileMesh;
 
 	/*
 	* Gameplay attributes
@@ -42,6 +47,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	void StartDestroyTimer();
+	void DestroyTimerFinished();
 
 	/*
 	* Impact FX
@@ -59,10 +67,27 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class USoundCue* PlayerImpactSound;
 
+	/*
+	* Smoke Trail FX
+	*/
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* TrailSystem;
+
+	UPROPERTY()
+	class UNiagaraComponent* TrailSystemComponent;
+
+	void SpawnTrailSystem();
+
 private:
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* Tracer;
 
 	UPROPERTY()
 	class UParticleSystemComponent* TracerComponent;
+
+	FTimerHandle DestroyTimer;
+
+	UPROPERTY(EditAnywhere)
+	float DestroyTime = 3.0f;
 };

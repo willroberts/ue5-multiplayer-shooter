@@ -4,9 +4,12 @@
 
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
+#include "TimerManager.h"
 
 #include "BlasterGame/BlasterGame.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
@@ -74,6 +77,34 @@ void AProjectile::OnHit(
 	Destroy();
 }
 
+void AProjectile::DealAreaDamage()
+{
+	if (HasAuthority())
+	{
+		APawn* FiringPawn = GetInstigator();
+		if (FiringPawn)
+		{
+			AController* FiringController = FiringPawn->GetController();
+			if (FiringController)
+			{
+				UGameplayStatics::ApplyRadialDamageWithFalloff(
+					this,
+					Damage,       // Maximum damage.
+					Damage * 0.5, // Minimum damage.
+					GetActorLocation(),
+					200.f,        // Inner radius.
+					500.f,        // Outer radius.
+					1.f,          // Linear damage falloff.
+					UDamageType::StaticClass(),
+					TArray<AActor*>(),
+					this,
+					FiringController
+				);
+			}
+		}
+	}
+}
+
 // Called when a non-Player hit is detected.
 void AProjectile::MulticastHitFX_Implementation(FVector_NetQuantize HitLocation, bool bHitPlayer)
 {
@@ -99,4 +130,30 @@ void AProjectile::MulticastHitFX_Implementation(FVector_NetQuantize HitLocation,
 			UGameplayStatics::PlaySoundAtLocation(this, SolidImpactSound, HitLocation);
 		}
 	}
+}
+
+void AProjectile::SpawnTrailSystem()
+{
+	if (TrailSystem)
+	{
+		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			TrailSystem,
+			GetRootComponent(),
+			FName(), // No specific attachment point.
+			GetActorLocation(),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false // Don't automatically destroy.
+		);
+	}
+}
+
+void AProjectile::StartDestroyTimer()
+{
+	GetWorldTimerManager().SetTimer(DestroyTimer, this, &AProjectile::DestroyTimerFinished, DestroyTime);
+}
+
+void AProjectile::DestroyTimerFinished()
+{
+	Destroy();
 }

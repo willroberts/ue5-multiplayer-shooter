@@ -30,12 +30,6 @@ protected:
 	class URocketMovementComponent* MovementComponent;
 
 	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* RocketTrailSystem;
-
-	UPROPERTY()
-	class UNiagaraComponent* RocketTrailComponent;
-
-	UPROPERTY(EditAnywhere)
 	class USoundCue* RocketFlightSoundCue;
 
 	UPROPERTY()
@@ -43,15 +37,4 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	class USoundAttenuation* RocketFlightSoundAttenuation;
-
-	void DestroyTimerFinished();
-
-private:
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* RocketMesh;
-
-	FTimerHandle DestroyTimer;
-
-	UPROPERTY(EditAnywhere)
-	float DestroyTime = 3.0f;
 };
