@@ -13,6 +13,7 @@
 #include "TimerManager.h"
 
 #include "BlasterGame/Weapon/Weapon.h"
+#include "BlasterGame/Character/BlasterAnimInstance.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
 
@@ -190,6 +191,12 @@ void UCombatComponent::ServerReload_Implementation()
 	HandleReload();
 }
 
+// Called from animation blueprint when adding a shotgun shell during reload.
+void UCombatComponent::ReloadShotgunShell()
+{
+	if (Character && Character->HasAuthority()) UpdateShotgunAmmoValues();
+}
+
 // Called from animation blueprint when reload animation completes.
 void UCombatComponent::FinishReloading()
 {
@@ -205,6 +212,17 @@ void UCombatComponent::FinishReloading()
 	if (bFireButtonPressed)
 	{
 		FireWeapon();
+	}
+}
+
+void UCombatComponent::EndShotgunReload()
+{
+	if (!Character || !Character->GetMesh() || !Character->GetReloadMontage()) return;
+
+	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->Montage_JumpToSection(FName("ShotgunEnd"));
 	}
 }
 
@@ -226,6 +244,34 @@ void UCombatComponent::UpdateAmmoValues()
 	}
 
 	EquippedWeapon->AddAmmo(-ReloadAmount);
+}
+
+// Shotguns reload differently, adding one shell at a time through Animation notifies.
+void UCombatComponent::UpdateShotgunAmmoValues()
+{
+	if (!Character || !EquippedWeapon) return;
+
+	// Update carried ammo.
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= 1;
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+	}
+
+	// Update weapon ammo.
+	EquippedWeapon->AddAmmo(-1);
+	bCanFire = true;
+
+	// Short-circuit reload animation.
+	if (EquippedWeapon->IsFull() || CarriedAmmo <= 0)
+	{
+		EndShotgunReload();
+	}
 }
 
 void UCombatComponent::OnRep_CombatState()
@@ -347,10 +393,22 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	if (Character && EquippedWeapon && CombatState == ECombatState::ECS_Unoccupied)
+	if (!Character || !EquippedWeapon) return;
+
+	if (CombatState == ECombatState::ECS_Unoccupied)
 	{
 		Character->PlayFireMontage(bIsAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
+	}
+	else
+	{
+		if (CombatState == ECombatState::ECS_Reloading &&
+			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
+		{
+			Character->PlayFireMontage(bIsAiming);
+			EquippedWeapon->Fire(TraceHitTarget);
+			CombatState = ECombatState::ECS_Unoccupied;
+		}
 	}
 }
 
@@ -613,6 +671,12 @@ bool UCombatComponent::CanFire()
 	}
 	if (CombatState != ECombatState::ECS_Unoccupied)
 	{
+		// Exception case: Shotguns can fire while reloading.
+		if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun &&
+			CombatState == ECombatState::ECS_Reloading)
+		{
+			return true;
+		}
 		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because combat state is not UNOCCUPIED."));
 		return false;
 	}
@@ -622,10 +686,20 @@ bool UCombatComponent::CanFire()
 
 void UCombatComponent::OnRep_CarriedAmmo()
 {
+	if (!Character) return;
+
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+	}
+
+	if (CombatState == ECombatState::ECS_Reloading &&
+		EquippedWeapon &&
+		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun &&
+		CarriedAmmo <= 0)
+	{
+		EndShotgunReload();
 	}
 }
 

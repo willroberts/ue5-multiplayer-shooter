@@ -36,15 +36,16 @@ public:
 	void Eliminated();
 	virtual void Destroyed() override;
 	ECombatState GetCombatState() const;
-	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
-	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
-	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; };
-	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; };
-	FORCEINLINE bool IsEliminated() const { return bEliminated; };
-	FORCEINLINE float GetHealth() const { return Health; };
-	FORCEINLINE float GetMaxHealth() const { return MaxHealth; };
-	FORCEINLINE class UCombatComponent* GetCombatComponent() const { return Combat; };
+	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
+	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
+	FORCEINLINE bool IsEliminated() const { return bEliminated; }
+	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE class UCombatComponent* GetCombatComponent() const { return Combat; }
+	FORCEINLINE class UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminated();

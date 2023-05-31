@@ -26,6 +26,7 @@ public:
 	void UnequipWeapon();
 	void FireButtonPressed(bool bPressed);
 	void Reload();
+	void EndShotgunReload();
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +53,13 @@ protected:
 
 	void HandleReload();
 	int32 AmountToReload();
+
+	/*
+	* Called from Animation Blueprints.
+	*/
+
+	UFUNCTION(BlueprintCallable)
+	void ReloadShotgunShell();
 
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
@@ -165,6 +173,7 @@ private:
 	void OnRep_CombatState();
 
 	void UpdateAmmoValues();
+	void UpdateShotgunAmmoValues();
 
 	FTimerHandle ReloadTimer;
 };

@@ -36,6 +36,8 @@ public:
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
 	void AddAmmo(int32 AmmoToAdd);
+	bool IsEmpty();
+	bool IsFull();
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; };
 	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; };
@@ -72,8 +74,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	bool bAutomaticFireMode = false;
-
-	bool IsEmpty();
 
 	/*
 	* Sounds

@@ -10,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
+#include "BlasterGame/Components/CombatComponent.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
 #include "ShellCasing.h"
 
@@ -241,6 +242,12 @@ void AWeapon::ConsumeAmmo()
 
 void AWeapon::OnRep_Ammo()
 {
+	OwnerCharacter = OwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : OwnerCharacter;
+	if (OwnerCharacter && OwnerCharacter->GetCombatComponent() && IsFull())
+	{
+		OwnerCharacter->GetCombatComponent()->EndShotgunReload();
+	}
+
 	SetHUDAmmo();
 }
 
@@ -281,4 +288,9 @@ void AWeapon::SetHUDWeaponType()
 bool AWeapon::IsEmpty()
 {
 	return Ammo <= 0;
+}
+
+bool AWeapon::IsFull()
+{
+	return Ammo >= MagCapacity;
 }
