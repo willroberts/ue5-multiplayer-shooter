@@ -213,12 +213,32 @@ void ABlasterCharacter::PlayReloadMontage()
 		switch (Combat->EquippedWeapon->GetWeaponType())
 		{
 		case EWeaponType::EWT_AutomaticRifle:
-			SectionName = FName("Rifle");
+			SectionName = FName("AutomaticRifle");
+			break;
+		case EWeaponType::EWT_RocketLauncher:
+			SectionName = FName("RocketLauncher");
+			break;
+		case EWeaponType::EWT_Pistol:
+			SectionName = FName("Pistol");
+			break;
+		case EWeaponType::EWT_Submachinegun:
+			SectionName = FName("SubmachineGun");
+			break;
+		case EWeaponType::EWT_Shotgun:
+			SectionName = FName("Shotgun");
+			break;
+		case EWeaponType::EWT_MarksmanRifle:
+			SectionName = FName("MarksmanRifle");
+			break;
+		case EWeaponType::EWT_SniperRifle:
+			SectionName = FName("SniperRifle");
+			break;
+		case EWeaponType::EWT_GrenadeLauncher:
+			SectionName = FName("GrenadeLauncher");
 			break;
 		default:
-			// All other weapons currently use the same animation.
-			// TODO: Change this later, if desired.
-			SectionName = FName("Rifle");
+			// Use the default rifle reload animation as a fallback.
+			SectionName = FName("AutomaticRifle");
 			break;
 		}
 		AnimInstance->Montage_JumpToSection(SectionName);
