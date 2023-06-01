@@ -160,15 +160,18 @@ void UCombatComponent::Reload()
 // Performs actions needed on both server and clients.
 void UCombatComponent::HandleReload()
 {
-	if (!Character) return;
+	if (!Character || !EquippedWeapon) return;
 
 	Character->PlayReloadMontage();
 
-	// Call FinishReloading() after 2.1667 seconds (reload animation duration).
+	// Call FinishReloading() after reload animation duration.
 	// Prevents reloading bugs when the animation notify never happens.
-	// NOTE: Need to adjust this when adding additional weapons with different reload durations.
-	// TODO: Make reload duration a property of the weapon.
-	Character->GetWorldTimerManager().SetTimer(ReloadTimer, this, &UCombatComponent::FinishReloading, 2.1667f);
+	Character->GetWorldTimerManager().SetTimer(
+		ReloadTimer,
+		this,
+		&UCombatComponent::FinishReloading,
+		EquippedWeapon->GetReloadDuration()
+	);
 }
 
 int32 UCombatComponent::AmountToReload()
@@ -267,10 +270,11 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 	EquippedWeapon->AddAmmo(-1);
 	bCanFire = true;
 
-	// Short-circuit reload animation.
+	// Short-circuit reload animation and reload timer.
 	if (EquippedWeapon->IsFull() || CarriedAmmo <= 0)
 	{
 		EndShotgunReload();
+		FinishReloading();
 	}
 }
 

@@ -45,6 +45,7 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
+	FORCEINLINE float GetReloadDuration() const { return ReloadDuration; }
 
 	/*
 	* Textures for weapon crosshair.
@@ -167,4 +168,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	int32 MagCapacity;
+
+	UPROPERTY(EditAnywhere)
+	float ReloadDuration = 2.1667f; // Animation length in seconds.
 };
