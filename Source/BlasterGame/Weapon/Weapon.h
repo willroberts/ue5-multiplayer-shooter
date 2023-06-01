@@ -38,13 +38,13 @@ public:
 	void AddAmmo(int32 AmmoToAdd);
 	bool IsEmpty();
 	bool IsFull();
-	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; };
-	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; };
-	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; };
-	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; };
-	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; };
-	FORCEINLINE int32 GetAmmo() const { return Ammo; };
-	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; };
+	FORCEINLINE class USphereComponent* GetAreaSphere() const { return AreaSphere; }
+	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
+	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 
 	/*
 	* Textures for weapon crosshair.
@@ -81,6 +81,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class USoundCue* EquipSound;
+
+	/*
+	* Outline Highlight FX
+	*/
+
+	void ShowOutlineHighlight(bool bShow);
 
 protected:
 	virtual void BeginPlay() override;
@@ -133,6 +139,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	EWeaponRarity WeaponRarity;
 
 	/*
 	* Zoomed FOV while aiming

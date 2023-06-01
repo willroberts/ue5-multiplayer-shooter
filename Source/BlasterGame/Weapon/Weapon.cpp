@@ -33,6 +33,9 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetRootComponent(WeaponMesh);
 
+	// Set outline highlight color.
+	ShowOutlineHighlight(true);
+
 	// Create AreaSphere component (pickup radius).
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(RootComponent);
@@ -75,6 +78,7 @@ void AWeapon::SetWeaponState(EWeaponState State)
 		ShowPickupWidget(false);
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		WeaponMesh->SetSimulatePhysics(false);
+		ShowOutlineHighlight(false);
 		if (WeaponType == EWeaponType::EWT_Submachinegun)
 		{
 			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -98,6 +102,7 @@ void AWeapon::SetWeaponState(EWeaponState State)
 		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+		ShowOutlineHighlight(true);
 		break;
 	}
 }
@@ -109,6 +114,7 @@ void AWeapon::OnRep_WeaponState()
 	case EWeaponState::EWS_Equipped:
 		ShowPickupWidget(false);
 		WeaponMesh->SetSimulatePhysics(false);
+		ShowOutlineHighlight(false);
 		if (WeaponType == EWeaponType::EWT_Submachinegun)
 		{
 			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -128,6 +134,7 @@ void AWeapon::OnRep_WeaponState()
 		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+		ShowOutlineHighlight(true);
 		break;
 	}
 }
@@ -293,4 +300,33 @@ bool AWeapon::IsEmpty()
 bool AWeapon::IsFull()
 {
 	return Ammo >= MagCapacity;
+}
+
+void AWeapon::ShowOutlineHighlight(bool bShow)
+{
+	if (!WeaponMesh) return;
+
+	if (bShow)
+	{
+		int32 Color;
+		UE_LOG(LogTemp, Warning, TEXT("Rarity is %d"), WeaponRarity);
+		switch (WeaponRarity)
+		{
+		case EWeaponRarity::EWR_Legendary:
+			Color = OUTLINE_HIGHLIGHT_PURPLE;
+			break;
+		case EWeaponRarity::EWR_Rare:
+			Color = OUTLINE_HIGHLIGHT_BLUE;
+			break;
+		default:
+			Color = OUTLINE_HIGHLIGHT_TAN;
+			break;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Rarity %d gets Color %d"), WeaponRarity, Color);
+		WeaponMesh->SetCustomDepthStencilValue(Color);
+		WeaponMesh->MarkRenderStateDirty();
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Setting outline state to %d"), bShow);
+	WeaponMesh->SetRenderCustomDepth(bShow);
 }
