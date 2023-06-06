@@ -32,13 +32,13 @@ void UDebugMenu::AddMultiplayerDebugMenu(
     UWorld* World = GetWorld();
     if (!World)
     {
-        Logger::Error(FString(TEXT("Menu: Failed to get World")));
+        Logger::Error(FString(TEXT("Error: Failed to get World")));
         return;
     }
     APlayerController* PlayerController = World->GetFirstPlayerController();
     if (!PlayerController)
     {
-        Logger::Error(FString(TEXT("Menu: Failed to get PlayerController")));
+        Logger::Error(FString(TEXT("Error: Failed to get PlayerController")));
         return;
     }
 
@@ -55,13 +55,13 @@ void UDebugMenu::AddMultiplayerDebugMenu(
     UGameInstance* GameInstance = GetGameInstance();
     if (!GameInstance)
     {
-        Logger::Error(FString(TEXT("Menu: Failed to get GameInstance")));
+        Logger::Error(FString(TEXT("Error: Failed to get GameInstance")));
         return;
     }
     MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
     if (!MultiplayerSessionsSubsystem)
     {
-        Logger::Error(FString(TEXT("Menu: Failed to get MultiplayerSessionSubsystem")));
+        Logger::Error(FString(TEXT("Error: Failed to load Multiplayer plugin")));
         return;
     }
 
@@ -82,14 +82,14 @@ bool UDebugMenu::Initialize()
 {
     if (!Super::Initialize())
     {
-        Logger::Error(FString(TEXT("Menu->Initialize: Failed to initialize DebugMenu")));
+        Logger::Error(FString(TEXT("Error: Failed to initialize DebugMenu")));
         return false;
     }
 
-    if (!HostButton) Logger::Error(FString(TEXT("Menu->Initialize: HostButton not found")));
+    if (!HostButton) Logger::Error(FString(TEXT("Error: HostButton not found")));
     else HostButton->OnClicked.AddDynamic(this, &UDebugMenu::HostButtonClicked);
 
-    if (!JoinButton) Logger::Error(FString(TEXT("Menu->Initialize: HostButton not found")));
+    if (!JoinButton) Logger::Error(FString(TEXT("Error: Joinutton not found")));
     else JoinButton->OnClicked.AddDynamic(this, &UDebugMenu::JoinButtonClicked);
 
     return true;
@@ -110,7 +110,7 @@ void UDebugMenu::OnCreateSession(bool bWasSuccessful)
 
     if (!bWasSuccessful)
     {
-        Logger::Error(FString(TEXT("Menu->OnCreateSession: Failed to create session")));
+        Logger::Error(FString(TEXT("Error: Failed to create session")));
         HostButton->SetIsEnabled(true);
         return;
     }
@@ -118,7 +118,7 @@ void UDebugMenu::OnCreateSession(bool bWasSuccessful)
     UWorld* World = GetWorld();
     if (!World)
     {
-        Logger::Error(FString(TEXT("Menu->OnCreateSession: Failed to get World")));
+        Logger::Error(FString(TEXT("Error: Failed to get World")));
         return;
     }
 
@@ -126,7 +126,7 @@ void UDebugMenu::OnCreateSession(bool bWasSuccessful)
     bWasSuccessful = World->ServerTravel(*LobbyMapPath);
     if (!bWasSuccessful)
     {
-        Logger::Error(FString(TEXT("Menu->OnCreateSession: Server travel failed")));
+        Logger::Error(FString(TEXT("Error: Server travel failed")));
     }
 }
 
@@ -137,14 +137,14 @@ void UDebugMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& Sessio
     //Logger::Log(FString(TEXT("Menu->OnFindSessions: Starting")));
     if (!bWasSuccessful || SessionResults.Num() == 0)
     {
-        Logger::Error(FString(TEXT("Menu->OnFindSessions: No sessions found")));
+        Logger::Error(FString(TEXT("Error: No sessions found")));
         JoinButton->SetIsEnabled(true);
         return;
     }
 
     if (!MultiplayerSessionsSubsystem)
     {
-        Logger::Error(FString(TEXT("Menu->OnFindSessions: Failed to get MultiplayerSessionsSubsystem")));
+        Logger::Error(FString(TEXT("Error: Failed to load Multiplayer plugin")));
         return;
     }
 
@@ -158,7 +158,7 @@ void UDebugMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& Sessio
         return;
     }
 
-    Logger::Error(FString(TEXT("Menu->OnFindSessions: No sessions matched")));
+    Logger::Error(FString(TEXT("Error: No sessions matched")));
 }
 
 // OnJoinSession is the delegate callback for session joins.
@@ -169,7 +169,7 @@ void UDebugMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
     if (Result != EOnJoinSessionCompleteResult::Success)
     {
         JoinButton->SetIsEnabled(true);
-        Logger::Error(FString(TEXT("Menu->OnJoinSession: Failed to join session")));
+        Logger::Error(FString(TEXT("Error: Failed to join session")));
         return;
     }
 
@@ -177,13 +177,13 @@ void UDebugMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
     IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
     if (!OnlineSubsystem)
     {
-        Logger::Error(FString(TEXT("Menu->OnJoinSession: Failed to get OnlineSubsystem")));
+        Logger::Error(FString(TEXT("Error: Failed to get OnlineSubsystem")));
         return;
     }
     IOnlineSessionPtr SessionInterface = OnlineSubsystem->GetSessionInterface();
     if (!SessionInterface.IsValid())
     {
-        Logger::Error(FString(TEXT("Menu->OnJoinSession: Failed to get SessionInterface")));
+        Logger::Error(FString(TEXT("Error: Failed to get SessionInterface")));
         return;
     }
 
@@ -195,7 +195,7 @@ void UDebugMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
     APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
     if (!PlayerController)
     {
-        Logger::Error(FString(TEXT("Menu->OnJoinSession: Failed to get PlayerController")));
+        Logger::Error(FString(TEXT("Error: Failed to get PlayerController")));
         return;
     }
 
@@ -208,7 +208,7 @@ void UDebugMenu::OnDestroySession(bool bWasSuccessful)
 {
     if (!bWasSuccessful)
     {
-        Logger::Error(FString(TEXT("Menu->OnDestroySession: Failed to destroy session")));
+        Logger::Error(FString(TEXT("Error: Failed to destroy session")));
         return;
     }
     //Logger::Log(FString(TEXT("Menu->OnDestroySession: Destroyed session")));
@@ -219,7 +219,7 @@ void UDebugMenu::OnStartSession(bool bWasSuccessful)
 {
     if (!bWasSuccessful)
     {
-        Logger::Error(FString(TEXT("Menu->OnStartSession: Failed to start session")));
+        Logger::Error(FString(TEXT("Error: Failed to start session")));
         return;
     }
     //Logger::Log(FString(TEXT("Menu->OnStartSession: Started session")));
@@ -243,15 +243,21 @@ void UDebugMenu::HostButtonClicked()
 
     if (!MultiplayerSessionsSubsystem)
     {
-        Logger::Error(FString(TEXT("Menu->HostButtonClicked: Failed to get MultiplayerSessionsSubsystem")));
+        Logger::Error(FString(TEXT("Error: Failed to load Multiplayer plugin")));
+        HostButton->SetIsEnabled(true);
         return;
     }
 
     // Check for valid online ID.
     if (!MultiplayerSessionsSubsystem->CheckOnlineStatus())
     {
-        Logger::Error(FString(TEXT("Menu: Not logged into Steam!")));
+        Logger::Error(FString(TEXT("Error: Not logged into Steam!")));
+        HostButton->SetIsEnabled(true);
         return;
+    }
+    else
+    {
+        Logger::Log(FString::Printf(TEXT("Error: OnlineStatus: %d"), MultiplayerSessionsSubsystem->CheckOnlineStatus()));
     }
 
     // Create a session.
@@ -270,14 +276,16 @@ void UDebugMenu::JoinButtonClicked()
 
     if (!MultiplayerSessionsSubsystem)
     {
-        Logger::Error(FString(TEXT("Menu->JoinButtonClicked: Failed to get MultiplayerSessionsSubsystem")));
+        Logger::Error(FString(TEXT("Error: Failed to load Multiplayer plugin")));
+        JoinButton->SetIsEnabled(true);
         return;
     }
 
     // Check for valid online ID.
     if (!MultiplayerSessionsSubsystem->CheckOnlineStatus())
     {
-        Logger::Error(FString(TEXT("Menu: Not logged into Steam!")));
+        Logger::Error(FString(TEXT("Error: Not logged into Steam!")));
+        JoinButton->SetIsEnabled(true);
         return;
     }
 

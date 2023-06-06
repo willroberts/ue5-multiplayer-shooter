@@ -49,8 +49,17 @@ bool UMultiplayerSessionsSubsystem::CheckOnlineStatus()
     }
 
     ELoginStatus::Type Status = IdentityInterface->GetLoginStatus(Player->GetControllerId());
-    if (Status == ELoginStatus::LoggedIn) return true;
-    return false;
+    if (Status != ELoginStatus::LoggedIn) return false;
+    
+    FUniqueNetIdPtr IdPtr = IdentityInterface->GetUniquePlayerId(Player->GetControllerId());
+    if (!IdPtr->IsValid()) return false;
+
+    FString Id = *IdPtr->ToString();
+    if (!Id.IsNumeric()) return false;
+
+    Logger::Log(FString::Printf(TEXT("Player ID: %s"), *IdPtr->ToString()));
+    
+    return true;
 }
 
 /* 
