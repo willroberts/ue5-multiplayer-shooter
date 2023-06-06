@@ -12,8 +12,6 @@ DECLARE_LOG_CATEGORY_EXTERN(LogMultiplayerSessions, Log, All);
 class MULTIPLAYERSESSIONS_API Logger
 {
 public:
-	Logger();
-	~Logger();
-
-	static void Log(FString Message, bool bIsError);
+	static void Log(FString Message);
+	static void Error(FString Message);
 };

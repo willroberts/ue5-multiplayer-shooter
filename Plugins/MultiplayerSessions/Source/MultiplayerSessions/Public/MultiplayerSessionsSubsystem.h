@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interfaces/OnlineIdentityInterface.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 
@@ -32,10 +33,11 @@ public:
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
 	void DestroySession();
 	void StartSession();
+	bool CheckOnlineStatus();
 
-	/************************
-	Bindable custom delegates
-	************************/
+	/*
+	 * Bindable custom delegates
+	 */
 
 	FMultiplayerOnCreateSessionComplete MultiplayerOnCreateSessionComplete;
 	FMultiplayerOnFindSessionsComplete MultiplayerOnFindSessionsComplete;
@@ -44,9 +46,9 @@ public:
 	FMultiplayerOnStartSessionComplete MultiplayerOnStartSessionComplete;
 
 protected:
-	/*****************
-	Delegate callbacks
-	*****************/
+	/*
+	* Delegate callbacks
+	*/
 
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(bool bWasSuccessful);
@@ -55,23 +57,24 @@ protected:
 	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
 
 private:
+	IOnlineIdentityPtr IdentityInterface;
 	IOnlineSessionPtr SessionInterface;
 
 	// Set to 'true' to automatically create a new session when the current session is destroyed.
 	bool bCreateSessionOnDestroy{ false };
 
-	/*************************************************************************
-	Save information about the last session to enable fast session recreation.
-	*************************************************************************/
+	/*
+	* Save information about the last session to enable fast session recreation.
+	*/
 
 	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 	TSharedPtr<FOnlineSessionSearch> LastSessionSearch;
 	int32 LastNumPublicConnections;
 	FString LastMatchType;
 
-	/****************************************************************
-	Save delegates and their handles (so we can clear them as needed)
-	****************************************************************/
+	/*
+	* Save delegates and their handles (so we can clear them as needed)
+	*/
 
 	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
 	FDelegateHandle CreateSessionCompleteDelegateHandle;

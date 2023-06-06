@@ -19,21 +19,21 @@ void ADebugGameMode::PostLogin(APlayerController* NewPlayer)
 	if (PlayerState)
 	{
 		FString PlayerName = PlayerState->GetPlayerName();
-		Logger::Log(FString::Printf(TEXT("Player %s has joined"), *PlayerName), false);
+		Logger::Log(FString::Printf(TEXT("Player %s has joined"), *PlayerName));
 	}
 	else
 	{
-		Logger::Log(TEXT("PostLogin: Failed to get PlayerState"), true);
+		Logger::Error(TEXT("PostLogin: Failed to get PlayerState"));
 	}
 
 	if (GameState)
 	{
 		int32 NumPlayers = GameState.Get()->PlayerArray.Num();
-		Logger::Log(FString::Printf(TEXT("Players in game: %d"), NumPlayers), false);
+		Logger::Log(FString::Printf(TEXT("Players in game: %d"), NumPlayers));
 	}
 	else
 	{
-		Logger::Log(TEXT("PostLogin: Failed to get GameState"), true);
+		Logger::Error(TEXT("PostLogin: Failed to get GameState"));
 	}
 }
 
@@ -46,20 +46,20 @@ void ADebugGameMode::Logout(AController* ExitingPlayer)
 	if (PlayerState)
 	{
 		FString PlayerName = PlayerState->GetPlayerName();
-		Logger::Log(FString::Printf(TEXT("Player %s has disconnected"), *PlayerName), false);
+		Logger::Log(FString::Printf(TEXT("Player %s has disconnected"), *PlayerName));
 	}
 	else
 	{
-		Logger::Log(TEXT("Logout: Failed to get PlayerState"), true);
+		Logger::Error(TEXT("Logout: Failed to get PlayerState"));
 	}
 
 	if (GameState)
 	{
 		int32 NumPlayers = GameState.Get()->PlayerArray.Num();
-		Logger::Log(FString::Printf(TEXT("Players in game: %d"), NumPlayers - 1), false);
+		Logger::Log(FString::Printf(TEXT("Players in game: %d"), NumPlayers - 1));
 	}
 	else
 	{
-		Logger::Log(TEXT("Logout: Failed to get GameState"), true);
+		Logger::Error(TEXT("Logout: Failed to get GameState"));
 	}
 }
