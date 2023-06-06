@@ -15,15 +15,9 @@ AProjectileRocket::AProjectileRocket()
 	ProjectileMesh->SetupAttachment(RootComponent);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	// Located in parent class (Projectile.h).
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->SetIsReplicated(true);
-
-	// Uncomment to use custom movement component.
-	//RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent"));
-	//RocketMovementComponent->bRotationFollowsVelocity = true;
-	//RocketMovementComponent->SetIsReplicated(true);
+	MovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent"));
+	MovementComponent->bRotationFollowsVelocity = true;
+	MovementComponent->SetIsReplicated(true);
 }
 
 void AProjectileRocket::BeginPlay()
@@ -65,16 +59,11 @@ void AProjectileRocket::OnHit(
 	FVector NormalImpulse,
 	const FHitResult& Hit
 ) {
-	// Enable the following code to prevent the rocket from hitting its own instigator.
-	// NOTE: Destruction will not work as a result, so the ProjectileRocket would need a custom
-	// ProjectileMovementComponent in order to work properly (see constructor).
-	/*
 	if (OtherActor == GetOwner())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Rocket hit instigator; disregarding hit"));
 		return;
 	}
-	*/
 
 	DealAreaDamage();
 	StartDestroyTimer();
