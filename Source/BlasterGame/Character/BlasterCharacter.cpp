@@ -67,6 +67,12 @@ ABlasterCharacter::ABlasterCharacter()
 
 	// Configure dissolve VFX.
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+
+	// Create grenade mesh.
+	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttachedGrenade"));
+	AttachedGrenade->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//AttachedGrenade->SetVisibility(false);
 }
 
 void ABlasterCharacter::Tick(float DeltaTime)

@@ -224,4 +224,11 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* RespawnBotSound;
+
+	/*
+	* Grenades
+	*/
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* AttachedGrenade;
 };

@@ -170,7 +170,7 @@ void UCombatComponent::Reload()
 	// Prevent reloading when out of ammo to load.
 	if (CarriedAmmo <= 0) return;
 	// Prevent reloading when weapon is already full.
-	if (EquippedWeapon && EquippedWeapon->GetAmmo() == EquippedWeapon->GetMagCapacity()) return;
+	if (EquippedWeapon && EquippedWeapon->IsFull()) return;
 
 	ServerReload();
 }
