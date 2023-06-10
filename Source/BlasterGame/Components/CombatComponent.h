@@ -44,6 +44,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void ReleaseGrenade(); // Spawn projectile at apex of throw animation.
 
+	UFUNCTION(Server, Reliable)
+	void ServerReleaseGrenade(const FVector_NetQuantize& Target);
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> GrenadeClass;
 
