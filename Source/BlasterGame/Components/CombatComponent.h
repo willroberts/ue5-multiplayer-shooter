@@ -62,6 +62,13 @@ protected:
 	void HandleReload();
 	int32 AmountToReload();
 
+	void DropEquippedWeapon();
+	void AttachActorToLeftHand(AActor* ActorToAttach);
+	void AttachActorToRightHand(AActor* ActorToAttach);
+	void UpdateCarriedAmmo();
+	void PlayWeaponEquipSound();
+	void ReloadEmptyWeapon();
+
 	/*
 	* Called from Animation Blueprints.
 	*/

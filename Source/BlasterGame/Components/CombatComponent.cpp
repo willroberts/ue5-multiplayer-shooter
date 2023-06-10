@@ -60,38 +60,69 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	if (!Character || !WeaponToEquip) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 
-	if (EquippedWeapon) UnequipWeapon(); // Drop any existing weapon.
-
+	DropEquippedWeapon();
 	EquippedWeapon = WeaponToEquip; // Triggers replication.
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	EquippedWeapon->SetOwner(Character);
+	UpdateCarriedAmmo();
+	PlayWeaponEquipSound();
+
+	// Update animation bits.
+	AttachActorToRightHand(EquippedWeapon);
+	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
+	Character->bUseControllerRotationYaw = true;
+
+	ReloadEmptyWeapon();
+}
+
+void UCombatComponent::DropEquippedWeapon()
+{
+	if (EquippedWeapon) UnequipWeapon();
+}
+
+void UCombatComponent::AttachActorToLeftHand(AActor* ActorToAttach)
+{
+	if (!Character || !Character->GetMesh() || !ActorToAttach || !EquippedWeapon) return;
+
+	bool bUseAltSocket = EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Pistol ||
+	                     EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Submachinegun;
+	FName SocketName = bUseAltSocket ? FName("AltLeftHandSocket") : FName("LeftHandSocket");
+
+	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(SocketName);
+	if (HandSocket) HandSocket->AttachActor(ActorToAttach, Character->GetMesh());
+}
+
+void UCombatComponent::AttachActorToRightHand(AActor* ActorToAttach)
+{
+	if (!Character || !Character->GetMesh() || !ActorToAttach) return;
+
+	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	if (HandSocket) HandSocket->AttachActor(ActorToAttach, Character->GetMesh());
+}
+
+void UCombatComponent::UpdateCarriedAmmo()
+{
+	if (!EquippedWeapon) return;
 
 	// Update ammo counts. Map only exists on the server.
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()]; // Triggers replication.
 	}
+	if (Controller && Controller->HasAuthority()) UpdateWeaponHUD(); // Need authority check here?
+}
 
-	// Update weapon HUD on the server.
-	if (Controller && Controller->HasAuthority()) UpdateWeaponHUD();
-
-	// Update animation bits.
-	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
-	if (HandSocket)
-	{
-		HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
-	}
-	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
-	Character->bUseControllerRotationYaw = true;
-
-	// Play sound.
-	if (EquippedWeapon->EquipSound)
+void UCombatComponent::PlayWeaponEquipSound()
+{
+	if (Character && EquippedWeapon && EquippedWeapon->EquipSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
 	}
+}
 
-	// Automatically reload when magazine is empty.
-	if (EquippedWeapon->IsEmpty()) Reload();
+void UCombatComponent::ReloadEmptyWeapon()
+{
+	if (EquippedWeapon && EquippedWeapon->IsEmpty()) Reload();
 }
 
 void UCombatComponent::UnequipWeapon()
@@ -108,26 +139,15 @@ void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (!Character) return;
 
-	// Attach any new weapon to the character.
 	if (EquippedWeapon)
 	{
 		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-		const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
-		if (HandSocket)
-		{
-			HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
-		}
+		AttachActorToRightHand(EquippedWeapon);
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
+		PlayWeaponEquipSound();
 	}
-
-	// Play equip sound.
-	if (EquippedWeapon && EquippedWeapon->EquipSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
-	}
-
-	// Update the HUD.
+	
 	UpdateWeaponHUD();
 }
 
@@ -281,6 +301,7 @@ void UCombatComponent::OnRep_CombatState()
 		if (Character && !Character->IsLocallyControlled())
 		{
 			Character->PlayThrowGrenadeMontage();
+			AttachActorToLeftHand(EquippedWeapon);
 		}
 		break;
 	default:
@@ -361,8 +382,12 @@ void UCombatComponent::ThrowGrenade()
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 
-	if (!Character) return;
-	Character->PlayThrowGrenadeMontage();
+	if (Character)
+	{
+		Character->PlayThrowGrenadeMontage();
+		AttachActorToLeftHand(EquippedWeapon);
+	}
+
 	if (!Character->HasAuthority()) ServerThrowGrenade();
 
 	// Use a timer to schedule returning combat state back to Unoccupied.
@@ -384,7 +409,11 @@ void UCombatComponent::StartGrenadeThrowTimer()
 void UCombatComponent::ServerThrowGrenade_Implementation()
 {
 	CombatState = ECombatState::ECS_ThrowingGrenade;
-	if (Character) Character->PlayThrowGrenadeMontage();
+	if (Character)
+	{
+		Character->PlayThrowGrenadeMontage();
+		AttachActorToLeftHand(EquippedWeapon);
+	}
 
 	// Use a timer to schedule returning combat state back to Unoccupied.
 	StartGrenadeThrowTimer(); // Correct?
@@ -393,6 +422,7 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 void UCombatComponent::ThrowGrenadeFinished()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
+	AttachActorToRightHand(EquippedWeapon);
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
@@ -642,8 +672,7 @@ void UCombatComponent::ScheduleAutoReload()
 
 void UCombatComponent::AutoReloadTimerFinished()
 {
-	// Automatically reload when magazine is empty.
-	if (EquippedWeapon && EquippedWeapon->IsEmpty()) Reload();
+	ReloadEmptyWeapon();
 }
 
 bool UCombatComponent::CanFire()
