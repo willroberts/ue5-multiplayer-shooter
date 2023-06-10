@@ -28,6 +28,8 @@ public:
 	void Reload();
 	void EndShotgunReload();
 
+	FORCEINLINE int32 GetGrenades() const { return Grenades; }
+
 protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bAiming);
@@ -196,12 +198,25 @@ private:
 	UFUNCTION()
 	void OnRep_CombatState();
 
+	FTimerHandle ReloadTimer;
 	void UpdateAmmoValues();
 	void UpdateShotgunAmmoValues();
 
-	FTimerHandle ReloadTimer;
+	/*
+	* Grenades
+	*/
+
 	FTimerHandle GrenadeThrowTimer;
 	float GrenadeThrowDuration = 1.0f; // 1.5s with 1.5 play rate.
-
 	void ShowAttachedGrenade(bool bShow);
+	void UpdateHUDGrenades();
+
+	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
+	int32 Grenades = 3;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxGrenades = 3;
+
+	UFUNCTION()
+	void OnRep_Grenades();
 };

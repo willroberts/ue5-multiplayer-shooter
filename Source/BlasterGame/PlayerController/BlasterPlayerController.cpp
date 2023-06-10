@@ -32,9 +32,16 @@ void ABlasterPlayerController::PollOverlayState()
 	if (!CharacterOverlay && BlasterHUD && BlasterHUD->CharacterOverlay)
 	{
 		CharacterOverlay = BlasterHUD->CharacterOverlay;
-		SetHUDHealth(HUDHealth, HUDMaxHealth);
-		SetHUDScore(HUDScore);
-		SetHUDDefeats(HUDDefeats);
+		if (CharacterOverlay)
+		{
+			SetHUDHealth(HUDHealth, HUDMaxHealth);
+			SetHUDScore(HUDScore);
+			SetHUDDefeats(HUDDefeats);
+
+			// Update grenades value.
+			ABlasterCharacter* Char = Cast<ABlasterCharacter>(GetPawn());
+			if (Char && Char->GetCombatComponent()) SetHUDGrenades(Char->GetCombatComponent()->GetGrenades());
+		}
 	}
 
 	// Ensure level start time is set in the case where Controller::BeginPlay runs before GameMode::BeginPlay.
@@ -313,6 +320,19 @@ void ABlasterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	{
 		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
 		BlasterHUD->CharacterOverlay->CarriedAmmoValueText->SetText(FText::FromString(AmmoText));
+	}
+}
+
+void ABlasterPlayerController::SetHUDGrenades(int32 Grenades)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	if (BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->GrenadesValueText)
+	{
+		FString ValueStr = FString::Printf(TEXT("%d"), Grenades);
+		BlasterHUD->CharacterOverlay->GrenadesValueText->SetText(FText::FromString(ValueStr));
 	}
 }
 

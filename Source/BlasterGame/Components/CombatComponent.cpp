@@ -54,6 +54,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
+	DOREPLIFETIME(UCombatComponent, Grenades);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -383,6 +384,7 @@ void UCombatComponent::ThrowGrenade()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	if (!EquippedWeapon) return;
+	if (Grenades == 0) return;
 
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 
@@ -391,9 +393,9 @@ void UCombatComponent::ThrowGrenade()
 		ShowAttachedGrenade(true);
 		Character->PlayThrowGrenadeMontage();
 		AttachActorToLeftHand(EquippedWeapon);
-	}
 
-	if (!Character->HasAuthority()) ServerThrowGrenade();
+		if (!Character->HasAuthority()) ServerThrowGrenade();
+	}
 
 	// Use a timer to schedule returning combat state back to Unoccupied.
 	StartGrenadeThrowTimer(); // Correct?
@@ -413,6 +415,8 @@ void UCombatComponent::StartGrenadeThrowTimer()
 
 void UCombatComponent::ServerThrowGrenade_Implementation()
 {
+	if (Grenades == 0) return;
+
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 	if (Character)
 	{
@@ -422,7 +426,7 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 	}
 
 	// Use a timer to schedule returning combat state back to Unoccupied.
-	StartGrenadeThrowTimer(); // Correct?
+	StartGrenadeThrowTimer();
 }
 
 void UCombatComponent::ThrowGrenadeFinished()
@@ -435,6 +439,8 @@ void UCombatComponent::ThrowGrenadeFinished()
 void UCombatComponent::ReleaseGrenade()
 {
 	ShowAttachedGrenade(false);
+
+	// FIXME: Should this be !HasAuthority() instead of IsLocallyControlled()?
 	if (Character && Character->IsLocallyControlled()) ServerReleaseGrenade(HitTarget);
 }
 
@@ -450,6 +456,11 @@ void UCombatComponent::ServerReleaseGrenade_Implementation(const FVector_NetQuan
 	SpawnParams.Owner = Character;
 	SpawnParams.Instigator = Character;
 	GetWorld()->SpawnActor<AProjectile>(GrenadeClass, StartLocation, ToTarget.Rotation(), SpawnParams);
+
+	// Deduct the grenade from inventory.
+	UE_LOG(LogTemp, Warning, TEXT("Deducting client grenade"));
+	Grenades = FMath::Clamp(Grenades - 1, 0, MaxGrenades); // Triggers replication.
+	UpdateHUDGrenades();
 }
 
 void UCombatComponent::ShowAttachedGrenade(bool bShow)
@@ -457,6 +468,21 @@ void UCombatComponent::ShowAttachedGrenade(bool bShow)
 	if (!Character || !Character->GetAttachedGrenade()) return;
 
 	Character->GetAttachedGrenade()->SetVisibility(bShow);
+}
+
+void UCombatComponent::OnRep_Grenades()
+{
+	UpdateHUDGrenades();
+}
+
+void UCombatComponent::UpdateHUDGrenades()
+{
+	if (!Character) return;
+
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (!Controller) return;
+
+	Controller->SetHUDGrenades(Grenades);
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)

@@ -38,4 +38,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CarriedAmmoValueText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* GrenadesValueText;
 };

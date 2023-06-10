@@ -27,6 +27,7 @@ public:
 	void SetHUDWeaponType(EWeaponType WeaponType);
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);
+	void SetHUDGrenades(int32 Grenades);
 	void ShowEliminationPopup(FString Message);
 	void HideEliminationPopup();
 	virtual float GetServerTime();
