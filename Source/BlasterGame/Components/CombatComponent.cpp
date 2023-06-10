@@ -58,6 +58,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (!Character || !WeaponToEquip) return;
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
 
 	if (EquippedWeapon) UnequipWeapon(); // Drop any existing weapon.
 
@@ -90,10 +91,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	}
 
 	// Automatically reload when magazine is empty.
-	if (EquippedWeapon->IsEmpty())
-	{
-		Reload();
-	}
+	if (EquippedWeapon->IsEmpty()) Reload();
 }
 
 void UCombatComponent::UnequipWeapon()
@@ -148,7 +146,7 @@ void UCombatComponent::UpdateWeaponHUD()
 void UCombatComponent::Reload()
 {
 	// Prevent reloading when already reloading.
-	if (CombatState == ECombatState::ECS_Reloading) return;
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	// Prevent reloading when out of ammo to load.
 	if (CarriedAmmo <= 0) return;
 	// Prevent reloading when weapon is already full.
@@ -212,10 +210,7 @@ void UCombatComponent::FinishReloading()
 	}
 
 	// Attempt to fire again if button is pressed when reload ends.
-	if (bFireButtonPressed)
-	{
-		FireWeapon();
-	}
+	if (bFireButtonPressed) FireWeapon();
 }
 
 void UCombatComponent::EndShotgunReload()
@@ -241,10 +236,7 @@ void UCombatComponent::UpdateAmmoValues()
 	}
 
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	}
+	if (Controller) Controller->SetHUDCarriedAmmo(CarriedAmmo);
 
 	EquippedWeapon->AddAmmo(-ReloadAmount);
 }
@@ -261,10 +253,7 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 	}
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	}
+	if (Controller) Controller->SetHUDCarriedAmmo(CarriedAmmo);
 
 	// Update weapon ammo.
 	EquippedWeapon->AddAmmo(-1);
@@ -283,13 +272,18 @@ void UCombatComponent::OnRep_CombatState()
 	switch (CombatState)
 	{
 	case ECombatState::ECS_Unoccupied:
-		if (bFireButtonPressed)
-		{
-			FireWeapon();
-		}
+		if (bFireButtonPressed) FireWeapon();
 		break;
 	case ECombatState::ECS_Reloading:
 		HandleReload();
+		break;
+	case ECombatState::ECS_ThrowingGrenade:
+		if (Character && !Character->IsLocallyControlled())
+		{
+			Character->PlayThrowGrenadeMontage();
+		}
+		break;
+	default:
 		break;
 	}
 }
@@ -302,21 +296,12 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!Character)
-	{
-		return;
-	}
+	if (!Character) return;
 	Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 
-	if (Character->HasAuthority())
-	{
-		InitializeCarriedAmmo();
-	}
+	if (Character->HasAuthority()) InitializeCarriedAmmo();
 
-	if (!Character->GetFollowCamera())
-	{
-		return;
-	}
+	if (!Character->GetFollowCamera()) return;
 	DefaultFOV = Character->GetFollowCamera()->FieldOfView;
 	CurrentFOV = DefaultFOV;
 }
@@ -346,10 +331,7 @@ void UCombatComponent::SetAiming(bool bAiming)
 
 void UCombatComponent::FireWeapon()
 {
-	if (!CanFire())
-	{
-		return;
-	}
+	if (!CanFire()) return;
 
 	// Prevent firing until fire timer has elapsed.
 	bCanFire = false;
@@ -371,10 +353,46 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
 
-	if (bFireButtonPressed)
-	{
-		FireWeapon();
-	}
+	if (bFireButtonPressed) FireWeapon();
+}
+
+void UCombatComponent::ThrowGrenade()
+{
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	CombatState = ECombatState::ECS_ThrowingGrenade;
+
+	if (!Character) return;
+	Character->PlayThrowGrenadeMontage();
+	if (!Character->HasAuthority()) ServerThrowGrenade();
+
+	// Use a timer to schedule returning combat state back to Unoccupied.
+	StartGrenadeThrowTimer(); // Correct?
+}
+
+void UCombatComponent::StartGrenadeThrowTimer()
+{
+	if (!Character) return;
+
+	Character->GetWorldTimerManager().SetTimer(
+		GrenadeThrowTimer,
+		this,
+		&UCombatComponent::ThrowGrenadeFinished,
+		GrenadeThrowDuration
+	);
+}
+
+void UCombatComponent::ServerThrowGrenade_Implementation()
+{
+	CombatState = ECombatState::ECS_ThrowingGrenade;
+	if (Character) Character->PlayThrowGrenadeMontage();
+
+	// Use a timer to schedule returning combat state back to Unoccupied.
+	StartGrenadeThrowTimer(); // Correct?
+}
+
+void UCombatComponent::ThrowGrenadeFinished()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
@@ -418,11 +436,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 
 void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 {
-	if (!GEngine || !GEngine->GameViewport)
-	{
-		// Failed to get viewport!
-		return;
-	}
+	if (!GEngine || !GEngine->GameViewport) return;
 
 	// Determine crosshair location.
 	FVector2D ViewportSize;
@@ -438,11 +452,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		CrosshairWorldPosition,
 		CrosshairWorldDirection
 	);
-	if (!bWasSuccessful)
-	{
-		// Failed to translate world space!
-		return;
-	}
+	if (!bWasSuccessful) return;
 
 	// Run a line trace from the weapon to the target.
 	FVector Start = CrosshairWorldPosition;
@@ -508,22 +518,13 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 
 void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 {
-	if (!Character || !Character->Controller)
-	{
-		return;
-	}
+	if (!Character || !Character->Controller) return;
 
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (!Controller)
-	{
-		return;
-	}
+	if (!Controller) return;
 
 	HUD = HUD == nullptr ? Cast<ABlasterHUD>(Controller->GetHUD()) : HUD;
-	if (!HUD)
-	{
-		return;
-	}
+	if (!HUD) return;
 
 	if (EquippedWeapon)
 	{
@@ -587,10 +588,7 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
-	if (!EquippedWeapon)
-	{
-		return;
-	}
+	if (!EquippedWeapon) return;
 
 	if (bIsAiming)
 	{
@@ -609,10 +607,7 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 
 void UCombatComponent::StartFireTimer()
 {
-	if (!EquippedWeapon || !Character)
-	{
-		return;
-	}
+	if (!EquippedWeapon || !Character) return;
 
 	Character->GetWorldTimerManager().SetTimer(
 		FireTimer,
@@ -635,10 +630,7 @@ void UCombatComponent::FireTimerFinished()
 
 void UCombatComponent::ScheduleAutoReload()
 {
-	if (!EquippedWeapon || !Character)
-	{
-		return;
-	}
+	if (!EquippedWeapon || !Character) return;
 
 	Character->GetWorldTimerManager().SetTimer(
 		AutoReloadTimer,
@@ -651,10 +643,7 @@ void UCombatComponent::ScheduleAutoReload()
 void UCombatComponent::AutoReloadTimerFinished()
 {
 	// Automatically reload when magazine is empty.
-	if (EquippedWeapon && EquippedWeapon->IsEmpty())
-	{
-		Reload();
-	}
+	if (EquippedWeapon && EquippedWeapon->IsEmpty()) Reload();
 }
 
 bool UCombatComponent::CanFire()
@@ -693,10 +682,7 @@ void UCombatComponent::OnRep_CarriedAmmo()
 	if (!Character) return;
 
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	}
+	if (Controller) Controller->SetHUDCarriedAmmo(CarriedAmmo);
 
 	if (CombatState == ECombatState::ECS_Reloading &&
 		EquippedWeapon &&

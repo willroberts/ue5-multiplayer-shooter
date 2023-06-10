@@ -31,6 +31,7 @@ public:
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
 	void PlayEliminatedMontage();
+	void PlayThrowGrenadeMontage();
 	FVector GetHitTarget() const;
 	virtual void OnRep_ReplicatedMovement() override;
 	void Eliminated();
@@ -72,6 +73,7 @@ protected:
 	void AimButtonPressed();
 	void AimButtonReleased();
 	void ReloadButtonPressed();
+	void GrenadeButtonPressed();
 	void CalculateAO_Pitch();
 	float CalculateSpeed();
 	void AimOffset(float DeltaTime);
@@ -144,6 +146,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* EliminatedMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* ThrowGrenadeMontage;
 
 	/*
 	* Camera and Movement

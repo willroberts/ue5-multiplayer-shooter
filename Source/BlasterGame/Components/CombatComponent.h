@@ -32,6 +32,14 @@ protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bAiming);
 	void FireWeapon();
+	void ThrowGrenade();
+	void StartGrenadeThrowTimer();
+
+	UFUNCTION(Server, Reliable)
+	void ServerThrowGrenade();
+
+	UFUNCTION()
+	void ThrowGrenadeFinished();
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bAiming);
@@ -176,4 +184,6 @@ private:
 	void UpdateShotgunAmmoValues();
 
 	FTimerHandle ReloadTimer;
+	FTimerHandle GrenadeThrowTimer;
+	float GrenadeThrowDuration = 1.0f; // 1.5s with 1.5 play rate.
 };

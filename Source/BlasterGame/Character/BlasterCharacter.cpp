@@ -110,6 +110,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABlasterCharacter::FireButtonReleased);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &ABlasterCharacter::DropButtonPressed);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABlasterCharacter::ReloadButtonPressed);
+	PlayerInputComponent->BindAction("ThrowGrenade", IE_Pressed, this, &ABlasterCharacter::GrenadeButtonPressed);
 }
 
 void ABlasterCharacter::PostInitializeComponents()
@@ -251,6 +252,19 @@ void ABlasterCharacter::PlayEliminatedMontage()
 	if (AnimInstance && EliminatedMontage)
 	{
 		AnimInstance->Montage_Play(EliminatedMontage);
+	}
+}
+
+void ABlasterCharacter::PlayThrowGrenadeMontage()
+{
+	// Playing this animation requires an equipped weapon.
+	if (!Combat) return;
+	if (!Combat->EquippedWeapon) return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ThrowGrenadeMontage)
+	{
+		AnimInstance->Montage_Play(ThrowGrenadeMontage);
 	}
 }
 
@@ -485,44 +499,35 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 
 void ABlasterCharacter::CrouchButtonPressed()
 {
-	if (bIsCrouched)
-	{
-		UnCrouch();
-	}
-	else
-	{
+	if (bIsCrouched) UnCrouch();
+	else {
 		// Prevent crouching mid-jump.
-		if (!GetCharacterMovement()->IsFalling())
-		{
-			Crouch();
-		}
+		if (!GetCharacterMovement()->IsFalling()) Crouch();
 	}
 }
 
 void ABlasterCharacter::AimButtonPressed()
 {
-	if (Combat)
-	{
-		Combat->SetAiming(true);
-	}
+	if (Combat)	Combat->SetAiming(true);
 }
 
 void ABlasterCharacter::AimButtonReleased()
 {
-	if (Combat)
-	{
-		Combat->SetAiming(false);
-	}
+	if (Combat)	Combat->SetAiming(false);
 }
 
 void ABlasterCharacter::ReloadButtonPressed()
 {
 	if (bDisableCombatActions) return;
 
-	if (Combat)
-	{
-		Combat->Reload();
-	}
+	if (Combat) Combat->Reload();
+}
+
+void ABlasterCharacter::GrenadeButtonPressed()
+{
+	if (bDisableCombatActions) return;
+
+	if (Combat) Combat->ThrowGrenade();
 }
 
 void ABlasterCharacter::CalculateAO_Pitch()
@@ -550,10 +555,7 @@ float ABlasterCharacter::CalculateSpeed()
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {
 	// Nothing to calculate when no weapon is equipped.
-	if (Combat && !Combat->EquippedWeapon)
-	{
-		return;
-	}
+	if (Combat && !Combat->EquippedWeapon) return;
 
 	float Speed = CalculateSpeed();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
@@ -589,10 +591,7 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 // Interpolate turning-in-place on simulated proxies.
 void ABlasterCharacter::SimProxiesTurn()
 {
-	if (!Combat || !Combat->EquippedWeapon)
-	{
-		return;
-	}
+	if (!Combat || !Combat->EquippedWeapon)	return;
 
 	bRotateRootBone = false; // Is 'true' on locally controlled pawns.
 	float Speed = CalculateSpeed();
@@ -608,20 +607,12 @@ void ABlasterCharacter::SimProxiesTurn()
 
 	if (FMath::Abs(ProxyYaw) > TurnInPlaceThreshold)
 	{
-		if (ProxyYaw > TurnInPlaceThreshold)
-		{
-			TurningInPlace = ETurningInPlace::ETIP_Right;
-		}
-		else if (ProxyYaw < -TurnInPlaceThreshold)
-		{
-			TurningInPlace = ETurningInPlace::ETIP_Left;
-		}
-		else
-		{
-			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
-		}
+		if (ProxyYaw > TurnInPlaceThreshold) TurningInPlace = ETurningInPlace::ETIP_Right;
+		else if (ProxyYaw < -TurnInPlaceThreshold) TurningInPlace = ETurningInPlace::ETIP_Left;
+		else TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 		return;
 	}
+
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
@@ -629,18 +620,12 @@ void ABlasterCharacter::FireButtonPressed()
 {
 	if (bDisableCombatActions) return;
 
-	if (Combat)
-	{
-		Combat->FireButtonPressed(true);
-	}
+	if (Combat)	Combat->FireButtonPressed(true);
 }
 
 void ABlasterCharacter::FireButtonReleased()
 {
-	if (Combat)
-	{
-		Combat->FireButtonPressed(false);
-	}
+	if (Combat)	Combat->FireButtonPressed(false);
 }
 
 void ABlasterCharacter::DropButtonPressed()
@@ -653,18 +638,12 @@ void ABlasterCharacter::DropButtonPressed()
 		return;
 	}
 
-	if (Combat && Combat->EquippedWeapon)
-	{
-		Combat->UnequipWeapon();
-	}
+	if (Combat && Combat->EquippedWeapon) Combat->UnequipWeapon();
 }
 
 void ABlasterCharacter::ServerDropButtonPressed_Implementation()
 {
-	if (Combat && Combat->EquippedWeapon)
-	{
-		Combat->UnequipWeapon();
-	}
+	if (Combat && Combat->EquippedWeapon) Combat->UnequipWeapon();
 }
 
 void ABlasterCharacter::PlayHitReactMontage()
@@ -691,15 +670,14 @@ void ABlasterCharacter::UpdateHUDHealth()
 
 void ABlasterCharacter::PollPlayerState()
 {
-	if (!BlasterPlayerState)
+	if (BlasterPlayerState) return;
+
+	BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+	if (BlasterPlayerState)
 	{
-		BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
-		if (BlasterPlayerState)
-		{
-			// Player state is now valid; update HUD.
-			BlasterPlayerState->AddToScore(0.f);
-			BlasterPlayerState->AddToDefeats(0);
-		}
+		// Player state is now valid; update HUD.
+		BlasterPlayerState->AddToScore(0.f);
+		BlasterPlayerState->AddToDefeats(0);
 	}
 }
 
@@ -735,14 +713,8 @@ void ABlasterCharacter::ReceiveDamage(
 void ABlasterCharacter::TurnInPlace(float DeltaTime)
 {
 	// When orientation is above 90 degrees to the left or right, set TurningInPlace to that direction.
-	if (AO_Yaw > 90.f)
-	{
-		TurningInPlace = ETurningInPlace::ETIP_Right;
-	}
-	else if (AO_Yaw < -90.f)
-	{
-		TurningInPlace = ETurningInPlace::ETIP_Left;
-	}
+	if (AO_Yaw > 90.f) TurningInPlace = ETurningInPlace::ETIP_Right;
+	else if (AO_Yaw < -90.f) TurningInPlace = ETurningInPlace::ETIP_Left;
 
 	// When turning, interpolate yaw.
 	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning)
@@ -762,10 +734,7 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 // Hide the Character Mesh when the Camera boom arm is too short, preventing clipping.
 void ABlasterCharacter::CameraHideMesh()
 {
-	if (!IsLocallyControlled())
-	{
-		return;
-	}
+	if (!IsLocallyControlled())	return;
 
 	if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraHideMeshThreshold)
 	{
