@@ -12,10 +12,11 @@
 #include "Sound/SoundCue.h"
 #include "TimerManager.h"
 
-#include "BlasterGame/Weapon/Weapon.h"
 #include "BlasterGame/Character/BlasterAnimInstance.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
+#include "BlasterGame/Weapon/Projectile.h"
+#include "BlasterGame/Weapon/Weapon.h"
 
 //
 // Public Methods
@@ -381,6 +382,8 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 void UCombatComponent::ThrowGrenade()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	if (!EquippedWeapon) return;
+
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 
 	if (Character)
@@ -432,6 +435,22 @@ void UCombatComponent::ThrowGrenadeFinished()
 void UCombatComponent::ReleaseGrenade()
 {
 	ShowAttachedGrenade(false);
+
+	if (Character && Character->HasAuthority() && GrenadeClass && Character->GetAttachedGrenade())
+	{
+		const FVector StartLocation = Character->GetAttachedGrenade()->GetComponentLocation();
+		FVector ToTarget = HitTarget - StartLocation;
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = Character;
+		SpawnParams.Instigator = Character;
+
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			World->SpawnActor<AProjectile>(GrenadeClass, StartLocation, ToTarget.Rotation(), SpawnParams);
+		}
+	}
 }
 
 void UCombatComponent::ShowAttachedGrenade(bool bShow)
