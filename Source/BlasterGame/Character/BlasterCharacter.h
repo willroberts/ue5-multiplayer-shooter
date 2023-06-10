@@ -47,6 +47,7 @@ public:
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 	FORCEINLINE class UCombatComponent* GetCombatComponent() const { return Combat; }
 	FORCEINLINE class UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
+	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminated();

@@ -300,6 +300,7 @@ void UCombatComponent::OnRep_CombatState()
 	case ECombatState::ECS_ThrowingGrenade:
 		if (Character && !Character->IsLocallyControlled())
 		{
+			ShowAttachedGrenade(true);
 			Character->PlayThrowGrenadeMontage();
 			AttachActorToLeftHand(EquippedWeapon);
 		}
@@ -384,6 +385,7 @@ void UCombatComponent::ThrowGrenade()
 
 	if (Character)
 	{
+		ShowAttachedGrenade(true);
 		Character->PlayThrowGrenadeMontage();
 		AttachActorToLeftHand(EquippedWeapon);
 	}
@@ -411,6 +413,7 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 	if (Character)
 	{
+		ShowAttachedGrenade(true);
 		Character->PlayThrowGrenadeMontage();
 		AttachActorToLeftHand(EquippedWeapon);
 	}
@@ -422,7 +425,20 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 void UCombatComponent::ThrowGrenadeFinished()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
+	ShowAttachedGrenade(false);
 	AttachActorToRightHand(EquippedWeapon);
+}
+
+void UCombatComponent::ReleaseGrenade()
+{
+	ShowAttachedGrenade(false);
+}
+
+void UCombatComponent::ShowAttachedGrenade(bool bShow)
+{
+	if (!Character || !Character->GetAttachedGrenade()) return;
+
+	Character->GetAttachedGrenade()->SetVisibility(bShow);
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)

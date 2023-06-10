@@ -72,7 +72,6 @@ ABlasterCharacter::ABlasterCharacter()
 	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttachedGrenade"));
 	AttachedGrenade->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
 	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//AttachedGrenade->SetVisibility(false);
 }
 
 void ABlasterCharacter::Tick(float DeltaTime)
@@ -391,12 +390,9 @@ void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (HasAuthority()) OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
+	if (AttachedGrenade) AttachedGrenade->SetVisibility(false);
 	UpdateHUDHealth();
-
-	if (HasAuthority())
-	{
-		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
-	}
 }
 
 void ABlasterCharacter::Jump()

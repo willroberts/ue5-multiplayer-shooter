@@ -41,6 +41,9 @@ protected:
 	UFUNCTION()
 	void ThrowGrenadeFinished();
 
+	UFUNCTION(BlueprintCallable)
+	void ReleaseGrenade(); // Spawn projectile at apex of throw animation.
+
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bAiming);
 
@@ -193,4 +196,6 @@ private:
 	FTimerHandle ReloadTimer;
 	FTimerHandle GrenadeThrowTimer;
 	float GrenadeThrowDuration = 1.0f; // 1.5s with 1.5 play rate.
+
+	void ShowAttachedGrenade(bool bShow);
 };
