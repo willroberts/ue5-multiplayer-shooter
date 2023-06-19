@@ -16,6 +16,7 @@
 
 #include "BlasterAnimInstance.h"
 #include "BlasterGame/BlasterGame.h"
+#include "BlasterGame/Components/BuffComponent.h"
 #include "BlasterGame/Components/CombatComponent.h"
 #include "BlasterGame/GameModes/BlasterGameMode.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
@@ -61,7 +62,9 @@ ABlasterCharacter::ABlasterCharacter()
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
 
-	// Create Combat component.
+	// Create components.
+	BuffComponent = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
+	BuffComponent->SetIsReplicated(true);
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
 
@@ -121,10 +124,9 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void ABlasterCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	if (Combat)
-	{
-		Combat->Character = this;
-	}
+
+	if (BuffComponent) BuffComponent->Character = this;
+	if (Combat) Combat->Character = this;
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
@@ -133,10 +135,7 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	// Hide widget if overlap has ended.
 	if (IsLocallyControlled())
 	{
-		if (OverlappingWeapon)
-		{
-			OverlappingWeapon->ShowPickupWidget(false);
-		}
+		if (OverlappingWeapon) OverlappingWeapon->ShowPickupWidget(false);
 	}
 
 	OverlappingWeapon = Weapon; // Writing to this attribute triggers replication.
@@ -145,10 +144,7 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	// Show widget if overlap has begun.
 	if (IsLocallyControlled())
 	{
-		if (OverlappingWeapon)
-		{
-			OverlappingWeapon->ShowPickupWidget(true);
-		}
+		if (OverlappingWeapon) OverlappingWeapon->ShowPickupWidget(true);
 	}
 }
 
@@ -157,16 +153,10 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
 	// Overlap began.
-	if (OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(true);
-	}
+	if (OverlappingWeapon) OverlappingWeapon->ShowPickupWidget(true);
 
 	// Overlap ended.
-	if (LastWeapon)
-	{
-		LastWeapon->ShowPickupWidget(false);
-	}
+	if (LastWeapon)	LastWeapon->ShowPickupWidget(false);
 }
 
 bool ABlasterCharacter::IsWeaponEquipped()
@@ -181,19 +171,14 @@ bool ABlasterCharacter::IsAiming()
 
 AWeapon* ABlasterCharacter::GetEquippedWeapon()
 {
-	if (Combat && Combat->EquippedWeapon)
-	{
-		return Combat->EquippedWeapon;
-	}
+	if (Combat && Combat->EquippedWeapon) return Combat->EquippedWeapon;
+
 	return nullptr;
 }
 
 void ABlasterCharacter::PlayFireMontage(bool bAiming)
 {
-	if (!Combat || !Combat->EquippedWeapon)
-	{
-		return;
-	}
+	if (!Combat || !Combat->EquippedWeapon)	return;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && FireWeaponMontage)
@@ -206,10 +191,7 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 
 void ABlasterCharacter::PlayReloadMontage()
 {
-	if (!Combat || !Combat->EquippedWeapon)
-	{
-		return;
-	}
+	if (!Combat || !Combat->EquippedWeapon)	return;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && ReloadMontage)
@@ -275,10 +257,7 @@ void ABlasterCharacter::PlayThrowGrenadeMontage()
 
 FVector ABlasterCharacter::GetHitTarget() const
 {
-	if (!Combat)
-	{
-		return FVector(); // unsafe???
-	}
+	if (!Combat) return FVector(); // unsafe???
 
 	return Combat->HitTarget;
 }
@@ -318,16 +297,10 @@ void ABlasterCharacter::Destroyed()
 {
 	Super::Destroyed();
 
-	if (RespawnBotComponent)
-	{
-		RespawnBotComponent->DestroyComponent();
-	}
+	if (RespawnBotComponent) RespawnBotComponent->DestroyComponent();
 
 	// Handle the case where a player is destroyed by disconnecting rather than by elimination.
-	if (Combat && Combat->EquippedWeapon)
-	{
-		Combat->UnequipWeapon();
-	}
+	if (Combat && Combat->EquippedWeapon) Combat->UnequipWeapon();
 }
 
 // Server+Client RPC.
@@ -358,14 +331,8 @@ void ABlasterCharacter::MulticastEliminated_Implementation()
 	// Disable movement and collision.
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-	if (BlasterPlayerController)
-	{
-		DisableInput(BlasterPlayerController);
-	}
-	if (Combat)
-	{
-		Combat->FireButtonPressed(false);
-	}
+	if (BlasterPlayerController) DisableInput(BlasterPlayerController);
+	if (Combat) Combat->FireButtonPressed(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -420,10 +387,7 @@ void ABlasterCharacter::Jump()
 
 void ABlasterCharacter::MoveForward(float Value)
 {
-	if (Value == 0.f)
-	{
-		return;
-	}
+	if (Value == 0.f) return;
 
 	if (Controller)
 	{
@@ -435,10 +399,7 @@ void ABlasterCharacter::MoveForward(float Value)
 
 void ABlasterCharacter::MoveRight(float Value)
 {
-	if (Value == 0.f)
-	{
-		return;
-	}
+	if (Value == 0.f) return;
 
 	if (Controller)
 	{
@@ -470,20 +431,14 @@ void ABlasterCharacter::RotateInPlace(float DeltaTime)
 
 void ABlasterCharacter::Turn(float Value)
 {
-	if (Value == 0.f)
-	{
-		return;
-	}
+	if (Value == 0.f) return;
 
 	AddControllerYawInput(Value);
 }
 
 void ABlasterCharacter::LookUp(float Value)
 {
-	if (Value == 0.f)
-	{
-		return;
-	}
+	if (Value == 0.f) return;
 
 	AddControllerPitchInput(Value);
 }
@@ -498,18 +453,12 @@ void ABlasterCharacter::EquipButtonPressed()
 		return;
 	}
 
-	if (Combat)
-	{
-		Combat->EquipWeapon(OverlappingWeapon);
-	}
+	if (Combat) Combat->EquipWeapon(OverlappingWeapon);
 }
 
 void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
-	if (Combat)
-	{
-		Combat->EquipWeapon(OverlappingWeapon);
-	}
+	if (Combat) Combat->EquipWeapon(OverlappingWeapon);
 }
 
 void ABlasterCharacter::CrouchButtonPressed()
@@ -677,10 +626,7 @@ void ABlasterCharacter::PlayHitReactMontage()
 void ABlasterCharacter::UpdateHUDHealth()
 {
 	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
-	if (BlasterPlayerController)
-	{
-		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
-	}
+	if (BlasterPlayerController) BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
 }
 
 void ABlasterCharacter::PollPlayerState()
