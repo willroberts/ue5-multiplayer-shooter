@@ -246,6 +246,24 @@ void UCombatComponent::EndShotgunReload()
 	}
 }
 
+void UCombatComponent::AddAmmo(EWeaponType AmmoType, int32 AmmoAmount)
+{
+	if (AmmoAmount <= 0) return;
+
+	// TODO: Else case to add ammo not yet carried?
+	if (CarriedAmmoMap.Contains(AmmoType))
+	{
+		CarriedAmmoMap[AmmoType] += AmmoAmount;
+		UpdateCarriedAmmo();
+	}
+
+	// Automatically reload empty weapons.
+	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == AmmoType)
+	{
+		Reload();
+	}
+}
+
 void UCombatComponent::UpdateAmmoValues()
 {
 	if (!Character || !EquippedWeapon) return;

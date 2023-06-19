@@ -27,6 +27,7 @@ public:
 	void FireButtonPressed(bool bPressed);
 	void Reload();
 	void EndShotgunReload();
+	void AddAmmo(EWeaponType AmmoType, int32 AmmoAmount);
 
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 

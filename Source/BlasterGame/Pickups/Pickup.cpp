@@ -4,6 +4,7 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "BlasterGame/Weapon/WeaponTypes.h"
 
 APickup::APickup()
 {
@@ -18,10 +19,14 @@ APickup::APickup()
 	OverlapSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	OverlapSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	OverlapSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	OverlapSphere->AddLocalOffset(FVector(0.f, 0.f, 85.f)); // Raise pickup off the ground a bit.
 
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	PickupMesh->SetupAttachment(OverlapSphere); // Attach to RootComponent instead?
-	OverlapSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PickupMesh->SetupAttachment(OverlapSphere);
+	PickupMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PickupMesh->SetRelativeScale3D(FVector(2.f)); // Double the mesh size for better visibility.
+	PickupMesh->SetRenderCustomDepth(true);
+	PickupMesh->SetCustomDepthStencilValue(OUTLINE_HIGHLIGHT_TAN);
 }
 
 void APickup::BeginPlay()
@@ -37,6 +42,11 @@ void APickup::BeginPlay()
 void APickup::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (PickupMesh)
+	{
+		PickupMesh->AddWorldRotation(FRotator(0.f, RotationSpeed * DeltaTime, 0.f));
+	}
 }
 
 void APickup::Destroyed()

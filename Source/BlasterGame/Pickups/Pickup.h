@@ -29,6 +29,9 @@ protected:
 		const FHitResult& SweepResult
 	);
 
+	UPROPERTY(EditAnywhere)
+	float RotationSpeed = 45.f; // Degrees per second.
+
 private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* PickupMesh;
