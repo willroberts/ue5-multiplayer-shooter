@@ -23,5 +23,6 @@ void AAmmoPickup::OnSphereOverlap(
 			Combat->AddAmmo(AmmoType, AmmoAmount);
 		}
 	}
+
 	Destroy();
 }

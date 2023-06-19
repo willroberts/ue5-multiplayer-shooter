@@ -23,9 +23,9 @@ protected:
 	) override;
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Pickup")
 	EWeaponType AmmoType;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Pickup")
 	int32 AmmoAmount = 30;
 };

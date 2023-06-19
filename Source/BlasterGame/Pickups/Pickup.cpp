@@ -67,5 +67,5 @@ void APickup::OnSphereOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-
+	// Currently does nothing. See child classes for implementations.
 }
