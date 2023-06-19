@@ -294,6 +294,17 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 // Eliminated runs on the server authority to handle player eliminations and respawning.
 void ABlasterCharacter::Eliminated()
 {
+	// Hide the scope if in use.
+	if (IsLocallyControlled()
+		&& Combat
+		&& Combat->bIsAiming
+		&& Combat->EquippedWeapon
+		&& Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	{
+		ShowSniperScopeWidget(false);
+	}
+
+	// Drop any equipped weapon.
 	if (Combat && Combat->EquippedWeapon)
 	{
 		Combat->UnequipWeapon();
@@ -323,7 +334,9 @@ void ABlasterCharacter::Destroyed()
 void ABlasterCharacter::MulticastEliminated_Implementation()
 {
 	bEliminated = true;
+
 	PlayEliminatedMontage();
+
 	if (BlasterPlayerController)
 	{
 		BlasterPlayerController->SetHUDWeaponType(EWeaponType::EWT_MAX);
