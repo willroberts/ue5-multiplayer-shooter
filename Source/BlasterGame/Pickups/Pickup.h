@@ -41,4 +41,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Pickup")
 	class USoundCue* PickupSound;
+
+	UPROPERTY(EditAnywhere, Category = "Pickup")
+	class UNiagaraComponent* PickupFX;
+
+	UPROPERTY(EditAnywhere, Category = "Pickup")
+	class UNiagaraSystem* DestroyFX;
 };

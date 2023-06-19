@@ -64,6 +64,8 @@ public:
 	FORCEINLINE class UCombatComponent* GetCombatComponent() const { return Combat; }
 	FORCEINLINE class UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
+	FORCEINLINE float GetStandingMoveSpeed() const { return StandingMoveSpeed; }
+	FORCEINLINE float GetCrouchedMoveSpeed() const { return CrouchedMoveSpeed; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -164,6 +166,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CameraHideMeshThreshold = 200.f;
 	void CameraHideMesh();
+
+	float StandingMoveSpeed = 800.f;
+	float CrouchedMoveSpeed = 450.f;
 
 	bool bRotateRootBone;
 	float TurnInPlaceThreshold = 0.5f;

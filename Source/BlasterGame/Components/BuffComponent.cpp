@@ -1,6 +1,7 @@
 // (c) 2023 Will Roberts
 
 #include "BuffComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
 
 UBuffComponent::UBuffComponent()
@@ -49,4 +50,44 @@ void UBuffComponent::RestoreHealthOverTime(float DeltaTime)
 		bHealing = false;
 		HealAmount = 0.f;
 	}
+}
+
+void UBuffComponent::MulticastSpeedBuff_Implementation(float Magnitude)
+{
+	if (!Character) return;
+
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (MoveComp)
+	{
+		MoveComp->MaxWalkSpeed = Character->GetStandingMoveSpeed() * Magnitude;
+		MoveComp->MaxWalkSpeedCrouched = Character->GetCrouchedMoveSpeed() * Magnitude;
+	}
+}
+
+void UBuffComponent::ApplySpeedBuff(float Magnitude, float Duration)
+{
+	if (!Character) return;
+
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (MoveComp)
+	{
+		MoveComp->MaxWalkSpeed = Character->GetStandingMoveSpeed() * Magnitude;
+		MoveComp->MaxWalkSpeedCrouched = Character->GetCrouchedMoveSpeed() * Magnitude;
+	}
+	MulticastSpeedBuff(Magnitude);
+
+	Character->GetWorldTimerManager().SetTimer(SpeedBuffTimer, this, &UBuffComponent::SpeedBuffTimerFinished, Duration);
+}
+
+void UBuffComponent::SpeedBuffTimerFinished()
+{
+	if (!Character) return;
+
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (MoveComp)
+	{
+		MoveComp->MaxWalkSpeed = Character->GetStandingMoveSpeed();
+		MoveComp->MaxWalkSpeedCrouched = Character->GetCrouchedMoveSpeed();
+	}
+	MulticastSpeedBuff(1.0f);
 }

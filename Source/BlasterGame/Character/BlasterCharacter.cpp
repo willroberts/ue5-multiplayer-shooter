@@ -40,6 +40,8 @@ ABlasterCharacter::ABlasterCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 720.f);
+	GetCharacterMovement()->MaxWalkSpeed = StandingMoveSpeed;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchedMoveSpeed;
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning; // Initialize turning state.
 
 	// Configure collision.

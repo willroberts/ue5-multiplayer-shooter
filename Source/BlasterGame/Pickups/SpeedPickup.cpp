@@ -1,15 +1,10 @@
 // (c) 2023 Will Roberts
 
-#include "HealthPickup.h"
+#include "SpeedPickup.h"
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/Components/BuffComponent.h"
 
-AHealthPickup::AHealthPickup()
-{
-	bReplicates = true;
-}
-
-void AHealthPickup::OnSphereOverlap(
+void ASpeedPickup::OnSphereOverlap(
 	UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -23,7 +18,7 @@ void AHealthPickup::OnSphereOverlap(
 	if (Char)
 	{
 		UBuffComponent* Buff = Char->GetBuffComponent();
-		if (Buff) Buff->RestoreHealth(HealAmount, HealDuration);
+		if (Buff) Buff->ApplySpeedBuff(BuffMagnitude, BuffDuration);
 	}
 
 	Destroy();
