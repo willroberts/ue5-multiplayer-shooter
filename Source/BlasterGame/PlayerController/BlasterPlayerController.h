@@ -20,6 +20,7 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void ReceivedPlayer() override;
 	void SetHUDHealth(float Health, float MaxHealth);
+	void SetHUDShield(float Shield, float MaxShield);
 	void SetHUDMatchTimer(float Time);
 	void SetHUDAnnouncementTimer(float Time);
 	void SetHUDScore(float Score);
@@ -83,11 +84,17 @@ private:
 	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;
 
-	bool bInitCharacterOverlay = false;
 	float HUDHealth;
 	float HUDMaxHealth;
+	float HUDShield;
+	float HUDMaxShield;
 	float HUDScore;
 	int32 HUDDefeats;
+
+	bool bInitializeHealth = false;
+	bool bInitializeShield = false;
+	bool bInitializeScore = false;
+	bool bInitializeGrenades = false;
 
 	/*
 	* Music

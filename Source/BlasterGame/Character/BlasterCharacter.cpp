@@ -99,6 +99,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ABlasterCharacter, Health);
+	DOREPLIFETIME(ABlasterCharacter, Shield);
 	DOREPLIFETIME(ABlasterCharacter, bDisableCombatActions);
 }
 
@@ -375,6 +376,7 @@ void ABlasterCharacter::BeginPlay()
 	if (HasAuthority()) OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
 	if (AttachedGrenade) AttachedGrenade->SetVisibility(false);
 	UpdateHUDHealth();
+	UpdateHUDShield();
 }
 
 void ABlasterCharacter::Jump()
@@ -631,6 +633,12 @@ void ABlasterCharacter::UpdateHUDHealth()
 	if (BlasterPlayerController) BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
 }
 
+void ABlasterCharacter::UpdateHUDShield()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController) BlasterPlayerController->SetHUDShield(Shield, MaxShield);
+}
+
 void ABlasterCharacter::PollPlayerState()
 {
 	if (BlasterPlayerState) return;
@@ -655,8 +663,27 @@ void ABlasterCharacter::ReceiveDamage(
 {
 	if (bEliminated) return;
 
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	// Remove damage from shield first.
+	float RemainingDamage = Damage;
+	if (Shield > 0.f)
+	{
+		if (Shield >= Damage)
+		{
+			Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
+			RemainingDamage = 0.f;
+		}
+		else
+		{
+			RemainingDamage = FMath::Clamp(Damage - Shield, 0.f, Damage);
+			Shield = 0.f;
+		}
+	}
+
+	// Remove damage from health second.
+	Health = FMath::Clamp(Health - RemainingDamage, 0.f, MaxHealth);
+
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	PlayHitReactMontage();
 
 	if (Health == 0.f)
@@ -725,6 +752,14 @@ void ABlasterCharacter::OnRep_Health(float PreviousValue)
 	UpdateHUDHealth();
 
 	if (Health < PreviousValue) PlayHitReactMontage();
+}
+
+// Runs on clients when damage is taken.
+void ABlasterCharacter::OnRep_Shield(float PreviousValue)
+{
+	UpdateHUDShield();
+
+	if (Shield < PreviousValue) PlayHitReactMontage();
 }
 
 void ABlasterCharacter::RespawnTimerFinished()

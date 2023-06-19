@@ -19,6 +19,7 @@ void UBuffComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	RestoreHealthOverTime(DeltaTime);
+	RestoreShieldOverTime(DeltaTime);
 }
 
 void UBuffComponent::RestoreHealth(float Amount, float Duration)
@@ -30,9 +31,9 @@ void UBuffComponent::RestoreHealth(float Amount, float Duration)
 
 void UBuffComponent::RestoreHealthOverTime(float DeltaTime)
 {
+	if (!bHealing) return;
 	if (!Character) return;
 	if (Character->IsEliminated()) return;
-	if (!bHealing) return;
 
 	// Restore health this frame.
 	const float HealAmountThisFrame = HealRate * DeltaTime;
@@ -49,6 +50,37 @@ void UBuffComponent::RestoreHealthOverTime(float DeltaTime)
 	{
 		bHealing = false;
 		HealAmount = 0.f;
+	}
+}
+
+void UBuffComponent::RestoreShield(float Amount, float Duration)
+{
+	bShieldRecharging = true;
+	ShieldRechargeRate = Amount / Duration;
+	ShieldRechargeAmount += Amount;
+}
+
+void UBuffComponent::RestoreShieldOverTime(float DeltaTime)
+{
+	if (!bShieldRecharging) return;
+	if (!Character) return;
+	if (Character->IsEliminated()) return;
+
+	// Restore shield this frame.
+	const float ShieldRechargeAmountThisFrame = ShieldRechargeRate * DeltaTime;
+	Character->SetShield(FMath::Clamp(
+		Character->GetShield() + ShieldRechargeAmountThisFrame,
+		0.f,
+		Character->GetMaxShield()
+	));
+	Character->UpdateHUDShield();
+	ShieldRechargeAmount -= ShieldRechargeAmountThisFrame;
+
+	// Stop restoring shield at max shield.
+	if (ShieldRechargeAmount <= 0.f || Character->GetShield() >= Character->GetMaxShield())
+	{
+		bShieldRecharging = false;
+		ShieldRechargeAmount = 0.f;
 	}
 }
 

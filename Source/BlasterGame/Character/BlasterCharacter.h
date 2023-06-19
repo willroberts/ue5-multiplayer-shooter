@@ -38,6 +38,7 @@ public:
 	virtual void Destroyed() override;
 	ECombatState GetCombatState() const;
 	void UpdateHUDHealth();
+	void UpdateHUDShield();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminated();
@@ -60,6 +61,9 @@ public:
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 	FORCEINLINE void SetHealth(float Amount) { Health = Amount; }
+	FORCEINLINE float GetShield() const { return Shield; }
+	FORCEINLINE float GetMaxShield() const { return MaxShield; }
+	FORCEINLINE void SetShield(float Amount) { Shield = Amount; }
 	FORCEINLINE class UBuffComponent* GetBuffComponent() const { return BuffComponent; }
 	FORCEINLINE class UCombatComponent* GetCombatComponent() const { return Combat; }
 	FORCEINLINE class UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
@@ -189,14 +193,23 @@ private:
 	* Player health, eliminations, and respawns
 	*/
 
-	UPROPERTY(EditAnywhere, Category = "Player Stats")
-	float MaxHealth = 100.f;
-
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Player Stats")
 	float Health = 100.f;
 
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxHealth = 100.f;
+
 	UFUNCTION()
 	void OnRep_Health(float PreviousValue);
+
+	UPROPERTY(ReplicatedUsing = OnRep_Shield, EditAnywhere, Category = "Player Stats")
+	float Shield = 50.f;
+
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxShield = 50.f;
+
+	UFUNCTION()
+	void OnRep_Shield(float PreviousValue);
 
 	bool bEliminated = false;
 	FTimerHandle RespawnTimer;

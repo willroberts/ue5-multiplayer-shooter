@@ -16,12 +16,14 @@ public:
 	friend class ABlasterCharacter;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void RestoreHealth(float Amount, float Duration);
+	void RestoreShield(float Amount, float Duration);
 	void ApplySpeedBuff(float Magnitude, float Duration);
 	void ApplyJumpBuff(float Magnitude, float Duration);
 
 protected:
 	virtual void BeginPlay() override;
 	void RestoreHealthOverTime(float DeltaTime);
+	void RestoreShieldOverTime(float DeltaTime);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpeedBuff(float Magnitude);
@@ -40,6 +42,14 @@ private:
 	bool bHealing = false;
 	float HealRate = 0;
 	float HealAmount = 0.f;
+
+	/*
+	* Shield Pickup
+	*/
+
+	bool bShieldRecharging = false;
+	float ShieldRechargeRate = 0;
+	float ShieldRechargeAmount = 0.f;
 
 	/*
 	* Speed Pickup
