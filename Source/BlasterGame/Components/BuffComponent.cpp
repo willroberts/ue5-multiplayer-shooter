@@ -91,3 +91,40 @@ void UBuffComponent::SpeedBuffTimerFinished()
 	}
 	MulticastSpeedBuff(1.0f);
 }
+
+void UBuffComponent::MulticastJumpBuff_Implementation(float Magnitude)
+{
+	if (!Character) return;
+
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (MoveComp)
+	{
+		MoveComp->JumpZVelocity = Character->GetJumpSpeed() * Magnitude;
+	}
+}
+
+void UBuffComponent::ApplyJumpBuff(float Magnitude, float Duration)
+{
+	if (!Character) return;
+
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (MoveComp)
+	{
+		MoveComp->JumpZVelocity = Character->GetJumpSpeed() * Magnitude;
+	}
+	MulticastJumpBuff(Magnitude);
+
+	Character->GetWorldTimerManager().SetTimer(JumpBuffTimer, this, &UBuffComponent::JumpBuffTimerFinished, Duration);
+}
+
+void UBuffComponent::JumpBuffTimerFinished()
+{
+	if (!Character) return;
+
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (MoveComp)
+	{
+		MoveComp->JumpZVelocity = Character->GetJumpSpeed();
+	}
+	MulticastJumpBuff(1.0f);
+}

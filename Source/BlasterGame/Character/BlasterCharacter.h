@@ -66,6 +66,7 @@ public:
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 	FORCEINLINE float GetStandingMoveSpeed() const { return StandingMoveSpeed; }
 	FORCEINLINE float GetCrouchedMoveSpeed() const { return CrouchedMoveSpeed; }
+	FORCEINLINE float GetJumpSpeed() const { return JumpSpeed; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -169,6 +170,7 @@ private:
 
 	float StandingMoveSpeed = 800.f;
 	float CrouchedMoveSpeed = 450.f;
+	float JumpSpeed = 1000.f;
 
 	bool bRotateRootBone;
 	float TurnInPlaceThreshold = 0.5f;

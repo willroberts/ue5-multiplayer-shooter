@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Pickup.h"
-#include "SpeedPickup.generated.h"
+#include "JumpPickup.generated.h"
 
 UCLASS()
-class BLASTERGAME_API ASpeedPickup : public APickup
+class BLASTERGAME_API AJumpPickup : public APickup
 {
 	GENERATED_BODY()
 
@@ -23,7 +23,7 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
-	float BuffMagnitude = 2.5f; // 150% increased movement speed.
+	float BuffMagnitude = 1.5f; // 50% increased jumping speed.
 
 	UPROPERTY(EditAnywhere)
 	float BuffDuration = 20.f; // Seconds.

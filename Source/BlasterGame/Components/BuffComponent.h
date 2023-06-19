@@ -17,6 +17,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void RestoreHealth(float Amount, float Duration);
 	void ApplySpeedBuff(float Magnitude, float Duration);
+	void ApplyJumpBuff(float Magnitude, float Duration);
 
 protected:
 	virtual void BeginPlay() override;
@@ -24,6 +25,9 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpeedBuff(float Magnitude);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastJumpBuff(float Magnitude);
 
 private:
 	UPROPERTY()
@@ -43,4 +47,11 @@ private:
 
 	FTimerHandle SpeedBuffTimer;
 	void SpeedBuffTimerFinished();
+
+	/*
+	* Jump Pickup
+	*/
+
+	FTimerHandle JumpBuffTimer;
+	void JumpBuffTimerFinished();
 };
