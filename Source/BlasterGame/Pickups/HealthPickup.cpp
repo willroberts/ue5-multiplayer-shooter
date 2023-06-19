@@ -37,7 +37,11 @@ void AHealthPickup::OnSphereOverlap(
 	ABlasterCharacter* Char = Cast<ABlasterCharacter>(OtherActor);
 	if (Char)
 	{
-		// Restore health.
+		UBuffComponent* Buff = Char->GetBuffComponent();
+		if (Buff)
+		{
+			Buff->RestoreHealth(HealAmount, HealDuration);
+		}
 	}
 
 	Destroy();

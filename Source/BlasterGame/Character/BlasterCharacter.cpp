@@ -718,10 +718,11 @@ void ABlasterCharacter::CameraHideMesh()
 }
 
 // Runs on clients when damage is taken.
-void ABlasterCharacter::OnRep_Health()
+void ABlasterCharacter::OnRep_Health(float PreviousValue)
 {
 	UpdateHUDHealth();
-	PlayHitReactMontage();
+
+	if (Health < PreviousValue) PlayHitReactMontage();
 }
 
 void ABlasterCharacter::RespawnTimerFinished()

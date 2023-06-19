@@ -37,17 +37,7 @@ public:
 	void Eliminated();
 	virtual void Destroyed() override;
 	ECombatState GetCombatState() const;
-	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
-	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
-	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
-	FORCEINLINE bool IsEliminated() const { return bEliminated; }
-	FORCEINLINE float GetHealth() const { return Health; }
-	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
-	FORCEINLINE class UCombatComponent* GetCombatComponent() const { return Combat; }
-	FORCEINLINE class UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
-	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
+	void UpdateHUDHealth();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminated();
@@ -60,6 +50,20 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShow);
+
+	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
+	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
+	FORCEINLINE bool IsEliminated() const { return bEliminated; }
+	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE void SetHealth(float Amount) { Health = Amount; }
+	FORCEINLINE class UBuffComponent* GetBuffComponent() const { return BuffComponent; }
+	FORCEINLINE class UCombatComponent* GetCombatComponent() const { return Combat; }
+	FORCEINLINE class UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
+	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -83,7 +87,6 @@ protected:
 	void FireButtonReleased();
 	void DropButtonPressed();
 	void PlayHitReactMontage();
-	void UpdateHUDHealth();
 	void PollPlayerState();
 
 	UFUNCTION()
@@ -186,7 +189,7 @@ private:
 	float Health = 100.f;
 
 	UFUNCTION()
-	void OnRep_Health();
+	void OnRep_Health(float PreviousValue);
 
 	bool bEliminated = false;
 	FTimerHandle RespawnTimer;
