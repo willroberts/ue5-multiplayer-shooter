@@ -40,7 +40,7 @@ void APickup::BeginPlay()
 
 	if (HasAuthority())
 	{
-		OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnSphereOverlap);
+		GetWorldTimerManager().SetTimer(BindOverlapTimer, this, &APickup::BindOverlapTimerFinished, BindOverlapDelay);
 	}
 }
 
@@ -77,4 +77,9 @@ void APickup::OnSphereOverlap(
 	const FHitResult& SweepResult)
 {
 	// Currently does nothing. See child classes for implementations.
+}
+
+void APickup::BindOverlapTimerFinished()
+{
+	OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnSphereOverlap);
 }

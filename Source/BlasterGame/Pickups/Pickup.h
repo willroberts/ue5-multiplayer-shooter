@@ -29,6 +29,8 @@ protected:
 		const FHitResult& SweepResult
 	);
 
+	void BindOverlapTimerFinished();
+
 	UPROPERTY(EditAnywhere, Category = "Pickup")
 	float RotationSpeed = 45.f; // Degrees per second.
 
@@ -47,4 +49,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Pickup")
 	class UNiagaraSystem* DestroyFX;
+
+	FTimerHandle BindOverlapTimer;
+	float BindOverlapDelay = 0.25f;
 };
