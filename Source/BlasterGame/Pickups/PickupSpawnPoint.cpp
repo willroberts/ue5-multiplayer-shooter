@@ -12,7 +12,7 @@ APickupSpawnPoint::APickupSpawnPoint()
 void APickupSpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
-	StartSpawnTimer((AActor*)nullptr);
+	SpawnPickup();
 }
 
 void APickupSpawnPoint::Tick(float DeltaTime)
