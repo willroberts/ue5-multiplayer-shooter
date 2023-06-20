@@ -39,6 +39,8 @@ public:
 	ECombatState GetCombatState() const;
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
+	void UpdateHUDAmmo();
+	void SpawnDefaultWeapon();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminated();
@@ -253,8 +255,11 @@ private:
 	class USoundCue* RespawnBotSound;
 
 	/*
-	* Grenades
+	* Default weapon, grenades
 	*/
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* AttachedGrenade;

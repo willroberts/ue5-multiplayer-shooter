@@ -39,6 +39,12 @@ void ABlasterPlayerController::PollOverlayState()
 			if (bInitializeScore) SetHUDScore(HUDScore);
 			if (bInitializeScore) SetHUDDefeats(HUDDefeats);
 
+			if (bInitializeAmmo)
+			{
+				SetHUDWeaponAmmo(HUDWeaponAmmo);
+				SetHUDCarriedAmmo(HUDCarriedAmmo);
+			}
+
 			// Update grenades value.
 			ABlasterCharacter* Char = Cast<ABlasterCharacter>(GetPawn());
 			if (bInitializeGrenades && Char && Char->GetCombatComponent())
@@ -338,6 +344,11 @@ void ABlasterPlayerController::SetHUDWeaponAmmo(int32 Ammo)
 		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
 		BlasterHUD->CharacterOverlay->WeaponAmmoValueText->SetText(FText::FromString(AmmoText));
 	}
+	else
+	{
+		HUDWeaponAmmo = Ammo;
+		bInitializeAmmo = true;
+	}
 }
 
 void ABlasterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
@@ -350,6 +361,11 @@ void ABlasterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	{
 		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
 		BlasterHUD->CharacterOverlay->CarriedAmmoValueText->SetText(FText::FromString(AmmoText));
+	}
+	else
+	{
+		HUDCarriedAmmo = Ammo;
+		bInitializeAmmo = true;
 	}
 }
 

@@ -286,10 +286,17 @@ void ABlasterCharacter::Eliminated()
 		ShowSniperScopeWidget(false);
 	}
 
-	// Drop any equipped weapon.
+	// Drop any equipped weapon, except for the starter pistol.
 	if (Combat && Combat->EquippedWeapon)
 	{
-		Combat->UnequipWeapon();
+		if (Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Pistol)
+		{
+			Combat->EquippedWeapon->Destroy();
+		}
+		else
+		{
+			Combat->UnequipWeapon();
+		}
 	}
 
 	MulticastEliminated();
@@ -374,9 +381,13 @@ void ABlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	if (HasAuthority()) OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
+
+	SpawnDefaultWeapon();
 	if (AttachedGrenade) AttachedGrenade->SetVisibility(false);
+
 	UpdateHUDHealth();
 	UpdateHUDShield();
+	UpdateHUDAmmo();
 }
 
 void ABlasterCharacter::Jump()
@@ -637,6 +648,32 @@ void ABlasterCharacter::UpdateHUDShield()
 {
 	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
 	if (BlasterPlayerController) BlasterPlayerController->SetHUDShield(Shield, MaxShield);
+}
+
+void ABlasterCharacter::UpdateHUDAmmo()
+{
+	if (!Combat || !Combat->EquippedWeapon) return;
+
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (!BlasterPlayerController) return;
+	
+	BlasterPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+	BlasterPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+}
+
+void ABlasterCharacter::SpawnDefaultWeapon()
+{
+	if (bEliminated) return;
+	if (!DefaultWeaponClass) return;
+
+	ABlasterGameMode* GameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	if (!GameMode) return;
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+	if (Combat) Combat->EquipWeapon(StartingWeapon);
 }
 
 void ABlasterCharacter::PollPlayerState()

@@ -90,11 +90,14 @@ private:
 	float HUDMaxShield;
 	float HUDScore;
 	int32 HUDDefeats;
+	int32 HUDWeaponAmmo;
+	int32 HUDCarriedAmmo;
 
 	bool bInitializeHealth = false;
 	bool bInitializeShield = false;
 	bool bInitializeScore = false;
 	bool bInitializeGrenades = false;
+	bool bInitializeAmmo = false;
 
 	/*
 	* Music
