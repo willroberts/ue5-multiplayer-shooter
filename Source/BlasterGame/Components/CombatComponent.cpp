@@ -134,6 +134,7 @@ void UCombatComponent::UnequipWeapon()
 	{
 		EquippedWeapon->Dropped();
 	}
+
 	EquippedWeapon = nullptr; // Triggers replication.
 	if (Controller && Controller->HasAuthority()) UpdateWeaponHUD();
 }
