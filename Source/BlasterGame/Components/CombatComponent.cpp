@@ -367,9 +367,11 @@ void UCombatComponent::SetAiming(bool bAiming)
 	if (Character->IsLocallyControlled())
 	{
 		// Show scope on sniper rifles.
-		if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle ||
-			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_StealthRifle)
-		{
+		if (
+			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle ||
+			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_StealthRifle ||
+			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_ScoutRifle
+		) {
 			Character->ShowSniperScopeWidget(bIsAiming);
 		}
 	}
