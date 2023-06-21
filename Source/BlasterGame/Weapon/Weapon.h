@@ -110,6 +110,12 @@ protected:
 		int32 OtherBodyIndex
 	);
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	class UParticleSystem* MuzzleFlashParticles;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	class USoundCue* FireSound;
+
 private:	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	USkeletalMeshComponent* WeaponMesh;
@@ -169,6 +175,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	int32 MagCapacity;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float ReloadDuration = 2.1667f; // Animation length in seconds.
 };

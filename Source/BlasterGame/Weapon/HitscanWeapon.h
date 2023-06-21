@@ -39,10 +39,4 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class UParticleSystem* SmokeBeamParticles;
-
-	UPROPERTY(EditAnywhere, Category = "Optional Weapon Properties")
-	class UParticleSystem* MuzzleFlashParticles;
-
-	UPROPERTY(EditAnywhere, Category = "Optional Weapon Properties")
-	class USoundCue* FireSound;
 };
