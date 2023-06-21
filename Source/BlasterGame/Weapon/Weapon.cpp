@@ -7,7 +7,9 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Sound/SoundCue.h"
 
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/Components/CombatComponent.h"
@@ -146,19 +148,25 @@ void AWeapon::Fire(const FVector& HitTarget)
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
 
+	// Handle case where weapon is missing fire animation (e.g. SMG).
+	UWorld* World = GetWorld();
+	const USkeletalMeshSocket* MuzzleSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
+	if (MuzzleFlashParticles && MuzzleSocket && World)
+	{
+		FTransform SocketTransform = MuzzleSocket->GetSocketTransform(GetWeaponMesh());
+		UGameplayStatics::SpawnEmitterAtLocation(World, MuzzleFlashParticles, SocketTransform);
+	}
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+	}
+
 	// Spawn shell casings.
 	if (CasingClass)
 	{
 		// Get the "AmmoEject" socket location.
 		const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
-		if (!AmmoEjectSocket)
-		{
-			// Can't spawn shell casing without an origin location.
-			return;
-		}
-
-		UWorld* World = GetWorld();
-		if (World)
+		if (World && AmmoEjectSocket)
 		{
 			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
 			World->SpawnActor<AShellCasing>(

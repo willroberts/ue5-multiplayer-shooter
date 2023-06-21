@@ -74,7 +74,6 @@ protected:
 	void HandleReload();
 	int32 AmountToReload();
 
-	void DropEquippedWeapon();
 	void AttachActorToLeftHand(AActor* ActorToAttach);
 	void AttachActorToRightHand(AActor* ActorToAttach);
 	void UpdateCarriedAmmo();
@@ -192,6 +191,21 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 StartingGrenadeAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingStealthRifleAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingScoutRifleAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingRevolverAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingBullpupRifleAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingLightMachineGunAmmo;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;

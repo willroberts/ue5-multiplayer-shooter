@@ -48,16 +48,6 @@ void AHitscanWeapon::Fire(const FVector& HitTarget)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, FireHit.ImpactPoint);
 	}
-
-	// Handle case where weapon is missing fire animation (e.g. SMG).
-	if (MuzzleFlashParticles)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(World, MuzzleFlashParticles, SocketTransform);
-	}
-	if (FireSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
 }
 
 FVector AHitscanWeapon::TraceWithSpread(const FVector& TraceStart, const FVector& HitTarget)

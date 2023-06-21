@@ -62,7 +62,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	if (!Character || !WeaponToEquip) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 
-	DropEquippedWeapon();
+	if (EquippedWeapon) UnequipWeapon();
 	EquippedWeapon = WeaponToEquip; // Triggers replication.
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	EquippedWeapon->SetOwner(Character);
@@ -75,11 +75,6 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	Character->bUseControllerRotationYaw = true;
 
 	ReloadEmptyWeapon();
-}
-
-void UCombatComponent::DropEquippedWeapon()
-{
-	if (EquippedWeapon) UnequipWeapon();
 }
 
 void UCombatComponent::AttachActorToLeftHand(AActor* ActorToAttach)
@@ -131,7 +126,14 @@ void UCombatComponent::UnequipWeapon()
 {
 	if (!EquippedWeapon) return;
 
-	EquippedWeapon->Dropped();
+	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Pistol)
+	{
+		EquippedWeapon->Destroy();
+	}
+	else
+	{
+		EquippedWeapon->Dropped();
+	}
 	EquippedWeapon = nullptr; // Triggers replication.
 	if (Controller && Controller->HasAuthority()) UpdateWeaponHUD();
 }
@@ -364,7 +366,8 @@ void UCombatComponent::SetAiming(bool bAiming)
 	if (Character->IsLocallyControlled())
 	{
 		// Show scope on sniper rifles.
-		if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+		if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle ||
+			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_StealthRifle)
 		{
 			Character->ShowSniperScopeWidget(bIsAiming);
 		}
@@ -810,4 +813,9 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_MarksmanRifle, StartingMarksmanAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, StartingSniperAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_GrenadeLauncher, StartingGrenadeAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_StealthRifle, StartingStealthRifleAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_ScoutRifle, StartingScoutRifleAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Revolver, StartingRevolverAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_BullpupRifle, StartingBullpupRifleAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_LightMachineGun, StartingLightMachineGunAmmo);
 }
