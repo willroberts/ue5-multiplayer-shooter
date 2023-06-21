@@ -674,6 +674,11 @@ void ABlasterCharacter::SpawnDefaultWeapon()
 	
 	AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
 	if (Combat) Combat->EquipWeapon(StartingWeapon);
+
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (!BlasterPlayerController) return;
+
+	BlasterPlayerController->SetHUDWeaponType(StartingWeapon->GetWeaponType());
 }
 
 void ABlasterCharacter::PollPlayerState()
