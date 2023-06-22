@@ -147,9 +147,12 @@ private:
 	*/
 
 	FTimerHandle FireTimer;
+	FTimerHandle BurstFireTimer;
 	bool bCanFire = true;
 	void StartFireTimer();
 	void FireTimerFinished();
+	void StartBurstFireTimer();
+	void BurstFireTimerFinished();
 	bool CanFire();
 
 	FTimerHandle AutoReloadTimer;

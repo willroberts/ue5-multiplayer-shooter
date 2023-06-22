@@ -76,6 +76,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	bool bAutomaticFireMode = false;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	bool bBurstFireMode;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	int32 BurstFireCount = 3;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float BurstFireInterval = 0.075;
+
+	int32 BurstShotsRemaining = 0;
+
 	/*
 	* Sounds
 	*/

@@ -369,7 +369,6 @@ void UCombatComponent::SetAiming(bool bAiming)
 		// Show scope on sniper rifles.
 		if (
 			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle ||
-			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_StealthRifle ||
 			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_ScoutRifle
 		) {
 			Character->ShowSniperScopeWidget(bIsAiming);
@@ -533,6 +532,13 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 
 	if (CombatState == ECombatState::ECS_Unoccupied)
 	{
+		// Enable burst fire.
+		if (EquippedWeapon->bBurstFireMode)
+		{
+			EquippedWeapon->BurstShotsRemaining = EquippedWeapon->BurstFireCount - 1;
+			StartBurstFireTimer();
+		}
+
 		Character->PlayFireMontage(bIsAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
 	}
@@ -546,6 +552,29 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 			CombatState = ECombatState::ECS_Unoccupied;
 		}
 	}
+}
+
+void UCombatComponent::StartBurstFireTimer()
+{
+	if (!Character || !EquippedWeapon) return;
+
+	Character->GetWorldTimerManager().SetTimer(
+		BurstFireTimer,
+		this,
+		&UCombatComponent::BurstFireTimerFinished,
+		EquippedWeapon->BurstFireInterval
+	);
+}
+
+void UCombatComponent::BurstFireTimerFinished()
+{
+	if (!EquippedWeapon) return;
+	if (EquippedWeapon->BurstShotsRemaining < 1) return;
+	EquippedWeapon->BurstShotsRemaining -= 1;
+
+	Character->PlayFireMontage(bIsAiming);
+	EquippedWeapon->Fire(HitTarget);
+	StartBurstFireTimer();
 }
 
 void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
