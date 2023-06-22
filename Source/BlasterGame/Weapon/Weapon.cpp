@@ -317,7 +317,6 @@ void AWeapon::ShowOutlineHighlight(bool bShow)
 	if (bShow)
 	{
 		int32 Color;
-		UE_LOG(LogTemp, Warning, TEXT("Rarity is %d"), WeaponRarity);
 		switch (WeaponRarity)
 		{
 		case EWeaponRarity::EWR_Legendary:
@@ -330,11 +329,9 @@ void AWeapon::ShowOutlineHighlight(bool bShow)
 			Color = OUTLINE_HIGHLIGHT_TAN;
 			break;
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Rarity %d gets Color %d"), WeaponRarity, Color);
 		WeaponMesh->SetCustomDepthStencilValue(Color);
 		WeaponMesh->MarkRenderStateDirty();
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Setting outline state to %d"), bShow);
 	WeaponMesh->SetRenderCustomDepth(bShow);
 }

@@ -3,6 +3,7 @@
 #include "BlasterPlayerController.h"
 
 #include "Components/AudioComponent.h"
+#include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
@@ -77,6 +78,7 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 	PollOverlayState();
 	SyncTime(DeltaTime);
 	SetHUDTime();
+	HandleHighPingWarning(DeltaTime);
 }
 
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -84,6 +86,36 @@ void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ABlasterPlayerController, MatchState);
+}
+
+void ABlasterPlayerController::HandleHighPingWarning(float DeltaTime)
+{
+	TimeSincePingWarning += DeltaTime;
+
+	// Check to see if we should display a new ping warning.
+	if (TimeSincePingWarning > PingCheckInterval)
+	{
+		TimeSincePingWarning = 0.f;
+
+		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState>() : PlayerState;
+		if (PlayerState && PlayerState->GetPingInMilliseconds() > HighPingThreshold)
+		{
+			ShowHighPingIcon(true);
+			HighPingAnimationRunningTime = 0.f;
+		}
+	}
+
+	// Check to see if we should now hide the ping warning.
+	if (BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->HighPingAnimation)
+	{
+		if (BlasterHUD->CharacterOverlay->IsAnimationPlaying(BlasterHUD->CharacterOverlay->HighPingAnimation))
+		{
+			HighPingAnimationRunningTime += DeltaTime;
+			if (HighPingAnimationRunningTime > PingWarningDuration) ShowHighPingIcon(false);
+		}
+	}
 }
 
 void ABlasterPlayerController::SyncTime(float DeltaTime)
@@ -471,6 +503,27 @@ void ABlasterPlayerController::SetHUDTime()
 	}
 
 	CountdownInt = SecondsLeft;
+}
+
+void ABlasterPlayerController::ShowHighPingIcon(bool bShow)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (!BlasterHUD ||
+		!BlasterHUD->CharacterOverlay ||
+		!BlasterHUD->CharacterOverlay->HighPingIcon ||
+		!BlasterHUD->CharacterOverlay->HighPingAnimation) return;
+
+	// Set opacity.
+	float Opacity = bShow ? 1.f : 0.f;
+	BlasterHUD->CharacterOverlay->HighPingIcon->SetOpacity(Opacity);
+
+	// Play or stop animation.
+	auto Anim = BlasterHUD->CharacterOverlay->HighPingAnimation;
+	if (bShow) BlasterHUD->CharacterOverlay->PlayAnimation(Anim, 0.f, 5); // Repeat animation until timer ends.
+	else if (BlasterHUD->CharacterOverlay->IsAnimationPlaying(Anim))
+	{
+		BlasterHUD->CharacterOverlay->StopAnimation(Anim);
+	}
 }
 
 void ABlasterPlayerController::ServerRequestServerTime_Implementation(float SendTime)

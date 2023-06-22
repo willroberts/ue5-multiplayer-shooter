@@ -28,6 +28,12 @@ public:
 	UTextBlock* MatchTimerText;
 
 	UPROPERTY(meta = (BindWidget))
+	class UImage* HighPingIcon;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* HighPingAnimation;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* ScoreValueText;
 
 	UPROPERTY(meta = (BindWidget))

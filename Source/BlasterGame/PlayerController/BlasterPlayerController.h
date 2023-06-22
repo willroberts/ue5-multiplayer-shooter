@@ -41,6 +41,8 @@ protected:
 	virtual void BeginPlay() override;
 	void PollOverlayState();
 	void SetHUDTime();
+	void HandleHighPingWarning(float DeltaTime);
+	void ShowHighPingIcon(bool bShow);
 
 	UFUNCTION(Server, Reliable)
 	void ServerRequestServerTime(float SendTime);
@@ -111,4 +113,14 @@ private:
 
 	UPROPERTY()
 	class UAudioComponent* MusicComponent;
+
+	/*
+	* Networking
+	*/
+
+	float PingCheckInterval = 10.f;
+	float HighPingThreshold = 75.f;
+	float TimeSincePingWarning = 0.f;
+	float HighPingAnimationRunningTime = 0.f;
+	float PingWarningDuration = 5.f;
 };
