@@ -196,13 +196,18 @@ private:
 	* Ammo
 	*/
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties", ReplicatedUsing = OnRep_Ammo)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	int32 Ammo;
+
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateAmmo(int32 AmmoCount);
+
+	UFUNCTION(Client, Reliable)
+	void ClientAddAmmo(int32 AmmoCount);
 
 	void ConsumeAmmo();
 
-	UFUNCTION()
-	void OnRep_Ammo();
+	int32 UnprocessedAmmoReqs = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	int32 MagCapacity;

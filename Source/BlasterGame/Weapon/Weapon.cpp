@@ -60,7 +60,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
-	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
@@ -199,7 +198,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 		}
 	}
 
-	if (HasAuthority()) ConsumeAmmo();
+	ConsumeAmmo();
 }
 
 void AWeapon::Dropped()
@@ -215,8 +214,9 @@ void AWeapon::Dropped()
 
 void AWeapon::AddAmmo(int32 AmmoToAdd)
 {
-	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MagCapacity);
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
 	SetHUDAmmo();
+	ClientAddAmmo(AmmoToAdd);
 }
 
 //
@@ -258,14 +258,21 @@ void AWeapon::OnSphereEndOverlap(
 	if (Character) Character->SetOverlappingWeapon(nullptr);
 }
 
-void AWeapon::ConsumeAmmo()
+void AWeapon::ClientUpdateAmmo_Implementation(int32 AmmoCount)
 {
-	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity); // Triggers replication.
+	if (HasAuthority()) return;
+
+	Ammo = AmmoCount;
+	UnprocessedAmmoReqs--;
+	Ammo -= UnprocessedAmmoReqs;
 	SetHUDAmmo();
 }
 
-void AWeapon::OnRep_Ammo()
+void AWeapon::ClientAddAmmo_Implementation(int32 AmmoCount)
 {
+	if (HasAuthority()) return;
+
+	Ammo = FMath::Clamp(Ammo + AmmoCount, 0, MagCapacity);
 	OwnerCharacter = OwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : OwnerCharacter;
 	if (OwnerCharacter && OwnerCharacter->GetCombatComponent() && IsFull())
 	{
@@ -273,6 +280,14 @@ void AWeapon::OnRep_Ammo()
 	}
 
 	SetHUDAmmo();
+}
+
+void AWeapon::ConsumeAmmo()
+{
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+	SetHUDAmmo();
+	if (HasAuthority()) ClientUpdateAmmo(Ammo);
+	else if (OwnerCharacter && OwnerCharacter->IsLocallyControlled()) UnprocessedAmmoReqs++;
 }
 
 void AWeapon::OnRep_Owner()

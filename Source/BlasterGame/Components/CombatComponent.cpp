@@ -254,7 +254,6 @@ void UCombatComponent::AddAmmo(EWeaponType AmmoType, int32 AmmoAmount)
 {
 	if (AmmoAmount <= 0) return;
 
-	// TODO: Else case to add ammo not yet carried?
 	if (CarriedAmmoMap.Contains(AmmoType))
 	{
 		CarriedAmmoMap[AmmoType] += AmmoAmount;
@@ -282,7 +281,7 @@ void UCombatComponent::UpdateAmmoValues()
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller) Controller->SetHUDCarriedAmmo(CarriedAmmo);
 
-	EquippedWeapon->AddAmmo(-ReloadAmount);
+	EquippedWeapon->AddAmmo(ReloadAmount);
 }
 
 // Shotguns reload differently, adding one shell at a time through Animation notifies.
@@ -300,7 +299,7 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 	if (Controller) Controller->SetHUDCarriedAmmo(CarriedAmmo);
 
 	// Update weapon ammo.
-	EquippedWeapon->AddAmmo(-1);
+	EquippedWeapon->AddAmmo(1);
 	bCanFire = true;
 
 	// Short-circuit reload animation and reload timer.
