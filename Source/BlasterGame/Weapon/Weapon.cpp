@@ -143,10 +143,7 @@ void AWeapon::OnRep_WeaponState()
 
 void AWeapon::Fire(const FVector& HitTarget)
 {
-	if (FireAnimation)
-	{
-		WeaponMesh->PlayAnimation(FireAnimation, false);
-	}
+	if (FireAnimation) WeaponMesh->PlayAnimation(FireAnimation, false);
 
 	// Handle case where weapon is missing fire animation (e.g. SMG).
 	UWorld* World = GetWorld();
@@ -156,10 +153,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 		FTransform SocketTransform = MuzzleSocket->GetSocketTransform(GetWeaponMesh());
 		UGameplayStatics::SpawnEmitterAtLocation(World, MuzzleFlashParticles, SocketTransform);
 	}
-	if (FireSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
+	if (FireSound) UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 
 	// Spawn shell casings.
 	if (CasingClass)
@@ -177,7 +171,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 		}
 	}
 
-	ConsumeAmmo();
+	if (HasAuthority()) ConsumeAmmo();
 }
 
 void AWeapon::Dropped()

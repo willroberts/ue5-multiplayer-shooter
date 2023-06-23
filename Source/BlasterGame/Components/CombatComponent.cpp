@@ -376,33 +376,6 @@ void UCombatComponent::SetAiming(bool bAiming)
 	}
 }
 
-void UCombatComponent::FireWeapon()
-{
-	if (!CanFire()) return;
-
-	// Prevent firing until fire timer has elapsed.
-	bCanFire = false;
-
-	// Trigger weapon firing on the server authority.
-	ServerFire(HitTarget);
-
-	// Save firing state for crosshair spread.
-	CrosshairFiringFactor = 0.75f;
-
-	// Enable automatic fire modes by scheduling a callback based on weapon fire rate.
-	StartFireTimer();
-
-	// Automatically reload empty weapons 1 second after firing the last round.
-	ScheduleAutoReload();
-}
-
-void UCombatComponent::FireButtonPressed(bool bPressed)
-{
-	bFireButtonPressed = bPressed;
-
-	if (bFireButtonPressed) FireWeapon();
-}
-
 void UCombatComponent::ThrowGrenade()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
@@ -520,13 +493,35 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::FireButtonPressed(bool bPressed)
 {
-	// Multicast weapon firing to all clients.
-	MulticastFire(TraceHitTarget);
+	bFireButtonPressed = bPressed;
+	if (bFireButtonPressed) FireWeapon();
 }
 
-void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::FireWeapon()
+{
+	if (!CanFire()) return;
+
+	// Prevent firing until fire timer has elapsed.
+	bCanFire = false;
+
+	// Trigger weapon firing on both clients (cosmetic) and the server authority.
+	LocalFire(HitTarget);
+	ServerFire(HitTarget);
+
+	// Save firing state for crosshair spread.
+	CrosshairFiringFactor = 0.75f;
+
+	// Enable automatic fire modes by scheduling a callback based on weapon fire rate.
+	StartFireTimer();
+
+	// Automatically reload empty weapons 1 second after firing the last round.
+	ScheduleAutoReload();
+}
+
+// LocalFire handles cosmetic fire FX.
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (!Character || !EquippedWeapon) return;
 
@@ -544,6 +539,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 	}
 	else
 	{
+		// Handle interruptable Shotgun reloads.
 		if (CombatState == ECombatState::ECS_Reloading &&
 			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
 		{
@@ -552,6 +548,23 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 			CombatState = ECombatState::ECS_Unoccupied;
 		}
 	}
+}
+
+// ServerFire handles multicasting fire events and applying damage.
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+{
+	// Multicast weapon firing to all clients.
+	MulticastFire(TraceHitTarget);
+}
+
+// MulticastFire runs on both server and clients.
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+{
+	if (!Character || !EquippedWeapon) return;
+
+	// Prevent running on the client who fired the weapon.
+	if (Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+	LocalFire(TraceHitTarget);
 }
 
 void UCombatComponent::StartBurstFireTimer()

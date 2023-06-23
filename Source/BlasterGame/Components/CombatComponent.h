@@ -34,7 +34,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bAiming);
-	void FireWeapon();
 	void ThrowGrenade();
 	void StartGrenadeThrowTimer();
 
@@ -58,6 +57,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+
+	void FireWeapon();
+	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
