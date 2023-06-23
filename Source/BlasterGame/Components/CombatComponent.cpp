@@ -880,20 +880,11 @@ void UCombatComponent::AutoReloadTimerFinished()
 
 bool UCombatComponent::CanFire()
 {
-	if (!EquippedWeapon) {
-		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because no weapon is equipped."));
-		return false;
-	}
-	if (EquippedWeapon->IsEmpty())
-	{
-		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because equipped weapon is empty."));
-		return false;
-	}
-	if (!bCanFire)
-	{
-		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because FireTimer is incomplete."));
-		return false;
-	}
+	if (!EquippedWeapon) return false;
+	if (EquippedWeapon->IsEmpty()) return false;
+	if (!bCanFire) return false;
+	if (bIsLocallyReloading) return false;
+
 	if (CombatState != ECombatState::ECS_Unoccupied)
 	{
 		// Exception case: Shotguns can fire while reloading.
@@ -902,12 +893,7 @@ bool UCombatComponent::CanFire()
 		{
 			return true;
 		}
-		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because combat state is not UNOCCUPIED."));
-		return false;
-	}
-	if (bIsLocallyReloading)
-	{
-		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because a local reload is in progress."));
+
 		return false;
 	}
 
