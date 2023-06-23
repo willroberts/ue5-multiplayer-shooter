@@ -12,7 +12,8 @@ class BLASTERGAME_API AShotgun : public AHitscanWeapon
 	GENERATED_BODY()
 
 public:
-	virtual void Fire(const FVector& HitTarget) override;
+	virtual void MultiFire(const TArray<FVector_NetQuantize>& HitTargets);
+	void MultiTraceWithSpread(const FVector& HitTarget, TArray<FVector_NetQuantize>& Targets);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")

@@ -142,18 +142,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class USoundCue* FireSound;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float SpreadTraceDistance = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float SpreadRadius = 50.f;
+
 private:	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent* AreaSphere;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	float SpreadTraceDistance = 1000.f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	float SpreadRadius = 50.f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;

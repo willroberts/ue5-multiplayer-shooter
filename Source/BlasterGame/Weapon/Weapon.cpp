@@ -65,10 +65,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
-	if (PickupWidget)
-	{
-		PickupWidget->SetVisibility(bShowWidget);
-	}
+	if (PickupWidget) PickupWidget->SetVisibility(bShowWidget);
 }
 
 void AWeapon::SetWeaponState(EWeaponState State)
@@ -148,25 +145,26 @@ FVector AWeapon::TraceWithSpread(const FVector& HitTarget)
 	const USkeletalMeshSocket* MuzzleSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
 	if (!MuzzleSocket) return FVector();
 
-	UWorld* World = GetWorld();
-	if (!World) return FVector();
-
 	// Determine start and end vectors.
-	FTransform SocketTransform = MuzzleSocket->GetSocketTransform(GetWeaponMesh());
-	FVector TraceStart = SocketTransform.GetLocation();
+	const FTransform SocketTransform = MuzzleSocket->GetSocketTransform(GetWeaponMesh());
+	const FVector TraceStart = SocketTransform.GetLocation();
 
 	// Apply spread.
-	FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-	FVector SphereCenter = TraceStart + ToTargetNormalized * SpreadTraceDistance;
-	FVector RandomVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SpreadRadius);
-	FVector EndLocation = SphereCenter + RandomVec;
-	FVector ToEndLocation = EndLocation - TraceStart;
-	FVector WithSpread = FVector(TraceStart + ToEndLocation * TRACE_LENGTH / ToEndLocation.Size());
+	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	const FVector SphereCenter = TraceStart + ToTargetNormalized * SpreadTraceDistance;
+	const FVector RandomVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SpreadRadius);
+	const FVector EndLocation = SphereCenter + RandomVec;
+	const FVector ToEndLocation = EndLocation - TraceStart;
+	const FVector WithSpread = FVector(TraceStart + ToEndLocation * TRACE_LENGTH / ToEndLocation.Size());
 
 	/*
-	DrawDebugSphere(GetWorld(), SphereCenter, SpreadRadius, 12, FColor::Red, true);
-	DrawDebugSphere(GetWorld(), EndLocation, 4.f, 12, FColor::Orange, true);
-	DrawDebugLine(GetWorld(), TraceStart, WithSpread, FColor::Cyan, true);
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		DrawDebugSphere(GetWorld(), SphereCenter, SpreadRadius, 12, FColor::Red, true);
+		DrawDebugSphere(GetWorld(), EndLocation, 4.f, 12, FColor::Orange, true);
+		DrawDebugLine(GetWorld(), TraceStart, WithSpread, FColor::Cyan, true);
+	}
 	*/
 
 	return WithSpread;
@@ -189,7 +187,6 @@ void AWeapon::Fire(const FVector& HitTarget)
 	// Spawn shell casings.
 	if (CasingClass)
 	{
-		// Get the "AmmoEject" socket location.
 		const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
 		if (World && AmmoEjectSocket)
 		{

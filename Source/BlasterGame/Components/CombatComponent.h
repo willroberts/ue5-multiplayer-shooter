@@ -64,12 +64,19 @@ protected:
 	void FireMultishotWeapon();
 	void FireBurstWeapon();
 	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
+	void LocalMultiFire(const TArray<FVector_NetQuantize>& TraceHitTargets);
 
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
+
+	UFUNCTION(Server, Reliable)
+	void ServerMultiFire(const TArray<FVector_NetQuantize>& TraceHitTargets);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastMultiFire(const TArray<FVector_NetQuantize>& TraceHitTargets);
 
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 	void SetHUDCrosshair(float DeltaTime);

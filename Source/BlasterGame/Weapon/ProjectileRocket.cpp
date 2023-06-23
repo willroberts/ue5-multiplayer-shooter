@@ -85,9 +85,9 @@ void AProjectileRocket::OnHit(
 	if (CollisionBox) CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Disable rocket trail.
-	if (TrailSystemComponent && TrailSystemComponent->GetSystemInstance())
+	if (TrailSystemComponent && TrailSystemComponent->GetSystemInstanceController())
 	{
-		TrailSystemComponent->GetSystemInstance()->Deactivate();
+		TrailSystemComponent->GetSystemInstanceController()->Deactivate();
 	}
 
 	// Stop playing sounds.

@@ -16,6 +16,7 @@
 #include "BlasterGame/Character/BlasterCharacter.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
 #include "BlasterGame/Weapon/Projectile.h"
+#include "BlasterGame/Weapon/Shotgun.h"
 #include "BlasterGame/Weapon/Weapon.h"
 
 //
@@ -454,7 +455,6 @@ void UCombatComponent::ServerReleaseGrenade_Implementation(const FVector_NetQuan
 	GetWorld()->SpawnActor<AProjectile>(GrenadeClass, StartLocation, ToTarget.Rotation(), SpawnParams);
 
 	// Deduct the grenade from inventory.
-	UE_LOG(LogTemp, Warning, TEXT("Deducting client grenade"));
 	Grenades = FMath::Clamp(Grenades - 1, 0, MaxGrenades); // Triggers replication.
 	UpdateHUDGrenades();
 }
@@ -537,32 +537,38 @@ void UCombatComponent::FireWeapon()
 
 void UCombatComponent::FireHitscanWeapon()
 {
-	if (!EquippedWeapon) return;
+	if (!Character || !EquippedWeapon) return;
 
 	HitTarget = EquippedWeapon->bUseSpread ? EquippedWeapon->TraceWithSpread(HitTarget) : HitTarget;
-	LocalFire(HitTarget);
+	if (!Character->HasAuthority()) LocalFire(HitTarget);
 	ServerFire(HitTarget);
 }
 
 void UCombatComponent::FireProjectileWeapon()
 {
-	if (!EquippedWeapon) return;
+	if (!Character || !EquippedWeapon) return;
 
 	HitTarget = EquippedWeapon->bUseSpread ? EquippedWeapon->TraceWithSpread(HitTarget) : HitTarget;
-	LocalFire(HitTarget);
+	if (!Character->HasAuthority()) LocalFire(HitTarget);
 	ServerFire(HitTarget);
 }
 
 void UCombatComponent::FireMultishotWeapon()
 {
-	if (!EquippedWeapon) return;
+	if (!Character || !EquippedWeapon) return;
 
-	// TBD.
+	AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
+	if (!Shotgun) return;
+
+	TArray<FVector_NetQuantize> HitTargets;
+	Shotgun->MultiTraceWithSpread(HitTarget, HitTargets);
+	if (!Character->HasAuthority()) LocalMultiFire(HitTargets);
+	ServerMultiFire(HitTargets);
 }
 
 void UCombatComponent::FireBurstWeapon()
 {
-	if (!EquippedWeapon) return;
+	if (!Character || !EquippedWeapon) return;
 
 	EquippedWeapon->BurstShotsRemaining = EquippedWeapon->BurstFireCount - 1;
 	StartBurstFireTimer();
@@ -573,23 +579,23 @@ void UCombatComponent::FireBurstWeapon()
 void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (!Character || !EquippedWeapon) return;
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
 
-	if (CombatState == ECombatState::ECS_Unoccupied)
-	{
-		Character->PlayFireMontage(bIsAiming);
-		EquippedWeapon->Fire(TraceHitTarget);
-	}
-	else
-	{
-		// Handle interruptable Shotgun reloads.
-		if (CombatState == ECombatState::ECS_Reloading &&
-			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
-		{
-			Character->PlayFireMontage(bIsAiming);
-			EquippedWeapon->Fire(TraceHitTarget);
-			CombatState = ECombatState::ECS_Unoccupied;
-		}
-	}
+	Character->PlayFireMontage(bIsAiming);
+	EquippedWeapon->Fire(TraceHitTarget);
+}
+
+void UCombatComponent::LocalMultiFire(const TArray<FVector_NetQuantize>& TraceHitTargets)
+{
+	if (!Character || !EquippedWeapon) return;
+	if (CombatState != ECombatState::ECS_Unoccupied && CombatState != ECombatState::ECS_Reloading) return;
+
+	AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
+	if (!Shotgun) return;
+
+	Character->PlayFireMontage(bIsAiming);
+	Shotgun->MultiFire(TraceHitTargets);
+	CombatState = ECombatState::ECS_Unoccupied;
 }
 
 // ServerFire handles multicasting fire events and applying damage.
@@ -607,6 +613,21 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 	// Prevent running on the client who fired the weapon.
 	if (Character->IsLocallyControlled() && !Character->HasAuthority()) return;
 	LocalFire(TraceHitTarget);
+}
+
+void UCombatComponent::ServerMultiFire_Implementation(const TArray<FVector_NetQuantize>& TraceHitTargets)
+{
+	// Multicast weapon firing to all clients.
+	MulticastMultiFire(TraceHitTargets);
+}
+
+void UCombatComponent::MulticastMultiFire_Implementation(const TArray<FVector_NetQuantize>& TraceHitTargets)
+{
+	if (!Character || !EquippedWeapon) return;
+
+	// Prevent running on the client who fired the weapon.
+	if (Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+	LocalMultiFire(TraceHitTargets);
 }
 
 void UCombatComponent::StartBurstFireTimer()
