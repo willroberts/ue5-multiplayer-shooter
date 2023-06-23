@@ -19,6 +19,7 @@
 #include "BlasterGame/BlasterGame.h"
 #include "BlasterGame/Components/BuffComponent.h"
 #include "BlasterGame/Components/CombatComponent.h"
+#include "BlasterGame/Components/LagCompensationComponent.h"
 #include "BlasterGame/GameModes/BlasterGameMode.h"
 #include "BlasterGame/PlayerController/BlasterPlayerController.h"
 #include "BlasterGame/PlayerState/BlasterPlayerState.h"
@@ -70,6 +71,7 @@ ABlasterCharacter::ABlasterCharacter()
 	BuffComponent->SetIsReplicated(true);
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
+	LagComp = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensationComponent"));
 
 	// Configure dissolve VFX.
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
@@ -187,6 +189,11 @@ void ABlasterCharacter::PostInitializeComponents()
 
 	if (BuffComponent) BuffComponent->Character = this;
 	if (Combat) Combat->Character = this;
+	if (LagComp)
+	{
+		LagComp->Character = this;
+		if (Controller) LagComp->Controller = Cast<ABlasterPlayerController>(Controller);
+	}
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)

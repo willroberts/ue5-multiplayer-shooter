@@ -3,20 +3,53 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Components/ActorComponent.h"
 #include "LagCompensationComponent.generated.h"
 
-UCLASS()
-class BLASTERGAME_API ALagCompensationComponent : public AActor
+USTRUCT(BlueprintType)
+struct FBoxInformation
 {
-	GENERATED_BODY()
-	
-public:	
-	ALagCompensationComponent();
-	virtual void Tick(float DeltaTime) override;
+    GENERATED_BODY()
+
+    UPROPERTY()
+    FVector Location;
+
+    UPROPERTY()
+    FRotator Rotation;
+
+    UPROPERTY()
+    FVector BoxExtent;
+};
+
+USTRUCT(BlueprintType)
+struct FFramePackage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    float Time;
+
+    UPROPERTY()
+    TMap<FName, FBoxInformation> HitboxInfo;
+};
+
+UCLASS()
+class BLASTERGAME_API ULagCompensationComponent : public UActorComponent
+{
+    GENERATED_BODY()
+
+public:
+    ULagCompensationComponent();
+    friend class ABlasterCharacter;
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
-private:	
+private:
+    UPROPERTY()
+    ABlasterCharacter* Character;
+
+    UPROPERTY()
+    class ABlasterPlayerController* Controller;
 };

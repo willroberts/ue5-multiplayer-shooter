@@ -2,17 +2,17 @@
 
 #include "LagCompensationComponent.h"
 
-ALagCompensationComponent::ALagCompensationComponent()
+ULagCompensationComponent::ULagCompensationComponent()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void ALagCompensationComponent::BeginPlay()
+void ULagCompensationComponent::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void ALagCompensationComponent::Tick(float DeltaTime)
+void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::Tick(DeltaTime);
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }

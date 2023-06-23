@@ -189,15 +189,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
-	UPROPERTY(VisibleAnywhere)
-	class UBuffComponent* BuffComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UCombatComponent* Combat;
-
 	// Server RPC.
-	// Reliable: Guaranteed to be executed, can be retried.
-	// Unreliable: Can be dropped.
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
 
@@ -210,6 +202,19 @@ private:
 	FRotator StartingAimRotation;
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
+
+	/*
+	* Components
+	*/
+
+	UPROPERTY(VisibleAnywhere)
+	class UBuffComponent* BuffComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UCombatComponent* Combat;
+
+	UPROPERTY(VisibleAnywhere)
+	class ULagCompensationComponent* LagComp;
 
 	/*
 	* Animation Montages
