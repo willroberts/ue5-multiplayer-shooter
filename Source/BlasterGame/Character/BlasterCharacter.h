@@ -41,6 +41,7 @@ public:
 	void UpdateHUDShield();
 	void UpdateHUDAmmo();
 	void SpawnDefaultWeapon();
+	bool IsLocallyReloading();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminated();

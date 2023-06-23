@@ -681,6 +681,13 @@ void ABlasterCharacter::SpawnDefaultWeapon()
 	BlasterPlayerController->SetHUDWeaponType(StartingWeapon->GetWeaponType());
 }
 
+bool ABlasterCharacter::IsLocallyReloading()
+{
+	if (!Combat) return false;
+
+	return Combat->bIsLocallyReloading;
+}
+
 void ABlasterCharacter::PollPlayerState()
 {
 	if (BlasterPlayerState) return;

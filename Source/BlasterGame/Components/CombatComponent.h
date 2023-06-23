@@ -29,6 +29,8 @@ public:
 	void EndShotgunReload();
 	void AddAmmo(EWeaponType AmmoType, int32 AmmoAmount);
 
+	bool bIsLocallyReloading = false;
+
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 
 protected:

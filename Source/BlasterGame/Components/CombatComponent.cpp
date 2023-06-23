@@ -173,12 +173,15 @@ void UCombatComponent::Reload()
 {
 	// Prevent reloading when already reloading.
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	if (bIsLocallyReloading) return;
 	// Prevent reloading when out of ammo to load.
 	if (CarriedAmmo <= 0) return;
 	// Prevent reloading when weapon is already full.
 	if (EquippedWeapon && EquippedWeapon->IsFull()) return;
 
 	ServerReload();
+	HandleReload();
+	bIsLocallyReloading = true;
 }
 
 // Performs actions needed on both server and clients.
@@ -215,7 +218,7 @@ void UCombatComponent::ServerReload_Implementation()
 	if (!Character || !EquippedWeapon) return;
 
 	CombatState = ECombatState::ECS_Reloading;
-	HandleReload();
+	if (!Character->IsLocallyControlled()) HandleReload();
 }
 
 // Called from animation blueprint when adding a shotgun shell during reload.
@@ -228,6 +231,8 @@ void UCombatComponent::ReloadShotgunShell()
 void UCombatComponent::FinishReloading()
 {
 	if (!Character) return;
+
+	bIsLocallyReloading = false;
 
 	if (Character->HasAuthority())
 	{
@@ -326,7 +331,7 @@ void UCombatComponent::OnRep_CombatState()
 		if (bFireButtonPressed) FireWeapon();
 		break;
 	case ECombatState::ECS_Reloading:
-		HandleReload();
+		if (Character && !Character->IsLocallyControlled()) HandleReload();
 		break;
 	case ECombatState::ECS_ThrowingGrenade:
 		if (Character && !Character->IsLocallyControlled())
@@ -898,6 +903,11 @@ bool UCombatComponent::CanFire()
 			return true;
 		}
 		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because combat state is not UNOCCUPIED."));
+		return false;
+	}
+	if (bIsLocallyReloading)
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("Cannot fire because a local reload is in progress."));
 		return false;
 	}
 

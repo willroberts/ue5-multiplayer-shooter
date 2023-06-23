@@ -98,6 +98,11 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	// Determine whether or not to use FABRIK IK next frame.
 	bUseFabrik = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
+	if (BlasterCharacter->IsLocallyControlled() &&
+		BlasterCharacter->GetCombatState() != ECombatState::ECS_Unoccupied)
+	{
+		bUseFabrik = !BlasterCharacter->IsLocallyReloading();
+	}
 	bUseAimOffsets = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
 	bTransformRightHand = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
 }
