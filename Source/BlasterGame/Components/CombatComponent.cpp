@@ -310,6 +310,14 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 	}
 }
 
+void UCombatComponent::OnRep_IsAiming()
+{
+	if (Character && Character->IsLocallyControlled())
+	{
+		bIsAiming = bAimButtonPressed;
+	}
+}
+
 void UCombatComponent::OnRep_CombatState()
 {
 	switch (CombatState)
@@ -366,6 +374,9 @@ void UCombatComponent::SetAiming(bool bAiming)
 
 	if (Character->IsLocallyControlled())
 	{
+		// Track local aim status to avoid overzealous server correction.
+		bAimButtonPressed = bAiming;
+
 		// Show scope on sniper rifles.
 		if (
 			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle ||
