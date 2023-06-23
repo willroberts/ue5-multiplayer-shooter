@@ -199,20 +199,13 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// If running on the server authority, handle collision events.
-	if (HasAuthority())
-	{
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
-		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
-	}
+	AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
+	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
 
 	// Hide pickup widgets initially.
-	if (PickupWidget)
-	{
-		PickupWidget->SetVisibility(false);
-	}
+	if (PickupWidget) PickupWidget->SetVisibility(false);
 }
 
 void AWeapon::OnSphereOverlap(
@@ -224,10 +217,7 @@ void AWeapon::OnSphereOverlap(
 	const FHitResult& SweepResult
 ) {
 	ABlasterCharacter* Character = Cast<ABlasterCharacter>(OtherActor);
-	if (Character)
-	{
-		Character->SetOverlappingWeapon(this);
-	}
+	if (Character) Character->SetOverlappingWeapon(this);
 }
 
 void AWeapon::OnSphereEndOverlap(
@@ -237,10 +227,7 @@ void AWeapon::OnSphereEndOverlap(
 	int32 OtherBodyIndex
 ) {
 	ABlasterCharacter* Character = Cast<ABlasterCharacter>(OtherActor);
-	if (Character)
-	{
-		Character->SetOverlappingWeapon(nullptr);
-	}
+	if (Character) Character->SetOverlappingWeapon(nullptr);
 }
 
 void AWeapon::ConsumeAmmo()
