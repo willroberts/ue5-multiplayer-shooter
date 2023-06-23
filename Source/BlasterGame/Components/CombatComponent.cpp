@@ -548,6 +548,7 @@ void UCombatComponent::FireProjectileWeapon()
 {
 	if (!EquippedWeapon) return;
 
+	HitTarget = EquippedWeapon->bUseSpread ? EquippedWeapon->TraceWithSpread(HitTarget) : HitTarget;
 	LocalFire(HitTarget);
 	ServerFire(HitTarget);
 }
