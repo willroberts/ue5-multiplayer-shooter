@@ -496,19 +496,34 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
-	if (bFireButtonPressed) FireWeapon();
+	if (bFireButtonPressed && EquippedWeapon) FireWeapon();
 }
 
 void UCombatComponent::FireWeapon()
 {
-	if (!CanFire()) return;
+	if (!CanFire() || !EquippedWeapon) return;
 
 	// Prevent firing until fire timer has elapsed.
 	bCanFire = false;
 
-	// Trigger weapon firing on both clients (cosmetic) and the server authority.
-	LocalFire(HitTarget);
-	ServerFire(HitTarget);
+	switch (EquippedWeapon->FireMode)
+	{
+	case EFireMode::EFM_Hitscan:
+		FireHitscanWeapon();
+		break;
+	case EFireMode::EFM_Projectile:
+		FireProjectileWeapon();
+		break;
+	case EFireMode::EFM_Multishot:
+		FireMultishotWeapon();
+		break;
+	case EFireMode::EFM_Burst:
+		FireBurstWeapon();
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Weapon has no FireMode set; not firing."));
+		break;
+	}
 
 	// Save firing state for crosshair spread.
 	CrosshairFiringFactor = 0.75f;
@@ -520,6 +535,39 @@ void UCombatComponent::FireWeapon()
 	ScheduleAutoReload();
 }
 
+void UCombatComponent::FireHitscanWeapon()
+{
+	if (!EquippedWeapon) return;
+
+	HitTarget = EquippedWeapon->bUseSpread ? EquippedWeapon->TraceWithSpread(HitTarget) : HitTarget;
+	LocalFire(HitTarget);
+	ServerFire(HitTarget);
+}
+
+void UCombatComponent::FireProjectileWeapon()
+{
+	if (!EquippedWeapon) return;
+
+	LocalFire(HitTarget);
+	ServerFire(HitTarget);
+}
+
+void UCombatComponent::FireMultishotWeapon()
+{
+	if (!EquippedWeapon) return;
+
+	// TBD.
+}
+
+void UCombatComponent::FireBurstWeapon()
+{
+	if (!EquippedWeapon) return;
+
+	EquippedWeapon->BurstShotsRemaining = EquippedWeapon->BurstFireCount - 1;
+	StartBurstFireTimer();
+	FireHitscanWeapon();
+}
+
 // LocalFire handles cosmetic fire FX.
 void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 {
@@ -527,13 +575,6 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 
 	if (CombatState == ECombatState::ECS_Unoccupied)
 	{
-		// Enable burst fire.
-		if (EquippedWeapon->bBurstFireMode)
-		{
-			EquippedWeapon->BurstShotsRemaining = EquippedWeapon->BurstFireCount - 1;
-			StartBurstFireTimer();
-		}
-
 		Character->PlayFireMontage(bIsAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
 	}
@@ -581,12 +622,11 @@ void UCombatComponent::StartBurstFireTimer()
 
 void UCombatComponent::BurstFireTimerFinished()
 {
-	if (!EquippedWeapon) return;
-	if (EquippedWeapon->BurstShotsRemaining < 1) return;
-	EquippedWeapon->BurstShotsRemaining -= 1;
+	if (!Character || !EquippedWeapon || EquippedWeapon->BurstShotsRemaining < 1) return;
 
+	EquippedWeapon->BurstShotsRemaining -= 1;
 	Character->PlayFireMontage(bIsAiming);
-	EquippedWeapon->Fire(HitTarget);
+	FireHitscanWeapon();
 	StartBurstFireTimer();
 }
 

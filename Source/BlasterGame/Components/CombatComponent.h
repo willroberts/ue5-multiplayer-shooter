@@ -59,6 +59,10 @@ protected:
 	void OnRep_EquippedWeapon();
 
 	void FireWeapon();
+	void FireHitscanWeapon();
+	void FireProjectileWeapon();
+	void FireMultishotWeapon();
+	void FireBurstWeapon();
 	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(Server, Reliable)

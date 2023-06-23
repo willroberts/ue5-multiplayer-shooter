@@ -19,6 +19,17 @@ enum class EWeaponState : uint8
 	EWS_MAX UMETA(DisplayName = "Default Maximum Value")
 };
 
+UENUM(BlueprintType)
+enum class EFireMode : uint8
+{
+	EFM_Hitscan UMETA(DisplayName = "Hitscan"),
+	EFM_Projectile UMETA(DIsplayName = "Projectile"),
+	EFM_Multishot UMETA(DisplayName = "Multishot"),
+	EFM_Burst UMETA(DisplayName = "Burst"),
+
+	EFM_MAX UMETA(DisplayName = "Default Maximum Value")
+};
+
 UCLASS()
 class BLASTERGAME_API AWeapon : public AActor
 {
@@ -33,6 +44,7 @@ public:
 	void SetHUDWeaponType();
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
+	FVector TraceWithSpread(const FVector& HitTarget);
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
 	void AddAmmo(int32 AmmoToAdd);
@@ -74,10 +86,13 @@ public:
 	float FireInterval = 0.125f; // 480 RPM.
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	EFireMode FireMode;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	bool bAutomaticFireMode = false;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	bool bBurstFireMode;
+	bool bUseSpread = false;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	int32 BurstFireCount = 3;
@@ -133,6 +148,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent* AreaSphere;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float SpreadTraceDistance = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float SpreadRadius = 50.f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;

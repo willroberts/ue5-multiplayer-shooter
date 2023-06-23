@@ -15,7 +15,6 @@ public:
 	virtual void Fire(const FVector& HitTarget) override;
 
 protected:
-	FVector TraceWithSpread(const FVector& TraceStart, const FVector& HitTarget);
 	void TraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHitResult);
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
@@ -28,15 +27,6 @@ protected:
 	class USoundCue* ImpactSound;
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	bool bUseSpread = false;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	float SpreadTraceDistance = 1000.f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	float SpreadRadius = 50.f;
-
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class UParticleSystem* SmokeBeamParticles;
 };

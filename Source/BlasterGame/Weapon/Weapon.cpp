@@ -8,6 +8,7 @@
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Sound/SoundCue.h"
 
@@ -139,6 +140,36 @@ void AWeapon::OnRep_WeaponState()
 		ShowOutlineHighlight(true);
 		break;
 	}
+}
+
+
+FVector AWeapon::TraceWithSpread(const FVector& HitTarget)
+{
+	const USkeletalMeshSocket* MuzzleSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
+	if (!MuzzleSocket) return FVector();
+
+	UWorld* World = GetWorld();
+	if (!World) return FVector();
+
+	// Determine start and end vectors.
+	FTransform SocketTransform = MuzzleSocket->GetSocketTransform(GetWeaponMesh());
+	FVector TraceStart = SocketTransform.GetLocation();
+
+	// Apply spread.
+	FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	FVector SphereCenter = TraceStart + ToTargetNormalized * SpreadTraceDistance;
+	FVector RandomVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SpreadRadius);
+	FVector EndLocation = SphereCenter + RandomVec;
+	FVector ToEndLocation = EndLocation - TraceStart;
+	FVector WithSpread = FVector(TraceStart + ToEndLocation * TRACE_LENGTH / ToEndLocation.Size());
+
+	/*
+	DrawDebugSphere(GetWorld(), SphereCenter, SpreadRadius, 12, FColor::Red, true);
+	DrawDebugSphere(GetWorld(), EndLocation, 4.f, 12, FColor::Orange, true);
+	DrawDebugLine(GetWorld(), TraceStart, WithSpread, FColor::Cyan, true);
+	*/
+
+	return WithSpread;
 }
 
 void AWeapon::Fire(const FVector& HitTarget)
