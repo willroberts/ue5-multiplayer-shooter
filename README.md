@@ -1,4 +1,4 @@
-# Blaster Game (working title)
+# UE5 Multiplayer Shooter
 
 This is a multiplayer third-person shooter developed in Unreal Engine 5.
 
